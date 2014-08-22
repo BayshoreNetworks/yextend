@@ -1,10 +1,25 @@
-/*
- * Library to facilitate the use of Yara from
- * a data buffer as opposed to working with
- * files.
+/*****************************************************************************
+ *
+ * YEXTEND: Help for YARA users.
+ * Copyright (C) 2014 by Bayshore Networks, Inc. All Rights Reserved.
+ *
+ * This file is part of yextend.
+ *
+ * yextend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
+ * yextend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * 
- */
+ * You should have received a copy of the GNU General Public License
+ * along with yextend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *****************************************************************************/
+
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>

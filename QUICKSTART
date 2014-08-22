@@ -1,5 +1,5 @@
 
-Before you build ywrapper, you need to do three things:
+Before you build yextend, you need to do three things:
 - Ensure that all pre-required software installations are covered (see README for details)
 - Build and install yara 3.0 on your local machine; and
 - Install some of the components from the yara 3.0 build.
@@ -23,15 +23,15 @@ Here are the steps:
 
 
 
-Now you're ready to build ywrapper.
+Now you're ready to build yextend.
 
-  tar xvfz ywrapper.1.0.0.tar.gz
-  cd ywrapper-1.0.0
+  tar xvfz yextend.1.0.0.tar.gz
+  cd yextend-1.0.0
   ./autogen.sh
   ./configure
   ./make
 
 
-The executable file ywrapper will appear in the same directory after
+The executable file yextend will appear in the same directory after
 completing these steps.
 

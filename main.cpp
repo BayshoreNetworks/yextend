@@ -1,22 +1,22 @@
 /*****************************************************************************
  *
- * YWRAPPER: Help for YARA users.
+ * YEXTEND: Help for YARA users.
  * Copyright (C) 2014 by Bayshore Networks, Inc. All Rights Reserved.
  *
- * This file is part of ywrapper.
+ * This file is part of yextend.
  *
- * ywrapper is free software: you can redistribute it and/or modify
+ * yextend is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * ywrapper is distributed in the hope that it will be useful,
+ * yextend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with ywrapper.  If not, see <http://www.gnu.org/licenses/>.
+ * along with yextend.  If not, see <http://www.gnu.org/licenses/>.
  *
  *****************************************************************************/
 
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 {
 
 	if (argc != 3) {
-		std::cout << std::endl << "usage: ./ywrapper RULES_FILE [FILE|DIR]" << std::endl << std::endl;
+		std::cout << std::endl << "usage: ./yextend RULES_FILE [FILE|DIR]" << std::endl << std::endl;
 		exit(0);
 	}
 	const char *yara_ruleset_file_name = argv[1];

@@ -3,7 +3,7 @@ yextend
 
 Yara integrated software to handle archive file data.
 
-ywrapper was written for the sake of augmenting yara. yara by itself is great but we realized that it could not natively handle archived content in the granular way that we needed it to.
+yextend was written for the sake of augmenting yara. yara by itself is great but we realized that it could not natively handle archived content in the granular way that we needed it to.
 For instance, if we were hunting for malware and it happened to be buried a few levels into archived content, yara in its native form could not help us. So what we have done is natively handle the
 deflation of archived content. And we pass the inflated content of each discovered file to yara so that it sees what it is looking for, one file's payload, and then does what it does quite well in terms
 or pattern matching based on a given set of rules.
@@ -36,7 +36,7 @@ Instructions:
 2. Extract our software in the directory of your choice (referred to as THEDIR from now on)
 
 	- cd THEDIR
-	- tar -xvzf ywrapper.tar.gz
+	- tar -xvzf yextend.tar.gz
 
 3. Build:
 
@@ -48,19 +48,19 @@ Instructions:
 		
 4. Test (optional)
 
-	- LD_LIBRARY_PATH=/usr/local/lib ./ywrapper test_rulesets/bayshore.yara.testing.ruleset.bin test_files/
+	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.ruleset.bin test_files/
 
 5. Run:
 
 	- prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
-	- the program 'ywrapper' takes in 2 arguments:
+	- the program 'yextend' takes in 2 arguments:
 		1. A yara ruleset file
 		2. A file name or a directory name where the target files exist
 	
 	example:
 	
-		- LD_LIBRARY_PATH=/usr/local/lib ./ywrapper ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
-		- LD_LIBRARY_PATH=/usr/local/lib ./ywrapper ~/Desktop/bayshore.yara.rules /tmp/targetfiles/
+		- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
+		- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/
 		
 		*** 
 			if you don't want to set LD_LIBRARY_PATH on each prog run then you can set it in your .bashrc (or equivalent on your system) as such:
@@ -69,8 +69,8 @@ Instructions:
 			
 			then the program runs would be as such:
 	
-				- LD_LIBRARY_PATH=/usr/local/lib ./ywrapper ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
-				- LD_LIBRARY_PATH=/usr/local/lib ./ywrapper ~/Desktop/bayshore.yara.rules /tmp/targetfiles/			
+				- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
+				- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/			
 		***
 		
 		
