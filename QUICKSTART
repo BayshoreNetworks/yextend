@@ -1,0 +1,37 @@
+
+Before you build ywrapper, you need to do three things:
+- Ensure that all pre-required software installations are covered (see README for details)
+- Build and install yara 3.0 on your local machine; and
+- Install some of the components from the yara 3.0 build.
+
+Note that some of these steps require root privileges.
+
+Here are the steps:
+
+- Get the yara 3.0 source by following this link: https://github.com/plusvic/yara/archive/v3.0.0.tar.gz
+
+- Then do the following:
+
+  tar xvfz v3.0.0.tar.gz
+  cd yara-3.0.0
+  ./bootstrap.sh
+  ./configure
+  make
+  sudo make install
+  sudo cp -r libyara/include/* /usr/local/include
+
+
+
+
+Now you're ready to build ywrapper.
+
+  tar xvfz ywrapper.1.0.0.tar.gz
+  cd ywrapper-1.0.0
+  ./autogen.sh
+  ./configure
+  ./make
+
+
+The executable file ywrapper will appear in the same directory after
+completing these steps.
+
