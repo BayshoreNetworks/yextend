@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 		struct dirent *epdf;
 
 		dpdf = opendir(target_resource);
-		if (dpdf != NULL){
+		if (dpdf != NULL) {
 			while (epdf = readdir(dpdf)){
 
 				uint8_t *c;
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 
 						char *output = str_to_md5((const char *)c, fileSize);
 						if (output) {
-							std::cout << output_labels[4] << str_to_md5((const char *)c, fileSize) << std::endl;
+							std::cout << output_labels[4] << output << std::endl;
 							free(output);
 						}
 
@@ -240,8 +240,8 @@ int main(int argc, char* argv[])
 					}
 				}
 			}
+			closedir(dpdf);
 		}
-
 	} else if(does_this_file_exist(target_resource)) {
 
 		uint8_t *c;
@@ -267,7 +267,8 @@ int main(int argc, char* argv[])
 				
 				char *output = str_to_md5((const char *)c, fileSize);
 				if (output) {
-					std::cout << output_labels[4] << str_to_md5((const char *)c, fileSize) << std::endl;
+					// XXX fixme
+					std::cout << output_labels[4] << output << std::endl;
 					free(output);
 				}
 				
@@ -294,7 +295,7 @@ int main(int argc, char* argv[])
 							1);
 				}
 
-				if (!ssr_list.empty()) {  
+				if (!ssr_list.empty()) {
 					std::cout << std::endl << midline << std::endl;
 					for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
 							v != ssr_list.end();
