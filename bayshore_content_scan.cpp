@@ -290,6 +290,10 @@ void scan_content (
 
 
 
+/*************
+scan_content2
+*************/
+
 void scan_content2 (
 		const uint8_t *buf,
 		size_t sz,
@@ -557,7 +561,11 @@ void scan_content2 (
 }
 
 
-static void scan_content2 (
+/*************
+scan_content2
+*************/
+
+void scan_content2 (
 		const uint8_t *buf,
 		size_t sz,
 		YR_RULES *rules,
