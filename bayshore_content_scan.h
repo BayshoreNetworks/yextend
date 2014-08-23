@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <zlib.h>
 
+#include <yara.h>
 
 /*
  * Notes:
@@ -87,6 +88,7 @@ struct security_scan_parameters_t {
 	char child_file_name [300];
 	char scan_type [300];
 	int file_type;
+	YR_RULES *rules;
 	
 	security_scan_parameters_t() {
 		buffer = 0;
@@ -96,13 +98,15 @@ struct security_scan_parameters_t {
 		*child_file_name = 0;
 		*scan_type = 0;
 		file_type = -1;
+		rules = 0;
 	}
 };
 
 
 
-// cpp API - this is the main entry point
+// cpp API - these are the main entry points
 void scan_content (const uint8_t *, size_t, const char *, std::list<security_scan_results_t> *, const char *, void (*cb)(void*, std::list<security_scan_results_t> *, const char *), int);
+void scan_content (const uint8_t *, size_t, YR_RULES *, std::list<security_scan_results_t> *, const char *, void (*cb)(void*, std::list<security_scan_results_t> *, const char *), int);
 
 
 //callbacks
