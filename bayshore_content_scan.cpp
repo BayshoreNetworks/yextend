@@ -267,6 +267,11 @@ void scan_content (
 	scan_content2(buf, sz, rules, ssr_list, parent_file_name, cb, lin_type_of_scan);
 }
 
+
+/************
+scan_content
+************/
+
 void scan_content (
 		const uint8_t *buf,
 		size_t sz,
