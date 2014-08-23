@@ -274,8 +274,7 @@ void scan_content (
 		int in_type_of_scan
 		)
 {
-	struct stat st;
-	if (rule_file && !stat(rule_file, &st) && S_ISREG(st.st_mode)) {
+	if (rule_file) {
 		YR_RULES* rules = bayshore_yara_preprocess_rules (rule_file);
 		if (rules) {
 			scan_content (buf, sz, rules, ssr_list, parent_file_name, cb, in_type_of_scan);

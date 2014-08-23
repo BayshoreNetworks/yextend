@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
+#include <sys/stat.h>
 
 #include "bayshore_yara_wrapper.h"
 
@@ -244,7 +245,7 @@ int bayshore_yara_callback(
  * should return a pointer to populated YR_RULES struct,
  * otherwise it should return a pointer to NULL (0) 
  */
-YR_RULES *bayshore_yara_preprocess_rules(const char *yara_ruleset_filename)
+YR_RULES *bayshore_yara_preprocess_rules (const char *rule_filename)
 {
 	int rresult;
 	int errors;
@@ -252,99 +253,83 @@ YR_RULES *bayshore_yara_preprocess_rules(const char *yara_ruleset_filename)
 	EXTERNAL* external;
 	FILE* rule_file;
 	YR_RULES* rules;
+	struct stat st;
 	
-	if (*yara_ruleset_filename) {
+	// Return NULL if we didn't get a real filename or a real file.
+	if (!rule_filename || stat (rule_filename, &st) || !S_ISREG (st.st_mode))
+		return NULL;
 
-		rresult = yr_rules_load(yara_ruleset_filename, &rules);
-		
-		if (rresult != ERROR_SUCCESS && rresult != ERROR_INVALID_FILE)
-		{
-			print_scanner_error(rresult);
-			yr_finalize();
-			cleanup();
-			rules = 0;
-		}
-		
-		if (rresult != ERROR_SUCCESS)
-		{
-			if (yr_compiler_create(&compiler) != ERROR_SUCCESS)
-			{
-				yr_finalize();
-				cleanup();
-				rules = 0;
-			}
-			
-			
-			external = externals_list;
 
-			if (external) {
-				while (external != NULL)
-				{
-					switch (external->type)
-					{
+	// Try to read the file. This will fail on anything but a precompiled
+	// yara ruleset file. In particular, a text file containing valid rules
+	// will give ERROR_INVALID_FILE.
+	// On success, cleanup and return the rules structure.
+	// On invalid-file, try to compile the file.
+	// Otherwise, bail.
+
+	rresult = yr_rules_load (rule_filename, &rules);
+
+	if (rresult == ERROR_SUCCESS) {
+		cleanup();
+		return rules;
+	}
+	else if (rresult != ERROR_INVALID_FILE) {
+		print_scanner_error(rresult);
+		yr_finalize();
+		cleanup();
+		return NULL;
+	}
+	else { // try to compile the file
+		rules = NULL;
+
+		if (yr_compiler_create(&compiler) == ERROR_SUCCESS) {
+			yr_compiler_set_callback (compiler, print_compiler_error);
+
+			// add the externals if any
+			while (external) {
+				switch (external->type) {
 					case EXTERNAL_TYPE_INTEGER:
 						yr_compiler_define_integer_variable(
 								compiler,
 								external->name,
 								external->integer);
 						break;
-	
+
 					case EXTERNAL_TYPE_BOOLEAN:
 						yr_compiler_define_boolean_variable(
 								compiler,
 								external->name,
 								external->boolean);
 						break;
-	
+
 					case EXTERNAL_TYPE_STRING:
 						yr_compiler_define_string_variable(
 								compiler,
 								external->name,
 								external->string);
 						break;
-					}
-					external = external->next;
 				}
-			}
-			
-			
-			yr_compiler_set_callback(compiler, print_compiler_error);
-			rule_file = fopen(yara_ruleset_filename, "r");
-			
-			if (rule_file == NULL)
-			{
-				fprintf(stderr, "could not open file: %s\n", yara_ruleset_filename);
-				yr_compiler_destroy(compiler);
-				yr_finalize();
-				cleanup();
-				rules = 0;
+				external = external->next;
 			}
 
-			errors = yr_compiler_add_file(compiler, rule_file, NULL, yara_ruleset_filename);
-
-			fclose(rule_file);
-
-			if (errors > 0)
-			{
-				yr_compiler_destroy(compiler);
-				yr_finalize();
-				cleanup();
-				rules = 0;
+			// now try to read and compile the file
+			if (rule_file = fopen (rule_filename, "r")) { // = is correct
+				errors = yr_compiler_add_file (compiler, rule_file, NULL, rule_filename);
+				fclose (rule_file);
+				if (!errors)
+					yr_compiler_get_rules (compiler, &rules);
 			}
+			else
+				fprintf (stderr, "could not open file: %s\n", rule_filename);
 
-			rresult = yr_compiler_get_rules(compiler, &rules);
-			yr_compiler_destroy(compiler);
-
-			if (rresult != ERROR_SUCCESS)
-			{
-				yr_finalize();
-				cleanup();
-				rules = 0;
-			}
+			// required cleanup
+			yr_compiler_destroy (compiler);
 		}
+
+		yr_finalize();
+		cleanup();
+		return rules;
 	}
-	cleanup();
-	return rules;
 }
 
 /*
