@@ -35,8 +35,17 @@
 #include <dirent.h>
 #include <openssl/md5.h>
 
-#include "bayshore_yara_wrapper.h"
 #include "bayshore_content_scan.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "bayshore_yara_wrapper.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 
 // Get the size of a file
@@ -123,10 +132,19 @@ int main(int argc, char* argv[])
 	const char *yara_ruleset_file_name = argv[1];
 	const char *target_resource = argv[2];
 	char fs[300];
-
-	if (!does_this_file_exist(yara_ruleset_file_name)) {
-		std::cout << std::endl << "Yara Ruleset file: \"" << yara_ruleset_file_name << "\" does not exist, exiting ..." << std::endl << std::endl;
-		exit(0);
+	
+	/*
+	 * pre-process yara rules and then we can use the
+	 * pointer to "rules" as an optimized entity 
+	 */
+	YR_RULES* rules;
+	rules = bayshore_yara_preprocess_rules(yara_ruleset_file_name);
+	if (!rules) {
+		std::cout << std::endl << "Problem compiling Yara Ruleset file: \"" << yara_ruleset_file_name << "\", continuing with regular ruleset file ..." << std::endl << std::endl;	
+		if (!does_this_file_exist(yara_ruleset_file_name)) {
+			std::cout << std::endl << "Yara Ruleset file: \"" << yara_ruleset_file_name << "\" does not exist, exiting ..." << std::endl << std::endl;
+			exit(0);
+		}
 	}
 
 	if (is_directory(target_resource)) {
@@ -170,15 +188,28 @@ int main(int argc, char* argv[])
 
 						std::list<security_scan_results_t> ssr_list;
 
-						scan_content (c,
-								fileSize,
-								yara_ruleset_file_name,
-								&ssr_list,
-								fs,
-								yara_cb,
-								1);
+						if (rules) {
+							
+							scan_content (
+									c,
+									fileSize,
+									rules,
+									&ssr_list,
+									fs,
+									yara_cb,
+									1);
+							
+						} else {
+							scan_content (
+									c,
+									fileSize,
+									yara_ruleset_file_name,
+									&ssr_list,
+									fs,
+									yara_cb,
+									1);
+						}
 
-						//std::cout << std::endl  << "LIST: " << ssr_list.size() << std::endl;
 						if (!ssr_list.empty()) {
 
 							std::cout << std::endl << midline << std::endl;
@@ -242,13 +273,26 @@ int main(int argc, char* argv[])
 				
 				std::list<security_scan_results_t> ssr_list;
 
-				scan_content (c,
-						fileSize,
-						yara_ruleset_file_name,
-						&ssr_list,
-						fs,
-						yara_cb,
-						1);
+				if (rules) {
+					
+					scan_content (
+							c,
+							fileSize,
+							rules,
+							&ssr_list,
+							fs,
+							yara_cb,
+							1);
+				} else {
+					scan_content (
+							c,
+							fileSize,
+							yara_ruleset_file_name,
+							&ssr_list,
+							fs,
+							yara_cb,
+							1);
+				}
 
 				if (!ssr_list.empty()) {  
 					std::cout << std::endl << midline << std::endl;
@@ -281,5 +325,8 @@ int main(int argc, char* argv[])
 	} else {
 		std::cout << std::endl << "Could not read resource: \"" << target_resource << "\", exiting ..." << std::endl << std::endl;
 	}
+	
+	if (rules)
+		yr_rules_destroy(rules);
 	return 0;
 }
