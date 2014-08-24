@@ -20,13 +20,22 @@
  *
  *****************************************************************************/
 
-#include "bayshore_content_scan.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "bayshore_yara_wrapper.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+#include "bayshore_content_scan.h"
 #include "wrapper.h"
 #include "zl.h"
+
 #include <archive.h>
 #include <archive_entry.h>
-
 #include <assert.h>
 #include <openssl/md5.h>
 
@@ -47,15 +56,15 @@ static const char *type_of_scan[] = {
 
 
 // function declarations
+
 static void scan_content2 (const uint8_t *buf,
 		size_t sz,
-		const char *rule_file,
+		YR_RULES *rules,
 		std::list<security_scan_results_t> *ssr_list,
 		const char *parent_file_name,
 		void (*cb)(void*, std::list<security_scan_results_t> *, const char *),
 		int in_type_of_scan
 		);
-
 
 //////////////////////////////////////////////////////////////
 // helper functions
@@ -148,35 +157,74 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 	 * must be at least MAX_YARA_RES_BUF in size. This is defined in
 	 * bayshore_yara_wrapper.h
 	 * 
+	 * first check for a native yara compiled rules struct,
+	 * if it exists call the wrapper API with it instead of
+	 * an actual ruleset file name
 	 */
-	if (bayshore_yara_wrapper_api(
-			(uint8_t*)ssp_local->buffer,
-			ssp_local->buffer_length,
-			ssp_local->yara_ruleset_filename,
-			local_api_yara_results,
-			&local_api_yara_results_len) > 0) {
+	if (ssp_local->rules) {
 		
-		// hit
-		if (local_api_yara_results_len > 0) {
+		if (bayshore_yara_wrapper_yrrules_api(
+				(uint8_t*)ssp_local->buffer,
+				ssp_local->buffer_length,
+				ssp_local->rules,
+				local_api_yara_results,
+				&local_api_yara_results_len) > 0) {
 			
-			security_scan_results_t ssr;
-			// populate struct elements
-			ssr.file_scan_type = ssp_local->scan_type;
-			ssr.file_scan_result = std::string(local_api_yara_results, local_api_yara_results_len);
-			
-			if (ssp_local->parent_file_name)
-				ssr.parent_file_name = std::string(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
-			
-			if (child_file_name)
-				ssr.child_file_name = std::string(child_file_name);
-
-			char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
-			if (output) {
-				memcpy (ssr.file_signature_md5, output, 33);
-				free(output);
+			// hit
+			if (local_api_yara_results_len > 0) {
+				
+				security_scan_results_t ssr;
+				// populate struct elements
+				ssr.file_scan_type = ssp_local->scan_type;
+				ssr.file_scan_result = std::string(local_api_yara_results, local_api_yara_results_len);
+				
+				if (ssp_local->parent_file_name)
+					ssr.parent_file_name = std::string(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+				
+				if (child_file_name)
+					ssr.child_file_name = std::string(child_file_name);
+	
+				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
+				if (output) {
+					memcpy (ssr.file_signature_md5, output, 33);
+					free(output);
+				}
+	
+				ssr_list->push_back(ssr);
 			}
+		}
+		
+	} else {
 
-			ssr_list->push_back(ssr);
+		if (bayshore_yara_wrapper_api(
+				(uint8_t*)ssp_local->buffer,
+				ssp_local->buffer_length,
+				ssp_local->yara_ruleset_filename,
+				local_api_yara_results,
+				&local_api_yara_results_len) > 0) {
+			
+			// hit
+			if (local_api_yara_results_len > 0) {
+				
+				security_scan_results_t ssr;
+				// populate struct elements
+				ssr.file_scan_type = ssp_local->scan_type;
+				ssr.file_scan_result = std::string(local_api_yara_results, local_api_yara_results_len);
+				
+				if (ssp_local->parent_file_name)
+					ssr.parent_file_name = std::string(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+				
+				if (child_file_name)
+					ssr.child_file_name = std::string(child_file_name);
+	
+				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
+				if (output) {
+					memcpy (ssr.file_signature_md5, output, 33);
+					free(output);
+				}
+	
+				ssr_list->push_back(ssr);
+			}
 		}
 	}
 }
@@ -190,11 +238,10 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 scan_content
 ************/
 
-
 void scan_content (
 		const uint8_t *buf,
 		size_t sz,
-		const char *rule_file,
+		YR_RULES *rules,
 		std::list<security_scan_results_t> *ssr_list,
 		const char *parent_file_name,
 		void (*cb)(void*, std::list<security_scan_results_t> *, const char *),
@@ -209,12 +256,15 @@ void scan_content (
 	else
 		lin_type_of_scan = 0;
 	
-	scan_content2(buf, sz, rule_file, ssr_list, parent_file_name, cb, lin_type_of_scan);
+	scan_content2(buf, sz, rules, ssr_list, parent_file_name, cb, lin_type_of_scan);
 }
 
 
+/************
+scan_content
+************/
 
-void scan_content2 (
+void scan_content (
 		const uint8_t *buf,
 		size_t sz,
 		const char *rule_file,
@@ -224,8 +274,33 @@ void scan_content2 (
 		int in_type_of_scan
 		)
 {
+	if (rule_file) {
+		YR_RULES* rules = bayshore_yara_preprocess_rules (rule_file);
+		if (rules) {
+			scan_content (buf, sz, rules, ssr_list, parent_file_name, cb, in_type_of_scan);
+			yr_rules_destroy (rules);
+		}
+	}
+}
+
+
+
+/*************
+scan_content2
+*************/
+
+void scan_content2 (
+		const uint8_t *buf,
+		size_t sz,
+		YR_RULES *rules,
+		std::list<security_scan_results_t> *ssr_list,
+		const char *parent_file_name,
+		void (*cb)(void*, std::list<security_scan_results_t> *, const char *),
+		int in_type_of_scan
+		)
+{
 	if (buf) {
-		
+	
 		/////////////////////////////////////////////////////
 		/*
 		 * construct the security_scan_parameters_t
@@ -242,10 +317,10 @@ void scan_content2 (
 		security_scan_parameters_t ssp;
 		
 		if (in_type_of_scan == 1) {
-			if (rule_file)
-				snprintf (ssp.yara_ruleset_filename, sizeof(ssp.yara_ruleset_filename), "%s", rule_file);
+			if (rules)
+				ssp.rules = rules;
 		}
-	    snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
+		snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
 		/////////////////////////////////////////////////////
 				
 		int buffer_type = get_content_type (buf, sz);
@@ -277,26 +352,28 @@ void scan_content2 (
 					ssp.buffer = myzl.single_result.data;
 					ssp.buffer_length = myzl.single_result.used;
 					ssp.file_type = lf_type;
-
-	            	/*
-	            	 * cases like tar.gz, this would be the gunzipped
-	            	 * tarball
-	            	 */
-	            	if (is_type_archive(lf_type)) {
-	            		
-	            		scan_content2 (myzl.single_result.data,
-	            				myzl.single_result.used,
-	            				rule_file, ssr_list,
-	            				(remove_file_extension(std::string(parent_file_name))).c_str(),
-	            				cb,
-	            				in_type_of_scan);
-	            		
+		
+					/*
+					 * cases like tar.gz, this would be the gunzipped
+					 * tarball
+					 */
+					if (is_type_archive(lf_type)) {
+						
+						scan_content2 (
+								myzl.single_result.data,
+								myzl.single_result.used,
+								rules,
+								ssr_list,
+								(remove_file_extension(std::string(parent_file_name))).c_str(),
+								cb,
+								in_type_of_scan);
+						
 					} else {
 						
 						snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside GZIP Archive file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type));
 						
 						cb((void *)&ssp, ssr_list, (remove_file_extension(tmpfname)).c_str());
-
+		
 					}
 				} // end if (myzl.single_result.data && myzl.single_result.used)
 				
@@ -307,17 +384,17 @@ void scan_content2 (
 				assert(a);
 				struct archive_entry *entry;
 				int r;
-	
+		
 				archive_read_support_format_all(a);
 				// pre-v4 libarchive
 				//archive_read_support_compression_all(a);
 				// v4 libarchive
 				archive_read_support_filter_all(a);
-	
+		
 				r = archive_read_open_memory(a, (uint8_t *)buf, sz);
 				
 				if (r < 0) {
-	
+		
 				} else {
 					/*
 					 * libarchive understood the archival tech in
@@ -328,7 +405,7 @@ void scan_content2 (
 					uint8_t *final_buff = (uint8_t*) malloc (2048);
 					final_buff[0] = 0;
 					size_t final_size = 0;
-	
+		
 					for (;;) {
 						r = archive_read_next_header(a, &entry);
 						
@@ -344,16 +421,16 @@ void scan_content2 (
 						if (archive_entry_size(entry) > 0) {
 							
 							char *fname = strdup(archive_entry_pathname(entry));
-	
+		
 							int x;
 							const void *buff;
 							size_t lsize;
 							off_t offset;
-	
+		
 							for (;;) {
 								
 								x = archive_read_data_block(a, &buff, &lsize, &offset);
-	
+		
 								// hit EOF so process constructed buffer
 								if (x == ARCHIVE_EOF) {
 									
@@ -361,19 +438,19 @@ void scan_content2 (
 										return;
 									
 									increment_recur_counter();
-	
+		
 									final_buff[final_size] = 0;
 									int lf_type = get_content_type (final_buff, final_size);
 									
 									ssp.buffer = final_buff;
 									ssp.buffer_length = final_size;
 									ssp.file_type = lf_type;
-	
-	
+		
+		
 									// archive, make recursive call into scan_content
 									if (is_type_archive(lf_type)) {
 										
-										scan_content2 (final_buff, final_size, rule_file, ssr_list, fname, cb, in_type_of_scan);
+										scan_content2 (final_buff, final_size, rules, ssr_list, fname, cb, in_type_of_scan);
 										
 									} else {
 										
@@ -389,7 +466,7 @@ void scan_content2 (
 									break;
 									
 								} else if (x == ARCHIVE_OK) {
-	
+		
 									/*
 									 * good to go ... 
 									 * 
@@ -424,7 +501,7 @@ void scan_content2 (
 					if (final_buff)
 						free(final_buff);
 				} // end if else
-	
+		
 				// free up libarchive resources
 				archive_read_close(a);
 				archive_read_free(a);
@@ -448,10 +525,10 @@ void scan_content2 (
 			snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s)", type_of_scan[in_type_of_scan], get_content_type_string (buffer_type));
 				
 			cb((void *)&ssp, ssr_list, "");
-
+		
 		} // end if else - archive
-
-	
+		
+		
 		/*
 		std::cout << "FAILURES: " << archive_failure_counter << std::endl;
 		std::cout << "ITERATIONS: " << iteration_counter << std::endl;
@@ -468,7 +545,7 @@ void scan_content2 (
 			
 			if (parent_file_name)
 				ssr.parent_file_name = std::string(parent_file_name);
-	
+		
 			char *output = str2md5((const char *)buf, sz);
 			if (output) {
 				memcpy (ssr.file_signature_md5, output, 33);
@@ -479,7 +556,6 @@ void scan_content2 (
 		/////////////////////////////////////////////////////
 	} // end if (buf)
 }
-
 
 
 

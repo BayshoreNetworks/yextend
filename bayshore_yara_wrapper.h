@@ -24,8 +24,10 @@
 #define __bayshoreyarawrapper__H_
 
 
+#include <yara.h>
 #include <stdio.h>
 #include <stdint.h>
+
 
 #define MAX_YARA_RES_BUF 2048
 
@@ -35,9 +37,16 @@
  * that this buffer is at least MAX_YARA_RES_BUF bytes long.
  */
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
+
 int bayshore_yara_wrapper_api(uint8_t*, size_t, const char *, char *, size_t *);
+YR_RULES *bayshore_yara_preprocess_rules(const char *);
+int bayshore_yara_wrapper_yrrules_api(uint8_t*, size_t, YR_RULES *, char *, size_t *);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif // __bayshoreyarawrapper__H_
