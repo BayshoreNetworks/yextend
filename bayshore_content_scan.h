@@ -109,6 +109,10 @@ void scan_content (const uint8_t *, size_t, const char *, std::list<security_sca
 void scan_content (const uint8_t *, size_t, YR_RULES *, std::list<security_scan_results_t> *, const char *, void (*cb)(void*, std::list<security_scan_results_t> *, const char *), int);
 
 
+// by type (used by the API entry points)
+void scan_office_open_xml_api(void *, std::list<security_scan_results_t> *, const char *, const char *, bool, void (*cb)(void*, std::list<security_scan_results_t> *, const char *), int);
+
+
 //callbacks
 void yara_cb (void *, std::list<security_scan_results_t> *, const char *child_file_name="");
 
