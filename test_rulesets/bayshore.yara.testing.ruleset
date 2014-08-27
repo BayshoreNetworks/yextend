@@ -95,3 +95,11 @@ rule CTXTESTXML
 		any of them
 }
 
+rule SHOUTING
+{
+        strings:
+                $a = "shouting" nocase
+        condition:
+                any of them
+}
+

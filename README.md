@@ -21,8 +21,9 @@ Notes:
 Requirements to build and run:
 
 - openssl devel lib (sudo apt-get install libssl-dev or sudo yum install openssl-devel)
-- zlib devel lib
+- zlib devel lib (sudo yum install zlib-devel or sudo apt-get install zlib1g-dev)
 - libarchive (v4) be installed (sudo yum install libarchive-devel or sudo apt-get install libarchive-dev)
+- pcrecpp (sudo yum install pcre-devel or sudo apt-get install libpcre3-dev)
 - yara v3 be fully installed
 - yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
 	A. cd into the dir where you extracted yara (for this example I will use "/tmp/yara")
@@ -53,7 +54,9 @@ Instructions:
 5. Run:
 
 	- prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
+
 	- the program 'yextend' takes in 2 arguments:
+
 		1. A yara ruleset file
 		2. A file name or a directory name where the target files exist
 	
@@ -62,45 +65,44 @@ Instructions:
 		- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
 		- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/
 		
-		*** 
+		***** 
 			if you don't want to set LD_LIBRARY_PATH on each prog run then you can set it in your .bashrc (or equivalent on your system) as such:
 		
 			export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 			
 			then the program runs would be as such:
 	
-				- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
-				- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/			
-		***
-		
-		
-	output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
+				- ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
+				- ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/			
+		*****
+
+6. Analyze output. The output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
 	
-		===============================ALPHA===================================
-		Filename: x
-		File Size: y
-		File Signature (MD5): z
+	===============================ALPHA===================================
+	Filename: x
+	File Size: y
+	File Signature (MD5): z
 
-		=======================================================================
+	=======================================================================
 
-		Yara Result(s): RULE1
-		Scan Type: a
-		Parent File Name: b
-		Child File Name: c
-		File Signature (MD5): d
+	Yara Result(s): RULE1
+	Scan Type: a
+	Parent File Name: b
+	Child File Name: c
+	File Signature (MD5): d
+	
+	
+	Yara Result(s): RULE2, RULE3
+	Scan Type: v
+	Parent File Name: x
+	Child File Name: y
+	File Signature (MD5): z
+
+
+	===============================OMEGA===================================
 		
 		
-		Yara Result(s): RULE2, RULE3
-		Scan Type: v
-		Parent File Name: x
-		Child File Name: y
-		File Signature (MD5): z
-
-
-		===============================OMEGA===================================
-		
-		
-	example output from one of the test files:
+	A. example output from one of the test files:
 	
 		===============================ALPHA===================================
 		Filename: test_files/rands_tarball.tar.gz
@@ -135,4 +137,115 @@ Instructions:
 		         |_ AAA
 		      rand987.zip
 		      |_ spoolsy.exe
+
+
+	B. another more complex example using one of the test files:
+
+
+		===============================ALPHA===================================
+		Filename: test_files/step1-zips.tar.gz
+		File Size: 2400255
+		File Signature (MD5): 98178b84fd9280fa1ed469c6512cd0ee
+
+		=======================================================================
+
+		Yara Result(s): EXE_DROP, MZ_PORTABLE_EXE, S95
+		Scan Type: Yara Scan (Windows - Portable Executable) inside POSIX ustar format file
+		Parent File Name: test_files/step1-zips.tar
+		Child File Name: spoolsy.exe
+		File Signature (MD5): 25ca7beed707e94ce70137f7d0c7b14e
+
+
+		Yara Result(s): LOREM, S95
+		Scan Type: Yara Scan (Office Open XML) inside ZIP 2.0 (deflation) file
+		Parent File Name: Lorem-winlogon-spoolsy-pptx.docx
+		Child File Name: word/document.xml
+		File Signature (MD5): 9d58972d9a528da89c971597e4aa1844
+
+
+		Yara Result(s): LOREM
+		Scan Type: Yara Scan (Office Open XML) embedded in an Office Open XML file
+		Parent File Name: word/embeddings/Microsoft_Office_PowerPoint_Presentation1.pptx
+		Child File Name: ppt/slides/slide2.xml
+		File Signature (MD5): 9c6bad391960e46aca89a6c7d6f0e40b
+
+
+		Yara Result(s): EXE_DROP, S95
+		Scan Type: Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file
+		Parent File Name: Lorem-winlogon-spoolsy-pptx.docx
+		Child File Name: word/embeddings/oleObject1.bin
+		File Signature (MD5): 197c489374bb43831bd8b32cc22d414e
+
+
+		Yara Result(s): EXE_DROP, S95
+		Scan Type: Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file
+		Parent File Name: Lorem-winlogon-spoolsy-pptx.docx
+		Child File Name: word/embeddings/oleObject2.bin
+		File Signature (MD5): 2b7ccfde542d23cf64e0533f467083e2
+
+
+		Yara Result(s): LOREM, S95
+		Scan Type: Yara Scan (Office Open XML) embedded in an Office Open XML file
+		Parent File Name: xl/embeddings/Microsoft_Office_Word_Document1.docx
+		Child File Name: word/document.xml
+		File Signature (MD5): 9d58972d9a528da89c971597e4aa1844
+
+
+		Yara Result(s): LOREM
+		Scan Type: Yara Scan (Office Open XML) embedded in an Office Open XML file
+		Parent File Name: word/embeddings/Microsoft_Office_PowerPoint_Presentation1.pptx
+		Child File Name: ppt/slides/slide2.xml
+		File Signature (MD5): 9c6bad391960e46aca89a6c7d6f0e40b
+
+
+		Yara Result(s): EXE_DROP, S95
+		Scan Type: Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file
+		Parent File Name: xl/embeddings/Microsoft_Office_Word_Document1.docx
+		Child File Name: word/embeddings/oleObject1.bin
+		File Signature (MD5): 197c489374bb43831bd8b32cc22d414e
+
+
+		Yara Result(s): EXE_DROP, S95
+		Scan Type: Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file
+		Parent File Name: xl/embeddings/Microsoft_Office_Word_Document1.docx
+		Child File Name: word/embeddings/oleObject2.bin
+		File Signature (MD5): 2b7ccfde542d23cf64e0533f467083e2
+
+
+		Yara Result(s): LOREM
+		Scan Type: Yara Scan (Office Open XML) inside ZIP 2.0 (deflation) file
+		Parent File Name: Lorem-docx-embedded-step3.xlsx
+		Child File Name: xl/sharedStrings.xml
+		File Signature (MD5): 9183392950503e4b47edbc458c6126f5
+
+
+		Yara Result(s): S95
+		Scan Type: Yara Scan (Office Open XML) inside ZIP 2.0 (deflation) file
+		Parent File Name: Lorem-docx-embedded-step3.xlsx
+		Child File Name: xl/worksheets/sheet1.xml
+		File Signature (MD5): 8bcbbe18c67ddadf35c2743b0435c16c
+
+
+		===============================OMEGA===================================
+
+
+
+
+
+		This is based on file "test_files/step1-zips.tar.gz" that has the following structure:
 		
+		step1-zips.tar.gz
+		|_ docx-embedded-step3.xlsx.zip
+		   |_ docx-embedded-step3.xlsx
+		      |_ Lorem-winlogon-spoolsy-pptx.docx
+		         |_ winlogon.exe
+		         |_ spoolsy.exe
+		         |_ pptx-plain.pptx
+		|_ Lorem-winlogon-spoolsy-pptx.docx.zip
+		   |_ Lorem-winlogon-spoolsy-pptx.docx
+		      |_ winlogon.exe
+		      |_ spoolsy.exe
+		      |_ pptx-plain.pptx
+		|_ spoolsy.exe
+
+

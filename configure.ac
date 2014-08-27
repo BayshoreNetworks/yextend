@@ -21,6 +21,7 @@ AC_CHECK_LIB([crypto], [main])
 AC_CHECK_LIB([yara], [main])
 # FIXME: Replace `main' with a function in `-lz':
 AC_CHECK_LIB([z], [main])
+AC_CHECK_LIB([pcrecpp], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h syslog.h unistd.h])

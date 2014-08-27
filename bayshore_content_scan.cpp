@@ -30,6 +30,8 @@ extern "C" {
 }
 #endif
 
+#include <pcrecpp.h>
+
 #include "bayshore_content_scan.h"
 #include "wrapper.h"
 #include "zl.h"
@@ -129,7 +131,287 @@ double get_failure_percentage() {
 		return ((double)total/(double)archive_failure_counter) * 100;
 	return 0.0;
 }
+
+std::string strip_office_open_xml(std::string content, std::string file_type) 
+{
+
+	std::string regex = "";
+	std::string cnt = content;
+
+	if (file_type.compare("docx") == 0) {
+		regex = "</w:p>";
+		pcrecpp::RE(regex).GlobalReplace(" ", &cnt);
+	} else if(file_type.compare("pptx") == 0) {
+		regex = "</a:rPr>";
+		pcrecpp::RE(regex).GlobalReplace(" ", &cnt);
+	}
+
+	pcrecpp::RE("<(.*?)>").GlobalReplace("", &cnt);
+
+	// strip line ending
+	string::size_type pos = 0;
+	while ( ( pos = cnt.find ("\r\n",pos) ) != string::npos )
+	{
+		cnt.erase ( pos, 2 );
+	}
+	return cnt;
+}
+
+void get_buf_hex(char *dest, const char *src, int threshold)
+{
+    int i;
+    static const char *hexdigits = "0123456789abcdef";
+
+    for(i = 0; i < threshold; i++)
+    {
+        unsigned char u = (unsigned char)(src[i]);
+        dest[i*2] = hexdigits [u >> 4];
+        dest[(i*2)+1] = hexdigits [u & 0xf];
+    }
+    dest[i*2] = '\0';
+}
 //////////////////////////////////////////////////////////////
+
+
+/************************
+scan_office_open_xml_api
+************************/
+
+
+void scan_office_open_xml_api(
+		void *cookie,
+		std::list<security_scan_results_t> *oxml_ssr_list,
+		const char *src,
+		const char *parent_file_name,
+		bool context_scan,
+		void (*cb)(void*, std::list<security_scan_results_t> *, const char *),
+		int in_type_of_scan
+		)
+{
+	
+	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
+	size_t src_len = strlen(src);
+	
+	struct archive *a = archive_read_new();
+	assert(a);
+	struct archive_entry *entry;
+	int r;
+
+	archive_read_support_format_all(a);
+	// pre-v4 libarchive
+	//archive_read_support_compression_all(a);
+	// v4 libarchive
+	archive_read_support_filter_all(a);
+
+	r = archive_read_open_memory(a, (uint8_t *)ssp_local->buffer, ssp_local->buffer_length);
+
+	if (r >= 0) {
+		
+		// final sets of data
+		uint8_t *final_buff = (uint8_t*) malloc (2048);
+		final_buff[0] = 0;
+		size_t final_size = 0;
+		bool embedded_doc;
+		std::string file_type = "";
+		
+		for (;;) {
+			
+			embedded_doc = false;
+
+			r = archive_read_next_header(a, &entry);
+
+			if (r == ARCHIVE_EOF)
+				break;
+
+			if (r != ARCHIVE_OK)
+				break;
+
+			if (r < ARCHIVE_WARN)
+				break;
+			
+			if (archive_entry_size(entry) > 0) {
+				
+				char *fname = strdup(archive_entry_pathname(entry));
+
+				if (fname) {
+					
+					std::string oox_type = "";
+					
+					if ((strncmp (fname, "word/document.xml", 17) == 0) ||
+							(strncmp (fname, "word/header", 11) == 0) ||
+							(strncmp (fname, "word/footer", 11) == 0)
+						) {
+						oox_type = "docx";
+					}
+					
+					if ((strncmp (fname, "ppt/notesSlides/", 16) == 0) || 
+							(strncmp (fname, "ppt/slides/", 11) == 0)
+						) {
+						oox_type = "pptx";
+					}
+					
+					if ((strncmp (fname, "xl/worksheets/", 14) == 0) ||
+							(strncmp (fname, "xl/sharedStrings", 16) == 0)
+							){
+						oox_type = "xlsx";
+					}
+
+					// deal with embedded docs
+					if ((strncmp (fname, "word/embeddings/", 16) == 0) ||
+							(strncmp (fname, "ppt/embeddings/", 15) == 0) ||
+							(strncmp (fname, "xl/embeddings/", 14) == 0)
+							) {
+						embedded_doc = true;
+					}
+					
+					if (oox_type == "docx" ||
+							oox_type == "pptx" ||
+							oox_type == "xlsx" ||
+							embedded_doc
+						)
+					{	
+
+						int x;
+						const void *buff;
+						size_t lsize;
+						off_t offset;
+
+						for (;;) {
+							x = archive_read_data_block(a, &buff, &lsize, &offset);
+
+							if (x == ARCHIVE_EOF) {
+								
+								if (recurs_threshold_passed(iteration_counter))
+									return;
+
+								final_buff[final_size] = 0;
+								int elf_type = get_content_type (final_buff, final_size);
+								ssp_local->file_type = elf_type;
+								
+								increment_recur_counter();
+								
+								////////////////////////////////////////////////////////////////////
+								/*
+								 * embedded data within the office open xml doc
+								 * 
+								 * if the detected type is officex (open xml) itself
+								 * then make a recursive call back into this same
+								 * function. otherwise pass the data over to the
+								 * callback function for content scanning
+								 * 
+								 */
+								if (embedded_doc) {
+										
+									ssp_local->buffer = final_buff;
+									ssp_local->buffer_length = final_size;
+									
+									int lf_type = get_content_type (final_buff, final_size);
+									ssp_local->file_type = lf_type;
+									
+									// ms-office open xml inside open xml
+									if (is_type_officex(lf_type)) {
+										
+										scan_office_open_xml_api(
+												(void *)ssp_local,
+												oxml_ssr_list,
+												"embedded in an Office Open XML file",
+												fname,
+												false,
+												cb,
+												in_type_of_scan);
+
+									} else {
+										
+										snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s (%s) %s", type_of_scan[in_type_of_scan], get_content_type_string (lf_type), "embedded in an Office Open XML file");
+										snprintf (ssp_local->parent_file_name, sizeof(ssp_local->parent_file_name), "%s", parent_file_name);
+	
+										cb((void *)ssp_local, oxml_ssr_list, fname);
+									
+									}
+									
+								} // end if (embedded_doc)
+								////////////////////////////////////////////////////////////////////
+								
+								// non-embedded data ...
+								
+								/*
+								 * strip out the xml cruft so that scanning is
+								 * focused on the actual text
+								 * 
+								 */
+								std::string ss = strip_office_open_xml(std::string((const char *)final_buff), oox_type);
+								
+								/*
+								 * need buffer in hex to make sure we
+								 * bypass certain elements of data we
+								 * are getting but do not want.
+								 * 
+								 * keep this tight in case we are dealing
+								 * with a large data set. get_buf_hex
+								 * terminates the destination buffer so
+								 * in this case hexStr should be properly
+								 * terminated
+								 * 
+								 */
+								char hexStr[9];
+								get_buf_hex(hexStr, (ss.substr (0,4)).c_str(), 4);
+
+								// do not process zip file header
+								if (strncmp (hexStr, "504b0304", 8) != 0) {
+									//std::cout << ss << std::endl;
+									// this is where we call scans against
+									// the data in ss
+									
+									int lf_type = get_content_type ((const uint8_t *)ss.c_str(), ss.length());
+									ssp_local->file_type = lf_type;
+									
+									ssp_local->buffer = (const uint8_t *)ss.c_str();
+									ssp_local->buffer_length = ss.length();
+									
+									if (src)
+										snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s %s", type_of_scan[in_type_of_scan], "(Office Open XML)", src);
+									else
+										snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(Office Open XML)");
+									snprintf (ssp_local->parent_file_name, sizeof(ssp_local->parent_file_name), "%s", parent_file_name);
+
+									cb((void *)ssp_local, oxml_ssr_list, fname);
+									
+								}
+
+								// reset
+								*final_buff = 0;
+								final_size = 0;
+								break;
+
+							} else if (x == ARCHIVE_OK) {
+								
+								final_size += lsize;
+								// extra byte final_size + 1 is for the guard byte
+								final_buff = (uint8_t*) realloc (final_buff, final_size + 1);
+								assert(final_buff);
+								assert(offset + lsize <= final_size);
+								memcpy(final_buff + offset, buff, lsize);
+								
+							} else {
+								
+								break;
+								
+							} // end if (x == ARCHIVE_OK)
+						} // end for loop
+					} // end a bunch of if oox_type
+					free(fname);
+				} // end if (fname)
+			} // end if (archive_entry_size(entry) > 0)
+		} // end for loop
+		if (final_buff)
+			free(final_buff);
+	} // end if r >= 0 
+	// clean up libarchive resources
+	archive_read_close(a);
+	archive_read_free(a);
+}
+
+
 
 /*
  * callback
@@ -368,6 +650,18 @@ void scan_content2 (
 								cb,
 								in_type_of_scan);
 						
+					// ms-office open xml inside gzip
+					} else if (is_type_officex(lf_type)) {
+						
+						scan_office_open_xml_api(
+								(void *)&ssp,
+								ssr_list,
+								" inside GZIP Archive file",
+								(remove_file_extension(tmpfname)).c_str(),
+								false,
+								cb,
+								in_type_of_scan);
+	
 					} else {
 						
 						snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside GZIP Archive file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type));
@@ -452,6 +746,15 @@ void scan_content2 (
 										
 										scan_content2 (final_buff, final_size, rules, ssr_list, fname, cb, in_type_of_scan);
 										
+									// ms-office open xml inside archive
+									} else if (is_type_officex(lf_type)) {
+									
+										char scan_src [100];
+										snprintf (scan_src, sizeof(scan_src), "inside %s file", archive_format_name(a));
+										snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
+									
+										scan_office_open_xml_api((void *)&ssp, ssr_list, scan_src, fname ? fname : "", false, cb, in_type_of_scan);
+										
 									} else {
 										
 										snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside %s file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type), archive_format_name(a));
@@ -508,6 +811,7 @@ void scan_content2 (
 			} // end if gzip else
 		
 		} else { // not an archive
+			
 			/*
 			 * if we are here then we are not dealing
 			 * with an archive in the buffer, i.e. not
@@ -522,9 +826,18 @@ void scan_content2 (
 			ssp.buffer = buf;
 			ssp.buffer_length = sz;
 			ssp.file_type = buffer_type;
-			snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s)", type_of_scan[in_type_of_scan], get_content_type_string (buffer_type));
+			
+			if (is_type_officex(buffer_type)) {
 				
-			cb((void *)&ssp, ssr_list, "");
+				scan_office_open_xml_api((void *)&ssp, ssr_list, "", parent_file_name ? parent_file_name : "", false, cb, in_type_of_scan);
+				
+			} else {
+			
+				snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s)", type_of_scan[in_type_of_scan], get_content_type_string (buffer_type));
+				
+				cb((void *)&ssp, ssr_list, "");
+			
+			}
 		
 		} // end if else - archive
 		
