@@ -23,6 +23,8 @@
 #include "filedissect.h"
 
 #include <iostream>
+
+#include <math.h>
 #include <sys/stat.h>
 
 using namespace std;
