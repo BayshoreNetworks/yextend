@@ -23,17 +23,13 @@
 #ifndef FILEDISSECT_H
 #define FILEDISSECT_H
 
-#include <stdint.h>
-#include <stdio.h>
-#include <fstream>
+#include <sstream>
 #include <vector>
-#include <iostream>
 #include <functional>
 #include <string>
+#include <stdint.h>
+#include <stdio.h>
 #include <string.h>
-#include <assert.h>
-#include <math.h>
-#include <sstream>
 
 #include "filedata.h"
 

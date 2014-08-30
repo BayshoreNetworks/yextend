@@ -20,12 +20,14 @@ Notes:
 
 Requirements to build and run:
 
-- openssl devel lib (sudo apt-get install libssl-dev or sudo yum install openssl-devel)
+- g++ (GNU c++ compiler)
+- autoconf 2.69 or above
+- openssl devel lib (sudo yum install openssl-devel or sudo apt-get install libssl-dev)
 - zlib devel lib (sudo yum install zlib-devel or sudo apt-get install zlib1g-dev)
 - libarchive (v4) be installed (sudo yum install libarchive-devel or sudo apt-get install libarchive-dev)
 - pcrecpp (sudo yum install pcre-devel or sudo apt-get install libpcre3-dev)
 - yara v3 be fully installed
-- yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
+- if you are running yara pre-version 3.1.X then yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
 	A. cd into the dir where you extracted yara (for this example I will use "/tmp/yara")
 	B. sudo cp /tmp/yara/libyara/include/yara/* /usr/local/include/yara/
 
