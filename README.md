@@ -34,14 +34,14 @@ Requirements to build and run:
 
 Instructions:
 
-1 Make sure all requirements set forth above are met
+1 - Make sure all requirements set forth above are met
 
-2 Extract our software in the directory of your choice (referred to as THEDIR from now on)
+2 - Extract our software in the directory of your choice (referred to as THEDIR from now on)
 
 	- cd THEDIR
 	- tar -xvzf yextend.tar.gz
 
-3 Build:
+3 - Build:
 
 	- ./autogen.sh
 	
@@ -49,11 +49,11 @@ Instructions:
 	
 	- make
 		
-4 Test (optional)
+4 - Test (optional)
 
 	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.ruleset.bin test_files/
 
-5 Run:
+5 - Run:
 
 	- prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
 
@@ -78,7 +78,7 @@ Instructions:
 				- ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/			
 		*****
 
-6 Analyze output. The output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
+6 - Analyze output. The output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
 	
 	===============================ALPHA===================================
 	Filename: x
