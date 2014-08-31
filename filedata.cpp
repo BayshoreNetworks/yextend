@@ -370,13 +370,7 @@ bool FileData::is_php(int ix) {
 }
 
 bool FileData::is_rar(int ix) {
-	if ((ix == 30) || (ix == 6) || (ix == 7) ||
-		(ix == 8) || (ix == 9) || (ix == 10) ||
-		(ix == 11) || (ix == 12) || (ix == 13) ||
-		(ix == 14)
-		)
-		return true;
-	return false;
+	return ix >= 6 && ix <= 14 || ix == 30;
 }
 
 bool FileData::is_win_exe(int ix) {
@@ -411,13 +405,8 @@ bool FileData::is_office(int ix) {
 }
 
 bool FileData::is_image(int ix) {
-	if ((ix == 33) || (ix == 34) || (ix == 35) ||
-		(ix == 36) || (ix == 37) || (ix == 38) ||
-		(ix == 39) || (ix == 40) || (ix == 41) ||
-		(ix == 42) || (ix == 43)
-		)
-		return true;
-	return false;
+	// images are between 33 and 43 inclusive.
+	return ((unsigned)ix - 33) < 11;
 }
 
 bool FileData::is_archive(int ix) {
@@ -426,11 +415,13 @@ bool FileData::is_archive(int ix) {
      * 17 = gzip
      * 18 = gzip
      * 46 = tar
+     * is_rar() covers all known rar patterns
      */
     if ((ix == 15) ||
         (ix == 17) ||
         (ix == 18) ||
-        (ix == 46)
+        (ix == 46) ||
+        (is_rar(ix))
         )
         return true;
 	return false;
