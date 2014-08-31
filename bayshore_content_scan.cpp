@@ -127,7 +127,7 @@ double get_failure_percentage() {
 	
 	double total = iteration_counter - 1;
 	
-	if (archive_failure_counter > 0 && archive_failure_counter > 1)
+	if (archive_failure_counter > 1 && total > 1)
 		return ((double)total/(double)archive_failure_counter) * 100;
 	return 0.0;
 }
