@@ -25,7 +25,6 @@
 
 #include <sstream>
 #include <vector>
-#include <functional>
 #include <string>
 #include <stdint.h>
 #include <stdio.h>
