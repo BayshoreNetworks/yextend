@@ -41,6 +41,28 @@ extern "C" {
 #include <assert.h>
 #include <openssl/md5.h>
 
+struct security_scan_parameters_t {
+	const uint8_t *buffer;
+	size_t buffer_length;
+	char yara_ruleset_filename [300];
+	char parent_file_name [300];
+	char child_file_name [300];
+	char scan_type [300];
+	int file_type;
+	YR_RULES *rules;
+	
+	security_scan_parameters_t() {
+		buffer = 0;
+		buffer_length = 0;
+		*yara_ruleset_filename = 0;
+		*parent_file_name = 0;
+		*child_file_name = 0;
+		*scan_type = 0;
+		file_type = -1;
+		rules = 0;
+	}
+};
+
 
 int iteration_counter = 0;
 int archive_failure_counter = 0;
@@ -59,7 +81,8 @@ static const char *type_of_scan[] = {
 
 // function declarations
 
-static void scan_content2 (const uint8_t *buf,
+static void scan_content2 (
+		const uint8_t *buf,
 		size_t sz,
 		YR_RULES *rules,
 		std::list<security_scan_results_t> *ssr_list,
@@ -127,7 +150,7 @@ double get_failure_percentage() {
 	
 	double total = iteration_counter - 1;
 	
-	if (archive_failure_counter > 0)
+	if (archive_failure_counter > 1 && total > 1)
 		return ((double)total/(double)archive_failure_counter) * 100;
 	return 0.0;
 }
