@@ -250,7 +250,7 @@ YR_RULES *bayshore_yara_preprocess_rules (const char *rule_filename)
 	int rresult;
 	int errors;
 	YR_COMPILER* compiler;
-	EXTERNAL* external;
+	EXTERNAL *external = NULL;
 	FILE* rule_file;
 	YR_RULES* rules;
 	struct stat st;
