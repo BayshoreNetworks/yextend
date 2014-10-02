@@ -307,6 +307,81 @@ __InitFileData_t::__InitFileData_t()
     FileDataPatternMap[50] = "Microsoft Office Open XML Format Document (DOCX PPTX XLSX)";
     FileDataPatternOffset[50] = 0;
     
+    // MATLAB 5
+    FileDataPatterns["4d41544c41422035"] = 51;
+    FileDataPatternMap[51] = "MATLAB 5.X";
+    FileDataPatternOffset[51] = 0;
+    
+    // MATLAB 7
+    FileDataPatterns["4d41544c41422037"] = 52;
+    FileDataPatternMap[52] = "MATLAB 7.X";
+    FileDataPatternOffset[52] = 0;
+    
+    // CATIA Model
+    FileDataPatterns["56355f434656320000"] = 53;
+    FileDataPatternMap[53] = "CATIA Model";
+    FileDataPatternOffset[53] = 0;
+    
+    // Mujahideen Secrets 2 encrypted file
+    FileDataPatterns["005c41b1ff"] = 54;
+    FileDataPatternMap[54] = "Mujahideen Secrets 2 encrypted file";
+    FileDataPatternOffset[54] = 0;
+
+    // Generic AutoCAD
+    FileDataPatterns["41433130"] = 55;
+    FileDataPatternMap[55] = "AutoCAD Drawing";
+    FileDataPatternOffset[55] = 0;
+    
+    // Lotus stuff
+    FileDataPatterns["1a0000040000"] = 56;
+    FileDataPatternMap[56] = "Lotus Notes Database";
+    FileDataPatternOffset[56] = 0;
+    
+    FileDataPatterns["1a0000"] = 57;
+    FileDataPatternMap[57] = "Lotus Notes Database Template";
+    FileDataPatternOffset[57] = 0;
+    
+    // Outlook / some email stuff
+    FileDataPatterns["2142444e"] = 58;
+    FileDataPatternMap[58] = "Microsoft Outlook Personal Folder File";
+    FileDataPatternOffset[58] = 0;
+    
+    FileDataPatterns["46726f6d203f3f3f"] = 59;
+    FileDataPatternMap[59] = "Generic E-Mail (EML) File";
+    FileDataPatternOffset[59] = 0;
+    
+    FileDataPatterns["46726f6d202020"] = 60;
+    FileDataPatternMap[60] = "Generic E-Mail (EML) File";
+    FileDataPatternOffset[60] = 0;
+    
+    FileDataPatterns["46726f6d3a20"] = 61;
+    FileDataPatternMap[61] = "Generic E-Mail (EML) File";
+    FileDataPatternOffset[61] = 0;
+    
+    FileDataPatterns["46726f6d"] = 62;
+    FileDataPatternMap[62] = "Generic E-Mail (EML) File";
+    FileDataPatternOffset[62] = 0;
+    
+    FileDataPatterns["52657475726e2d50"] = 63;
+    FileDataPatternMap[63] = "Generic E-Mail (EML) File";
+    FileDataPatternOffset[63] = 0;
+    
+    FileDataPatterns["813284c18505d011b29000aa003cf676"] = 64;
+    FileDataPatternMap[64] = "Outlook Express address book (Win95)";
+    FileDataPatternOffset[64] = 0;
+
+    FileDataPatterns["cfad12fe"] = 65;
+    FileDataPatternMap[65] = "Outlook Express E-Mail Folder";
+    FileDataPatternOffset[65] = 0;
+
+    FileDataPatterns["9ccbcb8d1375d211955800c04f7956a4"] = 66;
+    FileDataPatternMap[66] = "Outlook Address File";
+    FileDataPatternOffset[66] = 0;
+    
+    FileDataPatterns["9ccbcb8d1375d211"] = 67;
+    FileDataPatternMap[67] = "Outlook Address File";
+    FileDataPatternOffset[67] = 0;
+    
         
     
 	/*
