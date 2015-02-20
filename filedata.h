@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * YEXTEND: Help for YARA users.
- * Copyright (C) 2014 by Bayshore Networks, Inc. All Rights Reserved.
+ * Copyright (C) 2014-2015 by Bayshore Networks, Inc. All Rights Reserved.
  *
  * This file is part of yextend.
  *
@@ -56,6 +56,9 @@ class FileData {
     bool is_office(int);
     bool is_image(int);
     bool is_archive(int);
+    bool is_zip(int);
+    bool is_matlab(int);
+    bool is_7zip(int);
 
 };
 
