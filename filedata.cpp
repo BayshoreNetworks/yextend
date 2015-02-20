@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * YEXTEND: Help for YARA users.
- * Copyright (C) 2014 by Bayshore Networks, Inc. All Rights Reserved.
+ * Copyright (C) 2014-2015 by Bayshore Networks, Inc. All Rights Reserved.
  *
  * This file is part of yextend.
  *
@@ -137,9 +137,11 @@ __InitFileData_t::__InitFileData_t()
     FileDataPatternMap[14] = "Encrypted RAR Archive (Subsequent Part of Multiple Files)";
     FileDataPatternOffset[14] = 0;
 
+    /*
     FileDataPatterns["504b0304"] = 15;
     FileDataPatternMap[15] = "Zip or Jar Archive";
     FileDataPatternOffset[15] = 0;
+    */
 
     FileDataPatterns["5f27a889"] = 16;
     FileDataPatternMap[16] = "Jar Archive";
@@ -382,7 +384,350 @@ __InitFileData_t::__InitFileData_t()
     FileDataPatternMap[67] = "Outlook Address File";
     FileDataPatternOffset[67] = 0;
     
+    // PGP / GPG files
+    FileDataPatterns["988d04"] = 68;
+    FileDataPatternMap[68] = "PGP/GPG Public Key File - RSA Key Length 1024";
+    FileDataPatternOffset[68] = 0;
+    
+    FileDataPatterns["99010d04"] = 69;
+    FileDataPatternMap[69] = "PGP/GPG Public Key File - RSA Key Length 2048";
+    FileDataPatternOffset[69] = 0;
+    
+    FileDataPatterns["99018d04"] = 70;
+    FileDataPatternMap[70] = "PGP/GPG Public Key File - RSA Key Length 3072";
+    FileDataPatternOffset[70] = 0;
+    
+    FileDataPatterns["99020d04"] = 71;
+    FileDataPatternMap[71] = "PGP/GPG Public Key File - RSA Key Length 4096";
+    FileDataPatternOffset[71] = 0;
+    
+    FileDataPatterns["9501d804"] = 72;
+    FileDataPatternMap[72] = "PGP/GPG Private Key File - RSA Key Length 1024";
+    FileDataPatternOffset[72] = 0;
+    
+    FileDataPatterns["95039804"] = 73;
+    FileDataPatternMap[73] = "PGP/GPG Private Key File - RSA Key Length 2048";
+    FileDataPatternOffset[73] = 0;
+    
+    FileDataPatterns["95055804"] = 74;
+    FileDataPatternMap[74] = "PGP/GPG Private Key File - RSA Key Length 3072";
+    FileDataPatternOffset[74] = 0;
+
+    FileDataPatterns["95071804"] = 75;
+    FileDataPatternMap[75] = "PGP/GPG Private Key File - RSA Key Length 4096";
+    FileDataPatternOffset[75] = 0;
+
+    FileDataPatterns["9501fe04"] = 76;
+    FileDataPatternMap[76] = "PGP/GPG Private Key File (password protected) - RSA Key Length 1024";
+    FileDataPatternOffset[76] = 0;
+    
+    FileDataPatterns["9503be04"] = 77;
+    FileDataPatternMap[77] = "PGP/GPG Private Key File (password protected) - RSA Key Length 2048";
+    FileDataPatternOffset[77] = 0;
+    
+    FileDataPatterns["95057e04"] = 78;
+    FileDataPatternMap[78] = "PGP/GPG Private Key File (password protected) - RSA Key Length 3072";
+    FileDataPatternOffset[78] = 0;
+
+    FileDataPatterns["95073d04"] = 79;
+    FileDataPatternMap[79] = "PGP/GPG Private Key File (password protected) - RSA Key Length 4096";
+    FileDataPatternOffset[79] = 0;
+    
+    FileDataPatterns["848c03"] = 80;
+    FileDataPatternMap[80] = "PGP/GPG Encrypted File - RSA Key Length 1024";
+    FileDataPatternOffset[80] = 0;
+    
+    FileDataPatterns["85010c03"] = 81;
+    FileDataPatternMap[81] = "PGP/GPG Encrypted File - RSA Key Length 2048";
+    FileDataPatternOffset[81] = 0;
+    
+    FileDataPatterns["85018c03"] = 82;
+    FileDataPatternMap[82] = "PGP/GPG Encrypted File - RSA Key Length 3072";
+    FileDataPatternOffset[82] = 0;
+    
+    FileDataPatterns["85020c03"] = 83;
+    FileDataPatternMap[83] = "PGP/GPG Encrypted File - RSA Key Length 4096";
+    FileDataPatternOffset[83] = 0;
+    
+    // -----BEGIN PGP MESSAGE-----
+    FileDataPatterns["2d2d2d2d2d424547494e20504750204d4553534147452d2d2d2d2d"] = 84;
+    FileDataPatternMap[84] = "PGP Encrypted Message (ciphertext)";
+    FileDataPatternOffset[84] = 0;
+    
+    // -----BEGIN PGP PUBLIC KEY BLOCK-----
+    FileDataPatterns["2d2d2d2d2d424547494e20504750205055424c4943204b455920424c4f434b2d2d2d2d2d"] = 85;
+    FileDataPatternMap[85] = "PGP Public Key Block";
+    FileDataPatternOffset[85] = 0;
+    
+    // -----BEGIN PGP PRIVATE KEY BLOCK-----
+    FileDataPatterns["2d2d2d2d2d424547494e205047502050524956415445204b455920424c4f434b2d2d2d2d2d"] = 86;
+    FileDataPatternMap[86] = "PGP Private Key Block";
+    FileDataPatternOffset[86] = 0;
+    
+    // pcap FileDataPatterns
+    FileDataPatterns["34cdb2a1"] = 87;
+    FileDataPatternMap[87] = "PCAP file";
+    FileDataPatternOffset[87] = 0;
+
+    FileDataPatterns["a1b2cd34"] = 88;
+    FileDataPatternMap[88] = "PCAP file";
+    FileDataPatternOffset[88] = 0;
+    
+    FileDataPatterns["0a0d0d0a"] = 89;
+    FileDataPatternMap[89] = "PCAPNG file";
+    FileDataPatternOffset[89] = 0;
+
+    // Windows Policy Administrative Template files
+    FileDataPatterns["fffe43004c004100530053002000"] = 90;
+    FileDataPatternMap[90] = "Windows Policy Administrative Template";
+    FileDataPatternOffset[90] = 0;
+    
+    FileDataPatterns["3b"] = 91;
+    FileDataPatternMap[91] = "Windows Policy Administrative Template";
+    FileDataPatternOffset[91] = 0;
+    
+    FileDataPatterns["434c41535320"] = 92;
+    FileDataPatternMap[92] = "Windows Policy Administrative Template";
+    FileDataPatternOffset[92] = 0;
+    
+    FileDataPatterns["fffe3c003f0078006d006c0020007600"] = 93;
+    FileDataPatternMap[93] = "Windows Group Policy Administrative Template";
+    FileDataPatternOffset[93] = 0;
+    
+    // extension MRP
+    FileDataPatterns["4d525047"] = 94;
+    FileDataPatternMap[94] = "China Mobile Application";
+    FileDataPatternOffset[94] = 0;    
+
+    // rare but valid pattern for DOS / MZ executable
+    FileDataPatterns["5a4d"] = 95;
+    FileDataPatternMap[95] = "Windows Executable";
+    FileDataPatternOffset[95] = 0;
+
+    /*
+     * different patterns of binaries/executables ...
+     */
+    FileDataPatterns["7f454c46"] = 96;
+    FileDataPatternMap[96] = "ELF Executable";
+    FileDataPatternOffset[96] = 0;
+    
+    FileDataPatterns["feedface"] = 97;
+    FileDataPatternMap[97] = "Mach-O 32-Bit Big Endian";
+    FileDataPatternOffset[97] = 0;
+    
+    FileDataPatterns["cefaedfe"] = 98;
+    FileDataPatternMap[98] = "Mach-O 32-Bit Little Endian";
+    FileDataPatternOffset[98] = 0;
+    
+    FileDataPatterns["feedfacf"] = 99;
+    FileDataPatternMap[99] = "Mach-O 64-Bit Big Endian";
+    FileDataPatternOffset[99] = 0;
+    
+    FileDataPatterns["cffaedfe"] = 100;
+    FileDataPatternMap[100] = "Mach-O 64-Bit Little Endian";
+    FileDataPatternOffset[100] = 0;
+
+    /*
+     * Compiled Java class files (bytecode) and Mach-O binaries start with hex CAFEBABE 
+     * When compressed with Pack200 the bytes are changed to CAFED00D
+     */
+    FileDataPatterns["cafebabe"] = 101;
+    FileDataPatternMap[101] = "Java Bytecode or Mach-O FAT Binary";
+    FileDataPatternOffset[101] = 0;
+    
+    FileDataPatterns["cafed00d"] = 102;
+    FileDataPatternMap[102] = "Java Bytecode (Pack200 compression)";
+    FileDataPatternOffset[102] = 0;
+    
+    FileDataPatterns["aced"] = 103;
+    FileDataPatternMap[103] = "Java Serialization Data";
+    FileDataPatternOffset[103] = 0;
+
+    FileDataPatterns["beefcace"] = 104;
+    FileDataPatternMap[104] = "Microsoft .Net Resource File";
+    FileDataPatternOffset[104] = 0;
+
+    FileDataPatterns["435753"] = 105;
+    FileDataPatternMap[105] = "Shockwave Flash File (SWF)";
+    FileDataPatternOffset[105] = 0;
+    
+    FileDataPatterns["465753"] = 106;
+    FileDataPatternMap[106] = "Shockwave Flash File (SWF)";
+    FileDataPatternOffset[106] = 0;
+    
+    FileDataPatterns["464c56"] = 107;
+    FileDataPatternMap[107] = "Flash Video File (FLV)";
+    FileDataPatternOffset[107] = 0;
+
+    FileDataPatterns["64383a616e6e6f756e6365"] = 108;
+    FileDataPatternMap[108] = "Torrent File";
+    FileDataPatternOffset[108] = 0;
+    
+    // more zip patterns
+    FileDataPatterns["504b0506"] = 109;
+    FileDataPatternMap[109] = "Zip Archive";
+    FileDataPatternOffset[109] = 0;
+    
+    FileDataPatterns["504b0708"] = 110;
+    FileDataPatternMap[110] = "Zip Archive";
+    FileDataPatternOffset[110] = 0;
+    
+    FileDataPatterns["504b537058"] = 111; // PKSpX in ASCII
+    FileDataPatternMap[111] = "PKSFX Self-Extracting Archive";
+    FileDataPatternOffset[111] = 526;
+    
+    FileDataPatterns["504b4c495445"] = 112; // PKLITE in ASCII
+    FileDataPatternMap[112] = "PKLITE Compressed ZIP Archive";
+    FileDataPatternOffset[112] = 30;
+
+    // Puffer encrypted
+    FileDataPatterns["50554658"] = 113; // PUFX in ASCII
+    FileDataPatternMap[113] = "Puffer Encrypted Archive";
+    FileDataPatternOffset[113] = 0;
+    
+    FileDataPatterns["426567696e2050756666657220446174610d0a"] = 114; // Begin Puffer Data.. in ASCII
+    FileDataPatternMap[114] = "Puffer ASCII-Armored Encrypted Archive";
+    FileDataPatternOffset[114] = 0;
+    
+    // VirtualBox Disk Image
+    FileDataPatterns["3c3c3c20"] = 115;
+    FileDataPatternMap[115] = "VirtualBox Disk Image (VDI)";
+    FileDataPatternOffset[115] = 0;
+
+    // VMDK
+    FileDataPatterns["434f5744"] = 116;
+    FileDataPatternMap[116] = "VMware 3 Virtual Disk";
+    FileDataPatternOffset[116] = 0;
+    
+    FileDataPatterns["23204469736b2044"] = 117;
+    FileDataPatternMap[117] = "VMware 4 Virtual Disk";
+    FileDataPatternOffset[117] = 0;
+    
+    FileDataPatterns["4b444d"] = 118;
+    FileDataPatternMap[118] = "VMware 4 Virtual Disk";
+    FileDataPatternOffset[118] = 0;
+
+    // another TIFF image
+    FileDataPatterns["4d4d2a"] = 119;
+    FileDataPatternMap[119] = "TIFF image file";
+    FileDataPatternOffset[119] = 0;
+    
+    FileDataPatterns["49545346"] = 120;
+    FileDataPatternMap[120] = "Compiled HTML";
+    FileDataPatternOffset[120] = 0;
+    
+    FileDataPatterns["3f5f0300"] = 121;
+    FileDataPatternMap[121] = "Windows Help File";
+    FileDataPatternOffset[121] = 0;
+    
+    FileDataPatterns["4c4e0200"] = 122;
+    FileDataPatternMap[122] = "Windows Help File";
+    FileDataPatternOffset[122] = 0;
+    
+    FileDataPatterns["23212f"] = 123;
+    FileDataPatternMap[123] = "Shell Script (shebang)";
+    FileDataPatternOffset[123] = 0;
+
+    // some media formats ...
+    // MPEG Video file
+    FileDataPatterns["000001b3"] = 124;
+    FileDataPatternMap[124] = "MPEG Video file";
+    FileDataPatternOffset[124] = 0;
+    
+    FileDataPatterns["000001ba"] = 125;
+    FileDataPatternMap[125] = "MPEG Video file";
+    FileDataPatternOffset[125] = 0;
+    
+    // ASF
+    FileDataPatterns["3026b2758e66cf11"] = 126;
+    FileDataPatternMap[126] = "Microsoft Windows Media Audio/Video File (ASF WMA WMV)";
+    FileDataPatternOffset[126] = 0;
+    
+    // WAV
+    FileDataPatterns["57415645"] = 127;
+    FileDataPatternMap[127] = "Wave File (WAV)";
+    FileDataPatternOffset[127] = 8;    
+    
+    // AVI
+    FileDataPatterns["415649"] = 128;
+    FileDataPatternMap[128] = "Audio Video Interleaved File (AVI)";
+    FileDataPatternOffset[128] = 8; 
+
+    // REAL
+    FileDataPatterns["2e7261fd"] = 129;
+    FileDataPatternMap[129] = "Real Audio Metadata File (RAM)";
+    FileDataPatternOffset[129] = 0; 
+    
+    FileDataPatterns["2e524d46"] = 130;
+    FileDataPatternMap[130] = "RealMedia File (RM)";
+    FileDataPatternOffset[130] = 0;
+    
+    // Quicktime
+    FileDataPatterns["6d6f6f76"] = 131;
+    FileDataPatternMap[131] = "QuickTime Movie";
+    FileDataPatternOffset[131] = 4;
+
+    FileDataPatterns["6674797069736f6d"] = 132;
+    FileDataPatternMap[132] = "QuickTime Movie (MP4)";
+    FileDataPatternOffset[132] = 4;
+
+    FileDataPatterns["6674797033677034"] = 133;
+    FileDataPatternMap[133] = "QuickTime Movie (3GP)";
+    FileDataPatternOffset[133] = 4;
+
+    FileDataPatterns["667479706d6d7034"] = 134;
+    FileDataPatternMap[134] = "QuickTime Movie (3GP)";
+    FileDataPatternOffset[134] = 4;
+    
+    FileDataPatterns["667479704d344120"] = 135;
+    FileDataPatternMap[135] = "QuickTime - Apple Lossless Audio Codec file (M4A)";
+    FileDataPatternOffset[135] = 4;
+
+    FileDataPatterns["667479704d345620"] = 136;
+    FileDataPatternMap[136] = "QuickTime Movie (M4V)";
+    FileDataPatternOffset[136] = 4;
+
+    FileDataPatterns["667479706d703431"] = 137;
+    FileDataPatternMap[137] = "QuickTime Movie (MP4)";
+    FileDataPatternOffset[137] = 4;
+    
+    FileDataPatterns["667479706d703432"] = 138;
+    FileDataPatternMap[138] = "QuickTime Movie (MP4)";
+    FileDataPatternOffset[138] = 4;
+    
+    FileDataPatterns["6674797033677035"] = 139;
+    FileDataPatternMap[139] = "QuickTime Movie (MP4)";
+    FileDataPatternOffset[139] = 4;
+
+    FileDataPatterns["667479704d534e56"] = 140;
+    FileDataPatternMap[140] = "QuickTime Movie (MP4)";
+    FileDataPatternOffset[140] = 4;    
+    
+    FileDataPatterns["6674797071742020"] = 141;
+    FileDataPatternMap[141] = "QuickTime Movie (MOV)";
+    FileDataPatternOffset[141] = 4;
+    
+    FileDataPatterns["0000001866747970"] = 142;
+    FileDataPatternMap[142] = "MPEG-4 Video File (3GP5)";
+    FileDataPatternOffset[142] = 4;
+
+    // -----BEGIN PGP SIGNATURE-----
+    FileDataPatterns["2d2d2d2d2d424547494e20504750205349474e41545552452d2d2d2d2d"] = 143;
+    FileDataPatternMap[143] = "PGP/GPG Signed Content";
+    FileDataPatternOffset[143] = 0;
+    
         
+    
+    /*
+     * zip
+     * 
+     * had to move this down in the food chain
+     * as it was conflicting with too many other
+     * legit formats that are zip based
+     */
+    FileDataPatterns["504b0304"] = 65534;
+    FileDataPatternMap[65534] = "Zip Archive";
+    FileDataPatternOffset[65534] = 0;
     
 	/*
 	 * default response ...
@@ -409,7 +754,8 @@ bool FileData::is_officex(int ix) {
 }
 
 bool FileData::is_pcap(int ix) {
-	if ((ix == 47) || (ix == 48) || (ix == 49))
+	if ((ix == 47) || (ix == 48) || (ix == 49) ||
+		(ix == 87) || (ix == 88) || (ix == 89))
 		return true;
 	return false;
 }
@@ -449,7 +795,7 @@ bool FileData::is_rar(int ix) {
 }
 
 bool FileData::is_win_exe(int ix) {
-	if ((ix == 26) || (ix == 27) || (ix == 26000))
+	if ((ix == 26) || (ix == 27) || (ix == 26000) || (ix == 95))
 		return true;
 	return false;
 }
@@ -480,24 +826,47 @@ bool FileData::is_office(int ix) {
 }
 
 bool FileData::is_image(int ix) {
-	// images are between 33 and 43 inclusive.
-	return ((unsigned)ix - 33) < 11;
+	if ((ix >= 33 && ix <= 43) || (ix == 119))
+		return true;
+	return false;
+}
+
+bool FileData::is_zip(int ix) {
+	if ((ix == 65534) || (ix == 109) || (ix == 110) || (ix == 111) || (ix == 112)) {
+		return true;
+	}
+	return false;
 }
 
 bool FileData::is_archive(int ix) {
 	/*
-     * 15 = zip
-     * 17 = gzip
-     * 18 = gzip
-     * 46 = tar
-     * is_rar() covers all known rar patterns
-     */
-    if ((ix == 15) ||
-        (ix == 17) ||
-        (ix == 18) ||
-        (ix == 46) ||
-        (is_rar(ix))
+	 * 65534 = zip
+	 * 17 = gzip
+	 * 18 = gzip
+	 * 46 = tar
+	 * is_rar() covers all known rar patterns
+	 * 21 = 7-zip
+	 */
+    if ((is_zip(ix)) ||
+        (is_gzip(ix)) ||
+        (is_tar(ix)) ||
+        (is_rar(ix)) ||
+        (is_7zip(ix))
         )
         return true;
+	return false;
+}
+
+bool FileData::is_matlab(int ix) {
+	if (ix == 51 || ix == 52) {
+		return true;
+	}
+	return false;
+}
+
+bool FileData::is_7zip(int ix) {
+	if (ix == 21) {
+		return true;
+	}
 	return false;
 }
