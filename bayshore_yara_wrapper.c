@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * YEXTEND: Help for YARA users.
- * Copyright (C) 2014 by Bayshore Networks, Inc. All Rights Reserved.
+ * Copyright (C) 2014-2015 by Bayshore Networks, Inc. All Rights Reserved.
  *
  * This file is part of yextend.
  *
@@ -109,7 +109,8 @@ void print_compiler_error(
 		int error_level,
 		const char* file_name,
 		int line_number,
-		const char* message
+		const char* message,
+		void* user_data
 		)
 {
 	if (error_level == YARA_ERROR_LEVEL_ERROR)
@@ -283,7 +284,8 @@ YR_RULES *bayshore_yara_preprocess_rules (const char *rule_filename)
 		rules = NULL;
 
 		if (yr_compiler_create(&compiler) == ERROR_SUCCESS) {
-			yr_compiler_set_callback (compiler, print_compiler_error);
+			
+			yr_compiler_set_callback (compiler, print_compiler_error, NULL);
 
 			// add the externals if any
 			while (external) {
@@ -477,7 +479,7 @@ int bayshore_yara_wrapper_api(
 				}
 			}
 
-			yr_compiler_set_callback(compiler, print_compiler_error);
+			yr_compiler_set_callback(compiler, print_compiler_error, NULL);
 			rule_file = fopen(yara_ruleset_filename, "r");
 			
 			if (rule_file == NULL)

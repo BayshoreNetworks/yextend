@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * YEXTEND: Help for YARA users.
- * Copyright (C) 2014 by Bayshore Networks, Inc. All Rights Reserved.
+ * Copyright (C) 2014-2015 by Bayshore Networks, Inc. All Rights Reserved.
  *
  * This file is part of yextend.
  *
@@ -30,6 +30,7 @@
 
 
 #define MAX_YARA_RES_BUF 2048
+#define YEXTEND_VERSION 1.2
 
 /* 
  * When calling bayshore_yara_wrapper_api, the next-to-last parameter is a

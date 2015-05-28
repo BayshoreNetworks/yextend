@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * YEXTEND: Help for YARA users.
- * Copyright (C) 2014 by Bayshore Networks, Inc. All Rights Reserved.
+ * Copyright (C) 2014-2015 by Bayshore Networks, Inc. All Rights Reserved.
  *
  * This file is part of yextend.
  *
@@ -103,6 +103,41 @@ bool does_this_file_exist(const char *fn)
 	return ( fn && *fn && (stat (fn, &st) == 0) && (S_ISREG(st.st_mode)) );
 }
 
+double get_yara_version()
+{
+    FILE *fp;
+    int tok_cnt = 0;
+    double yara_version = 0.0;
+    char yver[10];
+    const char t[2] = " ";
+    char *token;
+
+    fp = popen("yara -v", "r");
+    /*
+    if (fp == NULL) {
+        printf("Failed to run command\n" );
+        exit;
+    }
+	*/
+    if (fp != NULL) {
+		fgets(yver, sizeof(yver)-1, fp);
+		if (yver != NULL) {
+			token = strtok(yver, t);
+			while( token != NULL )
+			{
+				if (tok_cnt == 1) {
+					yara_version = strtod(token, NULL);
+				}
+				token = strtok(NULL, t);
+				tok_cnt++;
+			}
+		}
+    }
+    pclose(fp);
+
+    return yara_version;
+}
+
 static const char *output_labels[] = {
 		"Filename: ",
 		"File Size: ",
@@ -127,6 +162,19 @@ int main(int argc, char* argv[])
 
 	if (argc != 3) {
 		std::cout << std::endl << "usage: ./yextend RULES_FILE [FILE|DIR]" << std::endl << std::endl;
+		exit(0);
+	}
+	
+	// get yara runtime version
+	double yara_version = get_yara_version();
+	// version checks
+	if (YEXTEND_VERSION >= 1.2 && yara_version < 3.3) {
+		std::cout << std::endl << "Version issue: yextend version " << YEXTEND_VERSION << "+ will not run with yara versions below 3.3" << std::endl << std::endl;
+		std::cout << "Your env has yextend version ";
+		printf("%.1f\n", YEXTEND_VERSION);
+		std::cout << "Your env has yara version ";
+		printf("%.1f", yara_version);
+		std::cout << std::endl << std::endl;
 		exit(0);
 	}
 	const char *yara_ruleset_file_name = argv[1];
