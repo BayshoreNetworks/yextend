@@ -11,6 +11,8 @@ or pattern matching based on a given set of rules.
 
 Notes:
 
+- (05/28/2015) yextend version 1.2 will only work with yara 3.3 and above
+
 - This software was written for yara v3 so make sure you are on v3 if you want to use this.
 
 - This software was written and tested on Linux (both Fedora and Debian). Ports to other platforms are currently TBD.
