@@ -11,12 +11,12 @@ Notes:
 
 - (10/24/2015) yextend version 1.3 will only work with yara 3.4.
 
--- provided test rulesets (in the test_ruleset directory) follow this naming convention:
---- yara version number is now included in the compiled filename, example: "bayshore.yara.testing.ruleset.34.bin" is compiled with yarac 3.4
---- files with extension ".bin" (binary) are compiled
---- files without the ".bin" extension are clear text ruleset files
---- files with the string "meta" in them will include some rules with metadata in the "meta" section, example: "bayshore.yara.testing.meta.ruleset.34.bin"
--- if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
+	provided test rulesets (in the test_ruleset directory) follow this naming convention:
+	- yara version number is now included in the compiled filename, example: "bayshore.yara.testing.ruleset.34.bin" is compiled with yarac 3.4
+	- files with extension ".bin" (binary) are compiled
+	- files without the ".bin" extension are clear text ruleset files
+	- files with the string "meta" in them will include some rules with metadata in the "meta" section, example: "bayshore.yara.testing.meta.ruleset.34.bin"
+	if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
 
 - (05/28/2015) yextend version 1.2 will only work with yara 3.3 and above
 
