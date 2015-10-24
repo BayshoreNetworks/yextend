@@ -189,8 +189,7 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 	 */
 	if (is_matching)
 	{
-		char yara_meta_results[MAX_YARA_RES_BUF];
-		yara_meta_results[0] = NULL;
+		char yara_meta_results[MAX_YARA_RES_BUF] = {0};
 		
 		// assuming yara_results is a buffer and not a pointer
 		strncat (yara_results, rule->identifier, sizeof(yara_results)-strlen(yara_results)-1);
