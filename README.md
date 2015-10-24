@@ -58,7 +58,8 @@ Instructions:
 		
 4 - Test (optional)
 
-	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.ruleset.bin test_files/
+	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.ruleset.34.bin test_files/
+	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.meta.ruleset.34.bin test_files/
 
 5 - Run:
 
