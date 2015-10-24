@@ -32,6 +32,9 @@
 #define EXTERNAL_TYPE_BOOLEAN   2
 #define EXTERNAL_TYPE_STRING    3
 
+//#define PRIx64 "llx"
+//#define PRId64 "lld"
+
 // structs
 typedef struct _EXTERNAL
 {
@@ -72,7 +75,7 @@ TAG* specified_tags_list = NULL;
 IDENTIFIER* specified_rules_list = NULL;
 MODULE_DATA* modules_data_list = NULL;
 
-static char yara_results[2048];
+static char yara_results[MAX_YARA_RES_BUF];
 
 // functions
 void print_scanner_error(int error)
@@ -181,13 +184,85 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 	is_matching = (message == CALLBACK_MSG_RULE_MATCHING);
 
 	/*
-	 * if there is a match with a yara rule then concat those 
-	 * results to the variable yara_results
+	 * if there is a match with a yara rule then concat the 
+	 * relevant meta-data to the variable yara_results
 	 */
 	if (is_matching)
 	{
+		char yara_meta_results[MAX_YARA_RES_BUF];
+		yara_meta_results[0] = NULL;
+		
 		// assuming yara_results is a buffer and not a pointer
 		strncat (yara_results, rule->identifier, sizeof(yara_results)-strlen(yara_results)-1);
+		
+		YR_META* meta;
+		//printf("[ ");
+		yr_rule_metas_foreach(rule, meta)
+		{
+			if (meta != rule->metas)
+				strncat (yara_meta_results, ",", sizeof(yara_results)-strlen(yara_results)-1);
+			
+			if (meta->type == META_TYPE_INTEGER) {
+				strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				
+		    	char intstr[15];
+		    	sprintf(intstr, "%d", meta->integer);
+		    	strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+			} else if (meta->type == META_TYPE_BOOLEAN) {
+				strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				
+		    	char intstr[15];
+		    	sprintf(intstr, "%s", meta->integer ? "true" : "false");
+		    	strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+			} else {
+				strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				strncat (yara_meta_results, meta->string, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+			}
+		}
+		//printf("] ");
+		
+		int hit_cnt = 0;
+	    YR_STRING* string;
+	    yr_rule_strings_foreach(rule, string)
+	    {
+	    	YR_MATCH* match;
+	        yr_string_matches_foreach(string, match)
+	        {
+	        	/*
+	        	 * the following lines would display the actual
+	        	 * strings that matched in the data being
+	        	 * scanned/searched
+	        	 * 
+	        	 * I havent enabled this because the data can be
+	        	 * a lot here - need to think this through a bit more
+	        	 */
+		    	//strncat (yara_meta_results, "match=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+		    	//strncat (yara_meta_results, match->data, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+		    	hit_cnt += 1;
+	        }
+	    }
+	    //printf("%d\n\n", hit_cnt);
+
+	    /*
+	     * for now let's only display the hit count if there
+	     * is also metadata to display
+	     */
+		if (strlen(yara_meta_results) > 0) {
+		    if (hit_cnt > 0) {
+		    	strncat (yara_meta_results, ",hit_count=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+		    	// convert into to str (char array)
+		    	char intstr[15];
+		    	sprintf(intstr, "%d", hit_cnt);
+		    	strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+		    }
+			strncat (yara_results, ":[", sizeof(yara_results)-strlen(yara_results)-1);
+			strncat (yara_results, yara_meta_results, sizeof(yara_results)-strlen(yara_results)-1);
+			strncat (yara_results, "]", sizeof(yara_results)-strlen(yara_results)-1);
+		}
+		
 		strncat (yara_results, ", ", sizeof(yara_results)-strlen(yara_results)-1);
 		count++;
 	}
