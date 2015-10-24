@@ -29,8 +29,8 @@
 #include <stdint.h>
 
 
-#define MAX_YARA_RES_BUF 2048
-#define YEXTEND_VERSION 1.2
+#define MAX_YARA_RES_BUF 4096
+#define YEXTEND_VERSION 1.3
 
 /* 
  * When calling bayshore_yara_wrapper_api, the next-to-last parameter is a
