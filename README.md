@@ -4,16 +4,21 @@ yextend
 Yara integrated software to handle archive file data.
 
 yextend was written for the sake of augmenting yara. yara by itself is great but we realized that it could not natively handle archived content in the granular way that we needed it to.
-For instance, if we were hunting for malware and it happened to be buried a few levels into archived content, yara in its native form could not help us. So what we have done is natively handle the
-deflation of archived content. And we pass the inflated content of each discovered file to yara so that it sees what it is looking for, one file's payload, and then does what it does quite well in terms
-or pattern matching based on a given set of rules.
+For instance, if we were hunting for malware and it happened to be buried a few levels into archived content, yara in its native form could not help us. So what we have done is natively handle the inflation of archived content. And we pass the inflated content of each discovered resource to yara so that it can work its magic natively on one file's payload. Then yara does what it does quite well in terms of pattern matching and such based on a given set of rules.
 
 
 Notes:
 
-- (05/28/2015) yextend version 1.2 will only work with yara 3.3 and above
+- (10/24/2015) yextend version 1.3 will only work with yara 3.4.
 
-- This software was written for yara v3 so make sure you are on v3 if you want to use this.
+-- provided test rulesets (in the test_ruleset directory) follow this naming convention:
+--- yara version number is now included in the compiled filename, example: "bayshore.yara.testing.ruleset.34.bin" is compiled with yarac 3.4
+--- files with extension ".bin" (binary) are compiled
+--- files without the ".bin" extension are clear text ruleset files
+--- files with the string "meta" in them will include some rules with metadata in the "meta" section, example: "bayshore.yara.testing.meta.ruleset.34.bin"
+-- if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
+
+- (05/28/2015) yextend version 1.2 will only work with yara 3.3 and above
 
 - This software was written and tested on Linux (both Fedora and Debian). Ports to other platforms are currently TBD.
 
@@ -96,7 +101,7 @@ Instructions:
 	File Signature (MD5): d
 	
 	
-	Yara Result(s): RULE2, RULE3
+	Yara Result(s): RULE2, RULEWITHMETA:[type=Simple string search,signature=Looking for 95,author=Dre,testint=9,d=false,hit_count=12], RULE3
 	Scan Type: v
 	Parent File Name: x
 	Child File Name: y
