@@ -16,6 +16,7 @@ Notes:
 	- files with extension ".bin" (binary) are compiled
 	- files without the ".bin" extension are clear text ruleset files
 	- files with the string "meta" in them will include some rules with metadata in the "meta" section, example: "bayshore.yara.testing.meta.ruleset.34.bin"
+
 	if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
 
 - (05/28/2015) yextend version 1.2 will only work with yara 3.3 and above
