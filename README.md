@@ -97,7 +97,7 @@ Instructions:
 
 	=======================================================================
 
-	Yara Result(s): RULE1
+	Yara Result(s): RULE1:[detected offsets=0x48:$a,hit_count=1]
 	Scan Type: a
 	Parent File Name: b
 	Child File Name: c
@@ -112,6 +112,35 @@ Instructions:
 
 
 	===============================OMEGA===================================
+
+	For each result stanza you will be presented with a listing of the relevant Yara rules that hit. This will be in the key/value pair with key "Yara Result(s)". The value here is formatted as follows:
+
+		RULE_ID:[META_DATA,OFFSETS,HIT_COUNT], RULE_ID[OFFSETS,HIT_COUNT], ... RULE_ID[OFFSETS,HIT_COUNT]
+
+		Inside the square brackets:
+		
+			The "META_DATA" are comma-separated and represent the data from your rules "meta" section. As this is optional you may see no meta-data output from yextend.
+			The OFFSETS are comma-separated. Each offset listing is delimited by a dash and represent the offset in the content where the rule hit took place and the respective string definition identifier from your Yara rule.
+			The HIT_COUNT is simply a listing of the number of rule hits.
+
+		Here is an example:
+
+			EXE_DROP:[detected offsets=0x4e:$a,hit_count=1], MZ_PORTABLE_EXE, S95:[detected offsets=0xd94e:$a-0x2c5b5:$b,hit_count=2]
+
+		Breakdown: In this example there are 3 rules that hit:
+
+			RULE_ID: EXE_DROP
+			META_DATA: No meta data listed as there is none in the rule
+			OFFSETS: detected offsets=0x4e:$a ("0x4e" is the offset in the content and "$a" is the respective string definition identifier)
+			HIT_COUNT: hit_count=1
+
+			RULE_ID: MZ_PORTABLE_EXE (Nothing else is listed because this rule only has the required "condition" section)
+
+			RULE_ID: S95
+			META_DATA: No meta data listed as there is none in the rule
+			OFFSETS: detected offsets=0xd94e:$a-0x2c5b5:$b ("0xd94e" is one offset in the content that hit on string definition "$a". "0x2c5b5" is another offset in the content that hit on string definition "$b")
+			HIT_COUNT: hit_count=2
+
 		
 		
 	A. example output from one of the test files:
