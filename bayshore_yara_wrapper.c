@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * YEXTEND: Help for YARA users.
- * Copyright (C) 2014-2015 by Bayshore Networks, Inc. All Rights Reserved.
+ * Copyright (C) 2014-2016 by Bayshore Networks, Inc. All Rights Reserved.
  *
  * This file is part of yextend.
  *
@@ -32,8 +32,8 @@
 #define EXTERNAL_TYPE_BOOLEAN   2
 #define EXTERNAL_TYPE_STRING    3
 
-//#define PRIx64 "llx"
-//#define PRId64 "lld"
+#define PRIx64 "llx"
+
 
 // structs
 typedef struct _EXTERNAL
@@ -70,12 +70,15 @@ typedef struct _MODULE_DATA
 } MODULE_DATA;
 
 // vars and initializations
+int show_strings = TRUE;
+int show_meta = TRUE;
+
 EXTERNAL* externals_list = NULL;
 TAG* specified_tags_list = NULL;
 IDENTIFIER* specified_rules_list = NULL;
 MODULE_DATA* modules_data_list = NULL;
 
-static char yara_results[MAX_YARA_RES_BUF];
+static char yara_results[MAX_YARA_RES_BUF + 1024];
 
 // functions
 void print_scanner_error(int error)
@@ -175,6 +178,7 @@ void cleanup()
 	}
 }
 
+
 int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 {
 	int is_matching;
@@ -190,62 +194,86 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 	if (is_matching)
 	{
 		char yara_meta_results[MAX_YARA_RES_BUF];
-		yara_meta_results[0] = NULL;
+		yara_meta_results[0] = 0;
 		
 		// assuming yara_results is a buffer and not a pointer
 		strncat (yara_results, rule->identifier, sizeof(yara_results)-strlen(yara_results)-1);
 		
-		YR_META* meta;
-		//printf("[ ");
-		yr_rule_metas_foreach(rule, meta)
-		{
-			if (meta != rule->metas)
-				strncat (yara_meta_results, ",", sizeof(yara_results)-strlen(yara_results)-1);
-			
-			if (meta->type == META_TYPE_INTEGER) {
-				strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-				strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+		if (show_meta) {
+			YR_META* meta;
+			//printf("[ ");
+			yr_rule_metas_foreach(rule, meta)
+			{
+				if (meta != rule->metas)
+					strncat (yara_meta_results, ",", sizeof(yara_results)-strlen(yara_results)-1);
 				
-		    	char intstr[15];
-		    	sprintf(intstr, "%d", meta->integer);
-		    	strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-			} else if (meta->type == META_TYPE_BOOLEAN) {
-				strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-				strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-				
-		    	char intstr[15];
-		    	sprintf(intstr, "%s", meta->integer ? "true" : "false");
-		    	strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-			} else {
-				strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-				strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-				strncat (yara_meta_results, meta->string, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				if (meta->type == META_TYPE_INTEGER) {
+					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+					strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+					
+					char intstr[15];
+					sprintf(intstr, "%d", meta->integer);
+					strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				} else if (meta->type == META_TYPE_BOOLEAN) {
+					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+					strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+					
+					char intstr[15];
+					sprintf(intstr, "%s", meta->integer ? "true" : "false");
+					strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				} else {
+					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+					strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+					strncat (yara_meta_results, meta->string, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+				}
 			}
+			//printf("] ");
 		}
 		//printf("] ");
 		
 		int hit_cnt = 0;
-	    YR_STRING* string;
-	    yr_rule_strings_foreach(rule, string)
-	    {
-	    	YR_MATCH* match;
-	        yr_string_matches_foreach(string, match)
-	        {
-	        	/*
-	        	 * the following lines would display the actual
-	        	 * strings that matched in the data being
-	        	 * scanned/searched
-	        	 * 
-	        	 * I havent enabled this because the data can be
-	        	 * a lot here - need to think this through a bit more
-	        	 */
-		    	//strncat (yara_meta_results, "match=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-		    	//strncat (yara_meta_results, match->data, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-		    	hit_cnt += 1;
-	        }
-	    }
-	    //printf("%d\n\n", hit_cnt);
-
+		char tmp_str_results[4096];
+		tmp_str_results[0] = 0;
+		
+		if (show_strings) {
+			YR_STRING* string;
+			yr_rule_strings_foreach(rule, string)
+			{
+				YR_MATCH* match;
+				yr_string_matches_foreach(string, match)
+				{
+					/*
+					 * the following lines display the actual offset (in hex), and
+					 * the string definition identifier from the yara rule,
+					 * where the target yara rule matched the data being
+					 * scanned/searched
+					 * 
+					 */					
+					char tmp_results[1024];
+			    	sprintf(tmp_results, "0x%" PRIx64 ":%s-", match->base + match->offset, string->identifier);
+			    	strncat(tmp_str_results, tmp_results, sizeof(tmp_str_results)-strlen(tmp_str_results)-1);
+					
+					hit_cnt += 1;
+				}
+			}
+			//printf("%d\n\n", hit_cnt);
+		}
+		
+		if (strlen(tmp_str_results) > 0) {
+			// get rid of last dash
+			tmp_str_results[strlen(tmp_str_results)-1] = 0;
+			/*
+			 * adjust starting comma output based on length of yara_meta_results ...
+			 * so if there is no meta data to output we dont start with
+			 * a comma here
+			 */
+			if (strlen(yara_meta_results) > 0)
+				strncat (yara_meta_results, ",detected offsets=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+			else
+				strncat (yara_meta_results, "detected offsets=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+			strncat (yara_meta_results, tmp_str_results, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+		}
+	    
 	    /*
 	     * for now let's only display the hit count if there
 	     * is also metadata to display

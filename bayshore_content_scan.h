@@ -1,7 +1,7 @@
 /*****************************************************************************
  *
  * YEXTEND: Help for YARA users.
- * Copyright (C) 2014 by Bayshore Networks, Inc. All Rights Reserved.
+ * Copyright (C) 2014-2016 by Bayshore Networks, Inc. All Rights Reserved.
  *
  * This file is part of yextend.
  *
