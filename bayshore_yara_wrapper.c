@@ -483,7 +483,7 @@ int bayshore_yara_wrapper_yrrules_api(
 		
 		// we have rule hits from yara
 		if (*yara_results) {
-			snprintf(api_yara_results, MAX_YARA_RES_BUF, "%s", yara_results);
+			snprintf(api_yara_results, MAX_YARA_RES_BUF + 1024, "%s", yara_results);
 			size_t sl = strlen(api_yara_results);
 			if (sl >= 2) {
                 sl -= 2;
