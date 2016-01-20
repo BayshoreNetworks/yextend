@@ -78,7 +78,7 @@ TAG* specified_tags_list = NULL;
 IDENTIFIER* specified_rules_list = NULL;
 MODULE_DATA* modules_data_list = NULL;
 
-static char yara_results[MAX_YARA_RES_BUF];
+static char yara_results[MAX_YARA_RES_BUF + 1024];
 
 // functions
 void print_scanner_error(int error)
@@ -232,7 +232,7 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 		//printf("] ");
 		
 		int hit_cnt = 0;
-		char tmp_str_results[1024];
+		char tmp_str_results[4096];
 		tmp_str_results[0] = 0;
 		
 		if (show_strings) {
@@ -243,8 +243,9 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 				yr_string_matches_foreach(string, match)
 				{
 					/*
-					 * the following lines display the actual offset
-					 * (in hex) where the target yara rule matched the data being
+					 * the following lines display the actual offset (in hex), and
+					 * the string definition identifier from the yara rule,
+					 * where the target yara rule matched the data being
 					 * scanned/searched
 					 * 
 					 */					

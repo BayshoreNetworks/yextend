@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 
-#define MAX_YARA_RES_BUF 4096
+#define MAX_YARA_RES_BUF 8192
 #define YEXTEND_VERSION 1.4
 
 /* 
