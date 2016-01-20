@@ -455,12 +455,12 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 	 */
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	
-	char local_api_yara_results[MAX_YARA_RES_BUF];
+	char local_api_yara_results[MAX_YARA_RES_BUF + 1024];
 	size_t local_api_yara_results_len = 0;
 	/*
 	 * to use this API the buffer passed in to param 4 (local_api_yara_results)
-	 * must be at least MAX_YARA_RES_BUF in size. This is defined in
-	 * bayshore_yara_wrapper.h
+	 * must be at least MAX_YARA_RES_BUF + 1024 in size. This is defined in
+	 * bayshore_yara_wrapper.h and extended by 1024 in bayshore_yara_wrapper.c
 	 * 
 	 * first check for a native yara compiled rules struct,
 	 * if it exists call the wrapper API with it instead of
