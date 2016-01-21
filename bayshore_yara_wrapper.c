@@ -331,7 +331,8 @@ int define_external_variables(
 		YR_RULES* rules,
 		YR_COMPILER* compiler)
 {
-	for (int i = 0; ext_vars[i] != NULL; i++)
+	int i;
+	for (i = 0; ext_vars[i] != NULL; i++)
 	{
 		char* equal_sign = strchr(ext_vars[i], '=');
 
@@ -415,57 +416,58 @@ int define_external_variables(
 
 int load_modules_data()
 {
-  for (int i = 0; modules_data[i] != NULL; i++)
-  {
-    char* equal_sign = strchr(modules_data[i], '=');
+	int i;
+	for (i = 0; modules_data[i] != NULL; i++)
+	{
+		char* equal_sign = strchr(modules_data[i], '=');
 
-    if (!equal_sign)
-    {
-      fprintf(stderr, "error: wrong syntax for `-x` option.\n");
-      return FALSE;
-    }
+		if (!equal_sign)
+		{
+			fprintf(stderr, "error: wrong syntax for `-x` option.\n");
+			return FALSE;
+		}
 
-    *equal_sign = '\0';
+		*equal_sign = '\0';
 
-    MODULE_DATA* module_data = (MODULE_DATA*) malloc(sizeof(MODULE_DATA));
+		MODULE_DATA* module_data = (MODULE_DATA*) malloc(sizeof(MODULE_DATA));
 
-    if (module_data != NULL)
-    {
-      module_data->module_name = modules_data[i];
+		if (module_data != NULL)
+		{
+			module_data->module_name = modules_data[i];
 
-      int result = yr_filemap_map(equal_sign + 1, &module_data->mapped_file);
+			int result = yr_filemap_map(equal_sign + 1, &module_data->mapped_file);
 
-      if (result != ERROR_SUCCESS)
-      {
-        free(module_data);
-        fprintf(stderr, "error: could not open file \"%s\".\n", equal_sign + 1);
-        return FALSE;
-      }
+			if (result != ERROR_SUCCESS)
+			{
+				free(module_data);
+				fprintf(stderr, "error: could not open file \"%s\".\n", equal_sign + 1);
+				return FALSE;
+			}
 
-      module_data->next = modules_data_list;
-      modules_data_list = module_data;
-    }
-  }
+			module_data->next = modules_data_list;
+			modules_data_list = module_data;
+		}
+	}
 
-  return TRUE;
+	return TRUE;
 }
 
 
 void unload_modules_data()
 {
-  MODULE_DATA* module_data = modules_data_list;
+	MODULE_DATA* module_data = modules_data_list;
 
-  while(module_data != NULL)
-  {
-    MODULE_DATA* next_module_data = module_data->next;
+	while(module_data != NULL)
+	{
+		MODULE_DATA* next_module_data = module_data->next;
 
-    yr_filemap_unmap(&module_data->mapped_file);
-    free(module_data);
+		yr_filemap_unmap(&module_data->mapped_file);
+		free(module_data);
 
-    module_data = next_module_data;
-  }
+		module_data = next_module_data;
+	}
 
-  modules_data_list = NULL;
+	modules_data_list = NULL;
 }
 
 void cleanup()
