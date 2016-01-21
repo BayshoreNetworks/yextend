@@ -34,7 +34,7 @@
 #define MAX_ARGS_MODULE_DATA    32
 
 #define PRIx64 "llx"
-
+#define PRId64 "lld"
 
 // structs
 /*
@@ -148,7 +148,8 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 					strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 					
 					char intstr[15];
-					sprintf(intstr, "%d", meta->integer);
+					//sprintf(intstr, "%d", meta->integer);
+					sprintf(intstr, "%" PRId64, meta->integer);
 					strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 				} else if (meta->type == META_TYPE_BOOLEAN) {
 					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
