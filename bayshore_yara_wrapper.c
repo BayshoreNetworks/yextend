@@ -246,12 +246,12 @@ int bayshore_yara_callback(
 		int message,
 		void* message_data,
 		void* user_data
-		)
+	)
 {
 	YR_MODULE_IMPORT* mi;
 	YR_OBJECT* object;
 	MODULE_DATA* module_data;
-	
+
 	switch(message)
 	{
 	case CALLBACK_MSG_RULE_MATCHING:
@@ -798,15 +798,15 @@ int bayshore_yara_wrapper_api(
 		yr_rules_destroy(rules);
 		yr_finalize();
 		cleanup();
-		
+
 		// we have rule hits from yara
 		if (*yara_results) {
 			snprintf(api_yara_results, MAX_YARA_RES_BUF, "%s", yara_results);
 			size_t sl = strlen(api_yara_results);
 			if (sl >= 2) {
-                sl -= 2;
+				sl -= 2;
 				api_yara_results[sl] = 0;
-            }
+			}
 			if (api_yara_results_len)
 				*api_yara_results_len = sl;
 			return 1;
