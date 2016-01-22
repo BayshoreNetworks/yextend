@@ -12,19 +12,13 @@ Notes:
 
 - (10/24/2015) yextend version 1.3 will only work with yara 3.4.
 
-	provided test rulesets (in the test_ruleset directory) follow this naming convention:
-	- yara version number is now included in the compiled filename, example: "bayshore.yara.testing.ruleset.34.bin" is compiled with yarac 3.4
-	- files with extension ".bin" (binary) are compiled
-	- files without the ".bin" extension are clear text ruleset files
-	- files with the string "meta" in them will include some rules with metadata in the "meta" section, example: "bayshore.yara.testing.meta.ruleset.34.bin"
-
 	if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
 
 - (05/28/2015) yextend version 1.2 will only work with yara 3.3 and above
 
 - This software was written and tested on Linux (both Fedora and Debian). Ports to other platforms are currently TBD.
 
-- If a dir (and not a file) is passed in then this version will process all of the files at that top level. Subdirectories are not processed yet, that is coming as an enhancement.
+- If a dir (and not a file) is passed in then this version will process all of the files at that top level. Subdirectories are not processed yet.
 
 
 Requirements to build and run:
@@ -35,7 +29,7 @@ Requirements to build and run:
 - zlib devel lib (sudo yum install zlib-devel or sudo apt-get install zlib1g-dev)
 - libarchive (v4) be installed (sudo yum install libarchive-devel or sudo apt-get install libarchive-dev)
 - pcrecpp (sudo yum install pcre-devel or sudo apt-get install libpcre3-dev)
-- yara v3 be fully installed
+- yara v3.X be fully installed
 - if you are running yara pre-version 3.1.X then yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
 	A. cd into the dir where you extracted yara (for this example I will use "/tmp/yara")
 	B. sudo cp /tmp/yara/libyara/include/yara/* /usr/local/include/yara/
@@ -60,6 +54,8 @@ Instructions:
 		
 4 - Test (optional)
 
+	- yarac test_rulesets/bayshore.yara.testing.ruleset test_rulesets/bayshore.yara.testing.ruleset.34.bin
+	- yarac test_rulesets/bayshore.yara.testing.meta.ruleset test_rulesets/bayshore.yara.testing.meta.ruleset.34.bin
 	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.ruleset.34.bin test_files/
 	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.meta.ruleset.34.bin test_files/
 
