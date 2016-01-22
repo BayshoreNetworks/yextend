@@ -183,16 +183,18 @@ int main(int argc, char* argv[])
 	
 	/*
 	 * pre-process yara rules and then we can use the
-	 * pointer to "rules" as an optimized entity 
+	 * pointer to "rules" as an optimized entity.
+	 * this is a requirement so that performance
+	 * is optimal
 	 */
-	YR_RULES* rules;
+	YR_RULES* rules = NULL;
 	rules = bayshore_yara_preprocess_rules(yara_ruleset_file_name);
 	if (!rules) {
-		std::cout << std::endl << "Problem compiling Yara Ruleset file: \"" << yara_ruleset_file_name << "\", continuing with regular ruleset file ..." << std::endl << std::endl;	
 		if (!does_this_file_exist(yara_ruleset_file_name)) {
 			std::cout << std::endl << "Yara Ruleset file: \"" << yara_ruleset_file_name << "\" does not exist, exiting ..." << std::endl << std::endl;
 			exit(0);
 		}
+		std::cout << std::endl << "Problem compiling Yara Ruleset file: \"" << yara_ruleset_file_name << "\", continuing with regular ruleset file ..." << std::endl << std::endl;
 	}
 
 	if (is_directory(target_resource)) {
@@ -375,7 +377,7 @@ int main(int argc, char* argv[])
 		std::cout << std::endl << "Could not read resource: \"" << target_resource << "\", exiting ..." << std::endl << std::endl;
 	}
 	
-	if (rules)
+	if (rules != NULL)
 		yr_rules_destroy(rules);
 	return 0;
 }
