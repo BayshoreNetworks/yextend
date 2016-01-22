@@ -49,6 +49,8 @@ Instructions:
 	- ./autogen.sh
 	
 	- ./configure
+
+	- make clean
 	
 	- make
 		
