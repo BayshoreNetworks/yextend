@@ -32,9 +32,10 @@
 #define MAX_ARGS_IDENTIFIER     32
 #define MAX_ARGS_EXT_VAR        32
 #define MAX_ARGS_MODULE_DATA    32
-
+/*
 #define PRIx64 "llx"
 #define PRId64 "lld"
+*/
 
 // structs
 /*
@@ -149,7 +150,8 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 					
 					char intstr[15];
 					//sprintf(intstr, "%d", meta->integer);
-					sprintf(intstr, "%" PRId64, meta->integer);
+					//sprintf(intstr, "%" PRId64, meta->integer);
+					snprintf(intstr, sizeof(intstr), "%ld", meta->integer);
 					strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 				} else if (meta->type == META_TYPE_BOOLEAN) {
 					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
@@ -187,7 +189,9 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 					 * 
 					 */					
 					char tmp_results[1024];
-			    	sprintf(tmp_results, "0x%" PRIx64 ":%s-", match->base + match->offset, string->identifier);
+			    	//sprintf(tmp_results, "0x%" PRIx64 ":%s-", match->base + match->offset, string->identifier);
+			    	//sprintf(tmp_results, "0x%lx:%s-", match->base + match->offset, string->identifier);
+					snprintf(tmp_results, sizeof(tmp_results), "0x%lx:%s-", match->base + match->offset, string->identifier);
 			    	strncat(tmp_str_results, tmp_results, sizeof(tmp_str_results)-strlen(tmp_str_results)-1);
 					
 					hit_cnt += 1;
