@@ -90,7 +90,7 @@ __InitFileData_t::__InitFileData_t()
 	FileDataPatternMap[1] = "Adobe PDF";
 	FileDataPatternOffset[1] = 0;
 
-	FileDataPatterns["255044462d312e3"] = 2;
+	FileDataPatterns["255044462d312e"] = 2;
 	FileDataPatternMap[2] = "Adobe PDF";
 	FileDataPatternOffset[2] = 0;
 
@@ -102,7 +102,7 @@ __InitFileData_t::__InitFileData_t()
 	FileDataPatternMap[4] = "Microsoft Office document (DOC PPT XLS)";
 	FileDataPatternOffset[4] = 0;
 
-	FileDataPatterns["d0cf11e0a1b11ae1000000000000000000000000000000003"] = 5;
+	FileDataPatterns["d0cf11e0a1b11ae100000000000000000000000000000000"] = 5;
 	FileDataPatternMap[5] = "Microsoft Office document (DOC PPT XLS)";
 	FileDataPatternOffset[5] = 0;
 
