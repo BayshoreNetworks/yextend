@@ -89,7 +89,8 @@ Instructions:
 6 - Analyze output. The output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
 	
 	===============================ALPHA===================================
-	Filename: x
+	Ruleset File Name: w
+	File Name: x
 	File Size: y
 	File Signature (MD5): z
 
@@ -144,7 +145,8 @@ Instructions:
 	A. example output from one of the test files:
 	
 		===============================ALPHA===================================
-		Filename: test_files/rands_tarball.tar.gz
+		Ruleset File Name: test_rules/ruleset_blah
+		File Name: test_files/rands_tarball.tar.gz
 		File Size: 271386
 		File Signature (MD5): 74edc10648f6d65e90cd859120eaa31b
 		
@@ -182,7 +184,8 @@ Instructions:
 
 
 		===============================ALPHA===================================
-		Filename: test_files/step1-zips.tar.gz
+		Ruleset File Name: test_rules/ruleset_blah
+		File Name: test_files/step1-zips.tar.gz
 		File Size: 2400255
 		File Signature (MD5): 98178b84fd9280fa1ed469c6512cd0ee
 
