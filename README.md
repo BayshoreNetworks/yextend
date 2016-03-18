@@ -8,11 +8,14 @@ yextend was written for the sake of augmenting yara. yara by itself is great but
 
 Notes:
 
-- (01/19/2016) yextend version 1.4 - output enhancement - output now includes the offset and string definition identifier for every hit reported by Yara.
+- (03/18/2016) yextend version 1.4 - output enhancements
+
+	- output now includes the offset and string definition identifier for every hit reported by Yara.
+	- output now includes the name of the Yara ruleset file at hand
 
 - (10/24/2015) yextend version 1.3 will only work with yara 3.4.
 
-	if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
+	- if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
 
 - (05/28/2015) yextend version 1.2 will only work with yara 3.3 and above
 
