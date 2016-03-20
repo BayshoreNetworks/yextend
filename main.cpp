@@ -139,14 +139,15 @@ double get_yara_version()
 }
 
 static const char *output_labels[] = {
-		"Filename: ",
+		"File Name: ",
 		"File Size: ",
 		"Yara Result(s): ",
 		"Scan Type: ",
 		"File Signature (MD5): ",
 		"Non-Archive File Name: ",
 		"Parent File Name: ",
-		"Child File Name: "
+		"Child File Name: ",
+		"Ruleset File Name: "
 };
 
 static const char *alpha = "===============================ALPHA===================================";
@@ -227,6 +228,7 @@ int main(int argc, char* argv[])
 						fread(c, fileSize, 1, file);
 
 						std::cout << std::endl << alpha << std::endl;
+						std::cout << output_labels[8] << yara_ruleset_file_name << std::endl;
 						std::cout << output_labels[0] << fs << std::endl;
 						std::cout << output_labels[1] << fileSize << std::endl;
 

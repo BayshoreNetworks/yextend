@@ -8,11 +8,15 @@ yextend was written for the sake of augmenting yara. yara by itself is great but
 
 Notes:
 
-- (01/19/2016) yextend version 1.4 - output enhancement - output now includes the offset and string definition identifier for every hit reported by Yara.
+- (03/18/2016) yextend version 1.4 - output enhancements and runtime helper prog
+
+	- output now includes the offset and string definition identifier for every hit reported by Yara.
+	- output now includes the name of the Yara ruleset file at hand
+	- initial release of run_yextend prog 
 
 - (10/24/2015) yextend version 1.3 will only work with yara 3.4.
 
-	if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
+	- if your rules have data in the 'meta' section they will now show up in the output, take a look at 'RULEWITHMETA' below and you will see an example of such output
 
 - (05/28/2015) yextend version 1.2 will only work with yara 3.3 and above
 
@@ -63,7 +67,22 @@ Instructions:
 
 5 - Run:
 
-	- prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
+	- 2 options to run:
+
+	A. use executable run_yextend - it wraps the native yextend executable. To run:
+
+	- the program 'run_yextend' takes in 2 arguments:
+
+		1. A yara ruleset file or directory of ruleset files
+		2. A file name or a directory of target files
+
+	usage:
+
+		- ./run_yextend rule_entity target_file_entity
+
+		***** make sure the executable bit is set on the file system for run_yextend *****
+
+	B. run yextend executable - prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
 
 	- the program 'yextend' takes in 2 arguments:
 
@@ -89,7 +108,8 @@ Instructions:
 6 - Analyze output. The output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
 	
 	===============================ALPHA===================================
-	Filename: x
+	Ruleset File Name: w
+	File Name: x
 	File Size: y
 	File Signature (MD5): z
 
@@ -144,7 +164,8 @@ Instructions:
 	A. example output from one of the test files:
 	
 		===============================ALPHA===================================
-		Filename: test_files/rands_tarball.tar.gz
+		Ruleset File Name: test_rules/ruleset_blah
+		File Name: test_files/rands_tarball.tar.gz
 		File Size: 271386
 		File Signature (MD5): 74edc10648f6d65e90cd859120eaa31b
 		
@@ -182,7 +203,8 @@ Instructions:
 
 
 		===============================ALPHA===================================
-		Filename: test_files/step1-zips.tar.gz
+		Ruleset File Name: test_rules/ruleset_blah
+		File Name: test_files/step1-zips.tar.gz
 		File Size: 2400255
 		File Signature (MD5): 98178b84fd9280fa1ed469c6512cd0ee
 
