@@ -8,10 +8,11 @@ yextend was written for the sake of augmenting yara. yara by itself is great but
 
 Notes:
 
-- (03/18/2016) yextend version 1.4 - output enhancements
+- (03/18/2016) yextend version 1.4 - output enhancements and runtime helper prog
 
 	- output now includes the offset and string definition identifier for every hit reported by Yara.
 	- output now includes the name of the Yara ruleset file at hand
+	- initial release of run_yextend prog 
 
 - (10/24/2015) yextend version 1.3 will only work with yara 3.4.
 
@@ -66,7 +67,22 @@ Instructions:
 
 5 - Run:
 
-	- prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
+	- 2 options to run:
+
+	A. use executable run_yextend - it wraps the native yextend executable. To run:
+
+	- the program 'run_yextend' takes in 2 arguments:
+
+		1. A yara ruleset file or directory of ruleset files
+		2. A file name or a directory of target files
+
+	usage:
+
+		- ./run_yextend rule_entity target_file_entity
+
+		***** make sure the executable bit is set on the file system for run_yextend *****
+
+	B. run yextend executable - prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
 
 	- the program 'yextend' takes in 2 arguments:
 
