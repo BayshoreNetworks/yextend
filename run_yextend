@@ -1,0 +1,188 @@
+#!/usr/bin/env python
+
+"""
+    run statement:
+    
+    ./run_yextend rule_entity target_file_entity
+    
+    I label them as 'entity' because they can each be
+    either a directory or a file
+"""
+import subprocess
+import sys
+import os
+import fnmatch
+import time
+
+########################################################
+def usage():
+    print "\n./run_yextend rule_entity target_file_entity\n\n"
+    
+
+def get_file_list(thedir='', thepattern='*'):
+    f_list = []
+    if thedir:
+        for root, dirnames, filenames in os.walk(thedir):
+            for name in fnmatch.filter(filenames, thepattern):
+                complete_fname = "%s%s" % (root, name)
+                if os.path.isfile(complete_fname):
+                    if complete_fname not in f_list:
+                        f_list.append(complete_fname)
+    return f_list
+
+
+def my_print(thestr='', thecolor=''):
+    if thestr:
+        format_str = '\033[1;%sm%s\033[1;m'
+        if thecolor == 'gray':
+            return format_str % ('30', thestr)
+        elif thecolor == 'red':
+            return format_str % ('31', thestr)
+        elif thecolor == 'green':
+            return format_str % ('32', thestr)
+        elif thecolor == 'yellow':
+            return format_str % ('33', thestr)
+        elif thecolor == 'blue':
+            return format_str % ('34', thestr)
+        elif thecolor == 'magenta':
+            return format_str % ('35', thestr)
+        elif thecolor == 'cyan':
+            return format_str % ('36', thestr)
+        elif thecolor == 'white':
+            return format_str % ('37', thestr)
+        elif thecolor == 'crimson':
+            return format_str % ('38', thestr)
+        elif thecolor == 'highlighted_red':
+            return format_str % ('41', thestr)
+        elif thecolor == 'highlighted_red':
+            return format_str % ('42', thestr)
+        elif thecolor == 'highlighted_brown':
+            return format_str % ('43', thestr)
+        elif thecolor == 'highlighted_blue':
+            return format_str % ('44', thestr)
+        elif thecolor == 'highlighted_magenta':
+            return format_str % ('45', thestr)
+        elif thecolor == 'highlighted_cyan':
+            return format_str % ('46', thestr)
+        elif thecolor == 'highlighted_gray':
+            return format_str % ('47', thestr)
+        elif thecolor == 'highlighted_crimson':
+            return format_str % ('48', thestr)        
+
+
+def which(program=""):
+    def is_exe(fpath):
+        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+
+    def ext_candidates(fpath):
+        yield fpath
+        for ext in os.environ.get("PATHEXT", "").split(os.pathsep):
+            yield fpath + ext
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        tarr = os.environ["PATH"].split(os.pathsep)
+        tarr.append("/sbin")
+        tarr.append("./")
+        for path in tarr:
+            exe_file = os.path.join(path, program)
+            for candidate in ext_candidates(exe_file):
+                if is_exe(candidate):
+                    return candidate
+    return None
+
+
+def print_yextend_output(out=''):
+    if out:
+        for the_out in out.split('\n'):
+            if the_out.startswith('='):
+                print my_print(thestr=the_out, thecolor='white')
+            elif the_out.startswith("Yara "):
+                # print the_out
+                t_o = the_out.split(': ')
+                print "%s: " % (my_print(thestr=t_o[0], thecolor='white'))
+                for rule_data in t_o[1].split(', '):
+                    if ':[' in rule_data:
+                        rule_id, rule_meta = rule_data.split(':[')
+                        rule_meta = rule_meta[:-1]
+                        print "\tRule ID: %s" % (my_print(thestr=rule_id, thecolor='red'))
+                        print "\tRule META:"
+                        for rmeta in rule_meta.split(','):
+                            rmeta = rmeta.replace('=', ' = ')
+                            if rmeta.startswith('detected'):
+                                rm_label, rm_dat = rmeta.split(' = ')
+                                print "\t\t%s" % (my_print(thestr=rm_label + ':', thecolor='blue'))
+                                rm_dat_spl = rm_dat.split('-')
+                                for rmdspl in rm_dat_spl:
+                                    rmdspl_offset, rmdspl_label = rmdspl.split(':')
+                                    rmdspl_out = "%s at %s" % (my_print(thestr=rmdspl_label, thecolor='red'), my_print(rmdspl_offset, thecolor='red'))
+                                    print "\t\t\t%s" % (my_print(thestr=rmdspl_out, thecolor='blue'))
+                            else:
+                                print "\t\t%s" % (my_print(thestr=rmeta, thecolor='blue'))
+                    else:
+                        print "\tRule ID: %s" % (my_print(thestr=rule_data, thecolor='red'))
+                    print
+            elif the_out == '\n':
+                print the_out
+            else:
+                try:
+                    t_o = the_out.split(': ')
+                    print "%s: %s" % (my_print(thestr=t_o[0], thecolor='white'), my_print(thestr=t_o[1], thecolor='green'))
+                except:
+                    def_out = my_print(thestr=the_out, thecolor='white')
+                    if def_out:
+                        print my_print(thestr=the_out, thecolor='white')
+                    else:
+                        print the_out
+########################################################
+
+RULES_ENTITY = ''
+FILE_ENTITY = ''
+RULES_ENTITY_DIR = False
+# YEXTEND = './yextend'
+YEXTEND = which(program="yextend")
+LD_LIBRARY_PATH = 'LD_LIBRARY_PATH'
+USRLOCLIB = '/usr/local/lib'
+
+if len(sys.argv) == 3:
+    RULES_ENTITY = sys.argv[1]
+    FILE_ENTITY = sys.argv[2]
+    if os.path.isdir(RULES_ENTITY):
+        RULES_ENTITY_DIR = True
+else:
+    usage()
+    sys.exit()
+    
+if not os.environ.has_key(LD_LIBRARY_PATH):
+    ''' ruleset = file '''
+    if not RULES_ENTITY_DIR:
+        proc = subprocess.Popen([YEXTEND, RULES_ENTITY, FILE_ENTITY],
+                                env={LD_LIBRARY_PATH:USRLOCLIB},
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                )
+        out, err = proc.communicate()
+        if out:
+            print_yextend_output(out=out)
+        if err:
+            print "ERR: %s" % err
+        
+    ''' ruleset = dir '''
+    if RULES_ENTITY_DIR:
+        for lpol in get_file_list(thedir=RULES_ENTITY):
+            proc = subprocess.Popen([YEXTEND, lpol, FILE_ENTITY],
+                                    env={LD_LIBRARY_PATH:USRLOCLIB},
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    )
+            out, err = proc.communicate()
+            if out:
+                print_yextend_output(out=out)
+            if err:
+                print "ERR: %s" % err
+else:
+    pass
+
