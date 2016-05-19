@@ -225,6 +225,11 @@ int main(int argc, char* argv[])
 					strncat (fs, epdf->d_name, strlen(epdf->d_name));
 					fs[strlen(fs)] = '\0';
 
+					if (is_directory(fs)) {
+						// We do not recurse into directories yet
+						continue;
+					}
+
 					if ((file = fopen(fs, "rb")) != NULL) {
 						// Get the size of the file in bytes
 						long fileSize = get_file_size(file);
