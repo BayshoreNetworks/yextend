@@ -325,6 +325,12 @@ int FileDissect::GetFileTypeBuf(const char* buf, size_t n) {
 				 * provide greater accuracy in the detection
 				 * pattern
 				 */
+
+				if (keyval.second == 65534) {
+					zipException = keyval.second;
+					continue;
+				}
+
 				if (keyval.second == 15) {
 					zipException = 15;
 				} else if ((keyval.second == 31) ||
