@@ -158,7 +158,7 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 					char intstr[15];
 					//sprintf(intstr, "%d", meta->integer);
 					//sprintf(intstr, "%" PRId64, meta->integer);
-					snprintf(intstr, sizeof(intstr), "%ld", meta->integer);
+					snprintf(intstr, sizeof(intstr), "%d", meta->integer);
 					strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 				} else if (meta->type == META_TYPE_BOOLEAN) {
 					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
