@@ -72,7 +72,7 @@ const char *get_content_type_string (int ft)
 	 * should
 	 */
     static char buf [2048];
-    snprintf (buf, sizeof(buf), s.c_str());
+    snprintf (buf, sizeof(buf), "%s", s.c_str());
 
     return buf;
 }
