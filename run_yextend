@@ -116,8 +116,12 @@ def print_yextend_output(out=''):
                                 rm_label, rm_dat = rmeta.split(' = ')
                                 print "\t\t%s" % (my_print(thestr=rm_label + ':', thecolor='blue'))
                                 rm_dat_spl = rm_dat.split('-')
+                               
                                 for rmdspl in rm_dat_spl:
-                                    rmdspl_offset, rmdspl_label = rmdspl.split(':')
+                                    try:
+                                        rmdspl_offset, rmdspl_label = rmdspl.strip().split(':')
+                                    except ValueError:
+                                        pass
                                     rmdspl_out = "%s at %s" % (my_print(thestr=rmdspl_label, thecolor='red'), my_print(rmdspl_offset, thecolor='red'))
                                     print "\t\t\t%s" % (my_print(thestr=rmdspl_out, thecolor='blue'))
                             else:
