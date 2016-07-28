@@ -56,6 +56,17 @@ rule S95
 		all of them
 }
 
+rule H78
+{
+	strings:
+		$a ={ 78 6C } 
+		$b = "xl/"
+		$c = "calc"
+		$d = "docProp"
+	condition:
+		$a or $b or $c or $d
+}
+
 rule JUDO
 {
 	strings:
