@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT(yextend, 1.0, support@bayshorenetworks.com)
+AC_INIT(yextend, 1.5, support@bayshorenetworks.com)
 AC_CONFIG_SRCDIR([main.cpp])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
@@ -13,15 +13,12 @@ AC_PROG_CC
 AC_PROG_MAKE_SET
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-larchive':
-AC_CHECK_LIB([archive], [main])
-# FIXME: Replace `main' with a function in `-lcrypto':
-AC_CHECK_LIB([crypto], [main])
-# FIXME: Replace `main' with a function in `-lyara':
+AC_CHECK_LIB([archive], [archive_read_new])
+AC_CHECK_LIB([crypto], [OPENSSL_init])
 AC_CHECK_LIB([yara], [main])
-# FIXME: Replace `main' with a function in `-lz':
 AC_CHECK_LIB([z], [main])
 AC_CHECK_LIB([pcrecpp], [main])
+AC_CHECK_LIB([uuid], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h syslog.h unistd.h])
