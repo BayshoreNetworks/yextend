@@ -29,8 +29,8 @@
 
 
 CPPFLAGS=-I.
-include_HEADERS = /usr/local/include bayshore_yara_wrapper.h filedissect.h wrapper.h bayshore_content_scan.h filedata.h zl.h libs/PDFParser.h
+include_HEADERS = /usr/local/include bayshore_yara_wrapper.h filedissect.h wrapper.h bayshore_content_scan.h filedata.h libs/zl.h libs/PDFParser.h
 lib_YARA = /usr/local/lib
 
 bin_PROGRAMS = yextend
-yextend_SOURCES = filedissect.cpp wrapper.cpp bayshore_content_scan.cpp filedata.cpp main.cpp zl.cpp bayshore_yara_wrapper.c libs/PDFParser.cpp
+yextend_SOURCES = filedissect.cpp wrapper.cpp bayshore_content_scan.cpp filedata.cpp main.cpp libs/zl.cpp bayshore_yara_wrapper.c libs/PDFParser.cpp
