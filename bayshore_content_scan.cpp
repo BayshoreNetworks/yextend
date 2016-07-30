@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-#include "bayshore_yara_wrapper.h"
+#include "libs/bayshore_yara_wrapper.h"
 
 #ifdef __cplusplus
 }
