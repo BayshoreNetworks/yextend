@@ -31,12 +31,17 @@
 #define __bayshoreyarawrapper__H_
 
 
-#include <yara.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <yara.h>
 
-
-#define MAX_YARA_RES_BUF 8192
+/*
+ * 06/10/2016 - Dre
+ * increased this buffer to 1 MB because some of the file type
+ * detection stuff returns a lot of data and I need to see it 
+ * all in order to find the right type
+ */
+#define MAX_YARA_RES_BUF 1048576
 #define YEXTEND_VERSION 1.4
 
 /* 

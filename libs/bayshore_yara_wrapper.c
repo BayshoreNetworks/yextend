@@ -253,7 +253,7 @@ int bayshore_yara_callback(
 		int message,
 		void* message_data,
 		void* user_data
-	)
+        )
 {
 	YR_MODULE_IMPORT* mi;
 	YR_OBJECT* object;
