@@ -40,10 +40,7 @@ extern "C" {
 	// Pass in a data buffer and size. Returns the content type.
 	int get_content_type (const uint8_t*, size_t);
 
-	/* Pass in a content type, and receive a text description of the type.
-	 * DO NOT free the memory you get back.
-	 */
-	const char *get_content_type_string (int);
+	char *get_content_type_string (int);
 
 	bool is_type_officex (int);
     bool is_type_pcap(int);
