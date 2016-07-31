@@ -72,6 +72,9 @@ char* modules_data[MAX_ARGS_EXT_VAR + 1];
 int show_strings = TRUE;
 int show_meta = TRUE;
 
+int show_errors = FALSE;
+int show_warnings = FALSE;
+
 MODULE_DATA* modules_data_list = NULL;
 
 static char yara_results[MAX_YARA_RES_BUF + 1024];
@@ -117,9 +120,11 @@ void print_compiler_error(
 {
 	if (error_level == YARA_ERROR_LEVEL_ERROR)
 	{
-		fprintf(stderr, "%s(%d): error: %s\n", file_name, line_number, message);
+        if (show_errors)
+            fprintf(stderr, "%s(%d): error: %s\n", file_name, line_number, message);
 	} else {
-		fprintf(stderr, "%s(%d): warning: %s\n", file_name, line_number, message);
+        if (show_warnings)
+            fprintf(stderr, "%s(%d): warning: %s\n", file_name, line_number, message);
 	}
 }
 
