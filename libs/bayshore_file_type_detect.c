@@ -732,11 +732,595 @@ int is_encrypted(int ix) {
 	return 0;
 }
 
-
-
 void get_file_type_str(int type, uint8_t *buf) {
-    char str1[]= "SOMETHING";
-    // TODO .... need str values in here
-    strncpy ( buf, str1, sizeof(buf) );
+
+    int the_len = 0;
+
+    switch (type) {
+    case 0:
+		strcpy (buf, "Goodwill guess  Encrypted file detected");
+		the_len = 39;
+		break;
+	case 1:
+		strcpy (buf, "Adobe PDF");
+		the_len = 9;
+		break;
+	case 3:
+		strcpy (buf, "Microsoft Office Open XML Format Document (DOCX PPTX XLSX)");
+		the_len = 58;
+		break;
+	case 4:
+		strcpy (buf, "Microsoft Office document (DOC PPT XLS)");
+		the_len = 39;
+		break;
+	case 6:
+		strcpy (buf, "RAR Archive");
+		the_len = 11;
+		break;
+	case 7:
+		strcpy (buf, "RAR Archive");
+		the_len = 11;
+		break;
+	case 8:
+		strcpy (buf, "RAR Archive");
+		the_len = 11;
+		break;
+	case 9:
+		strcpy (buf, "RAR Archive (Part 1 of Multiple Files)");
+		the_len = 38;
+		break;
+	case 10:
+		strcpy (buf, "RAR Archive (Subsequent Part of Multiple Files)");
+		the_len = 47;
+		break;
+	case 11:
+		strcpy (buf, "Encrypted RAR Archive");
+		the_len = 21;
+		break;
+	case 12:
+		strcpy (buf, "Encrypted RAR Archive");
+		the_len = 21;
+		break;
+	case 13:
+		strcpy (buf, "Encrypted RAR Archive (Part 1 of Multiple Files)");
+		the_len = 48;
+		break;
+	case 14:
+		strcpy (buf, "Encrypted RAR Archive (Subsequent Part of Multiple Files)");
+		the_len = 57;
+		break;
+	case 16:
+		strcpy (buf, "Jar Archive");
+		the_len = 11;
+		break;
+	case 17:
+		strcpy (buf, "GZIP Archive");
+		the_len = 12;
+		break;
+	case 18:
+		strcpy (buf, "GZIP Archive");
+		the_len = 12;
+		break;
+	case 19:
+		strcpy (buf, "Compressed Tape Archive (TARZ)");
+		the_len = 30;
+		break;
+	case 20:
+		strcpy (buf, "Compressed Tape Archive (TARZ)");
+		the_len = 30;
+		break;
+	case 21:
+		strcpy (buf, "7-Zip compressed file");
+		the_len = 21;
+		break;
+	case 22:
+		strcpy (buf, "HTML File");
+		the_len = 9;
+		break;
+	case 23:
+		strcpy (buf, "HTML File");
+		the_len = 9;
+		break;
+	case 24:
+		strcpy (buf, "HTML File");
+		the_len = 9;
+		break;
+	case 25:
+		strcpy (buf, "HTML File");
+		the_len = 9;
+		break;
+	case 26:
+		strcpy (buf, "Windows Executable");
+		the_len = 18;
+		break;
+	case 27:
+		strcpy (buf, "Windows Executable");
+		the_len = 18;
+		break;
+	case 28:
+		strcpy (buf, "Microsoft Office Open XML Format Document (DOCX PPTX XLSX)");
+		the_len = 58;
+		break;
+	case 29:
+		strcpy (buf, "ASCII Text File");
+		the_len = 15;
+		break;
+	case 30:
+		strcpy (buf, "Encrypted RAR Archive");
+		the_len = 21;
+		break;
+	case 31:
+		strcpy (buf, "PHP Source Code");
+		the_len = 15;
+		break;
+	case 32:
+		strcpy (buf, "PHP Source Code");
+		the_len = 15;
+		break;
+	case 33:
+		strcpy (buf, "JPEG image file");
+		the_len = 15;
+		break;
+	case 34:
+		strcpy (buf, "JPEG (EXIF) image file");
+		the_len = 22;
+		break;
+	case 35:
+		strcpy (buf, "JPEG (SPIFF) image file");
+		the_len = 23;
+		break;
+	case 36:
+		strcpy (buf, "JPEG2000 image file");
+		the_len = 19;
+		break;
+	case 37:
+		strcpy (buf, "Bitmap image file");
+		the_len = 17;
+		break;
+	case 38:
+		strcpy (buf, "GIF image file");
+		the_len = 14;
+		break;
+	case 39:
+		strcpy (buf, "TIFF image file");
+		the_len = 15;
+		break;
+	case 40:
+		strcpy (buf, "TIFF image file");
+		the_len = 15;
+		break;
+	case 41:
+		strcpy (buf, "TIFF image file");
+		the_len = 15;
+		break;
+	case 42:
+		strcpy (buf, "TIFF image file");
+		the_len = 15;
+		break;
+	case 43:
+		strcpy (buf, "PNG image file");
+		the_len = 14;
+		break;
+	case 44:
+		strcpy (buf, "Open Document Format (ODF) document");
+		the_len = 35;
+		break;
+	case 45:
+		strcpy (buf, "XML Document");
+		the_len = 12;
+		break;
+	case 46:
+		strcpy (buf, "TAR Archive");
+		the_len = 11;
+		break;
+	case 47:
+		strcpy (buf, "PCAP file");
+		the_len = 9;
+		break;
+	case 48:
+		strcpy (buf, "PCAP file");
+		the_len = 9;
+		break;
+	case 50:
+		strcpy (buf, "Microsoft Office Open XML Format Document (DOCX PPTX XLSX)");
+		the_len = 58;
+		break;
+	case 51:
+		strcpy (buf, "MATLAB 5X");
+		the_len = 9;
+		break;
+	case 52:
+		strcpy (buf, "MATLAB 7X");
+		the_len = 9;
+		break;
+	case 53:
+		strcpy (buf, "CATIA Model");
+		the_len = 11;
+		break;
+	case 54:
+		strcpy (buf, "Mujahideen Secrets 2 encrypted file");
+		the_len = 35;
+		break;
+	case 55:
+		strcpy (buf, "AutoCAD Drawing");
+		the_len = 15;
+		break;
+	case 56:
+		strcpy (buf, "Lotus Notes Database");
+		the_len = 20;
+		break;
+	case 57:
+		strcpy (buf, "Lotus Notes Database Template");
+		the_len = 29;
+		break;
+	case 58:
+		strcpy (buf, "Microsoft Outlook Personal Folder File");
+		the_len = 38;
+		break;
+	case 59:
+		strcpy (buf, "Generic E-Mail (EML) File");
+		the_len = 25;
+		break;
+	case 60:
+		strcpy (buf, "Generic E-Mail (EML) File");
+		the_len = 25;
+		break;
+	case 61:
+		strcpy (buf, "Generic E-Mail (EML) File");
+		the_len = 25;
+		break;
+	case 63:
+		strcpy (buf, "Generic E-Mail (EML) File");
+		the_len = 25;
+		break;
+	case 64:
+		strcpy (buf, "Outlook Express address book (Win95)");
+		the_len = 36;
+		break;
+	case 65:
+		strcpy (buf, "Outlook Express E-Mail Folder");
+		the_len = 29;
+		break;
+	case 66:
+		strcpy (buf, "Outlook Address File");
+		the_len = 20;
+		break;
+	case 67:
+		strcpy (buf, "Outlook Address File");
+		the_len = 20;
+		break;
+	case 68:
+		strcpy (buf, "PGP/GPG Public Key File - RSA Key Length 1024");
+		the_len = 45;
+		break;
+	case 69:
+		strcpy (buf, "PGP/GPG Public Key File - RSA Key Length 2048");
+		the_len = 45;
+		break;
+	case 70:
+		strcpy (buf, "PGP/GPG Public Key File - RSA Key Length 3072");
+		the_len = 45;
+		break;
+	case 71:
+		strcpy (buf, "PGP/GPG Public Key File - RSA Key Length 4096");
+		the_len = 45;
+		break;
+	case 72:
+		strcpy (buf, "PGP/GPG Private Key File - RSA Key Length 1024");
+		the_len = 46;
+		break;
+	case 73:
+		strcpy (buf, "PGP/GPG Private Key File - RSA Key Length 2048");
+		the_len = 46;
+		break;
+	case 74:
+		strcpy (buf, "PGP/GPG Private Key File - RSA Key Length 3072");
+		the_len = 46;
+		break;
+	case 75:
+		strcpy (buf, "PGP/GPG Private Key File - RSA Key Length 4096");
+		the_len = 46;
+		break;
+	case 76:
+		strcpy (buf, "PGP/GPG Private Key File (password protected) - RSA Key Length 1024");
+		the_len = 67;
+		break;
+	case 77:
+		strcpy (buf, "PGP/GPG Private Key File (password protected) - RSA Key Length 2048");
+		the_len = 67;
+		break;
+	case 78:
+		strcpy (buf, "PGP/GPG Private Key File (password protected) - RSA Key Length 3072");
+		the_len = 67;
+		break;
+	case 79:
+		strcpy (buf, "PGP/GPG Private Key File (password protected) - RSA Key Length 4096");
+		the_len = 67;
+		break;
+	case 80:
+		strcpy (buf, "PGP/GPG Encrypted File - RSA Key Length 1024");
+		the_len = 44;
+		break;
+	case 81:
+		strcpy (buf, "PGP/GPG Encrypted File - RSA Key Length 2048");
+		the_len = 44;
+		break;
+	case 82:
+		strcpy (buf, "PGP/GPG Encrypted File - RSA Key Length 3072");
+		the_len = 44;
+		break;
+	case 83:
+		strcpy (buf, "PGP/GPG Encrypted File - RSA Key Length 4096");
+		the_len = 44;
+		break;
+	case 84:
+		strcpy (buf, "PGP Encrypted Message (ciphertext)");
+		the_len = 34;
+		break;
+	case 85:
+		strcpy (buf, "PGP Public Key Block");
+		the_len = 20;
+		break;
+	case 86:
+		strcpy (buf, "PGP Private Key Block");
+		the_len = 21;
+		break;
+	case 87:
+		strcpy (buf, "PCAP file");
+		the_len = 9;
+		break;
+	case 88:
+		strcpy (buf, "PCAP file");
+		the_len = 9;
+		break;
+	case 89:
+		strcpy (buf, "PCAPNG file");
+		the_len = 11;
+		break;
+	case 90:
+		strcpy (buf, "Windows Policy Administrative Template");
+		the_len = 38;
+		break;
+	case 91:
+		strcpy (buf, "Windows Policy Administrative Template");
+		the_len = 38;
+		break;
+	case 92:
+		strcpy (buf, "Windows Policy Administrative Template");
+		the_len = 38;
+		break;
+	case 93:
+		strcpy (buf, "Windows Group Policy Administrative Template");
+		the_len = 44;
+		break;
+	case 94:
+		strcpy (buf, "China Mobile Application");
+		the_len = 24;
+		break;
+	case 95:
+		strcpy (buf, "Windows Executable");
+		the_len = 18;
+		break;
+	case 96:
+		strcpy (buf, "ELF Executable");
+		the_len = 14;
+		break;
+	case 97:
+		strcpy (buf, "Mach-O 32-Bit Big Endian");
+		the_len = 24;
+		break;
+	case 98:
+		strcpy (buf, "Mach-O 32-Bit Little Endian");
+		the_len = 27;
+		break;
+	case 99:
+		strcpy (buf, "Mach-O 64-Bit Big Endian");
+		the_len = 24;
+		break;
+	case 100:
+		strcpy (buf, "Mach-O 64-Bit Little Endian");
+		the_len = 27;
+		break;
+	case 101:
+		strcpy (buf, "Java Bytecode or Mach-O FAT Binary");
+		the_len = 34;
+		break;
+	case 102:
+		strcpy (buf, "Java Bytecode (Pack200 compression)");
+		the_len = 35;
+		break;
+	case 103:
+		strcpy (buf, "Java Serialization Data");
+		the_len = 23;
+		break;
+	case 104:
+		strcpy (buf, "Microsoft Net Resource File");
+		the_len = 27;
+		break;
+	case 105:
+		strcpy (buf, "Shockwave Flash File (SWF)");
+		the_len = 26;
+		break;
+	case 106:
+		strcpy (buf, "Shockwave Flash File (SWF)");
+		the_len = 26;
+		break;
+	case 107:
+		strcpy (buf, "Flash Video File (FLV)");
+		the_len = 22;
+		break;
+	case 108:
+		strcpy (buf, "Torrent File");
+		the_len = 12;
+		break;
+	case 109:
+		strcpy (buf, "Zip Archive");
+		the_len = 11;
+		break;
+	case 110:
+		strcpy (buf, "Zip Archive");
+		the_len = 11;
+		break;
+	case 111:
+		strcpy (buf, "PKSFX Self-Extracting Archive");
+		the_len = 29;
+		break;
+	case 112:
+		strcpy (buf, "PKLITE Compressed ZIP Archive");
+		the_len = 29;
+		break;
+	case 113:
+		strcpy (buf, "Puffer Encrypted Archive");
+		the_len = 24;
+		break;
+	case 114:
+		strcpy (buf, "Puffer ASCII-Armored Encrypted Archive");
+		the_len = 38;
+		break;
+	case 115:
+		strcpy (buf, "VirtualBox Disk Image (VDI)");
+		the_len = 27;
+		break;
+	case 116:
+		strcpy (buf, "VMware 3 Virtual Disk");
+		the_len = 21;
+		break;
+	case 117:
+		strcpy (buf, "VMware 4 Virtual Disk");
+		the_len = 21;
+		break;
+	case 118:
+		strcpy (buf, "VMware 4 Virtual Disk");
+		the_len = 21;
+		break;
+	case 119:
+		strcpy (buf, "TIFF image file");
+		the_len = 15;
+		break;
+	case 120:
+		strcpy (buf, "Compiled HTML");
+		the_len = 13;
+		break;
+	case 121:
+		strcpy (buf, "Windows Help File");
+		the_len = 17;
+		break;
+	case 122:
+		strcpy (buf, "Windows Help File");
+		the_len = 17;
+		break;
+	case 123:
+		strcpy (buf, "Shell Script (shebang)");
+		the_len = 22;
+		break;
+	case 124:
+		strcpy (buf, "MPEG Video file");
+		the_len = 15;
+		break;
+	case 125:
+		strcpy (buf, "MPEG Video file");
+		the_len = 15;
+		break;
+	case 126:
+		strcpy (buf, "Microsoft Windows Media Audio/Video File (ASF WMA WMV)");
+		the_len = 54;
+		break;
+	case 127:
+		strcpy (buf, "Wave File (WAV)");
+		the_len = 15;
+		break;
+	case 128:
+		strcpy (buf, "Audio Video Interleaved File (AVI)");
+		the_len = 34;
+		break;
+	case 129:
+		strcpy (buf, "Real Audio Metadata File (RAM)");
+		the_len = 30;
+		break;
+	case 130:
+		strcpy (buf, "RealMedia File (RM)");
+		the_len = 19;
+		break;
+	case 131:
+		strcpy (buf, "QuickTime Movie");
+		the_len = 15;
+		break;
+	case 132:
+		strcpy (buf, "QuickTime Movie (MP4)");
+		the_len = 21;
+		break;
+	case 133:
+		strcpy (buf, "QuickTime Movie (3GP)");
+		the_len = 21;
+		break;
+	case 134:
+		strcpy (buf, "QuickTime Movie (3GP)");
+		the_len = 21;
+		break;
+	case 135:
+		strcpy (buf, "QuickTime - Apple Lossless Audio Codec file (M4A)");
+		the_len = 49;
+		break;
+	case 136:
+		strcpy (buf, "QuickTime Movie (M4V)");
+		the_len = 21;
+		break;
+	case 137:
+		strcpy (buf, "QuickTime Movie (MP4)");
+		the_len = 21;
+		break;
+	case 138:
+		strcpy (buf, "QuickTime Movie (MP4)");
+		the_len = 21;
+		break;
+	case 139:
+		strcpy (buf, "QuickTime Movie (MP4)");
+		the_len = 21;
+		break;
+	case 140:
+		strcpy (buf, "QuickTime Movie (MP4)");
+		the_len = 21;
+		break;
+	case 141:
+		strcpy (buf, "QuickTime Movie (MOV)");
+		the_len = 21;
+		break;
+	case 142:
+		strcpy (buf, "MPEG-4 Video File (3GP5)");
+		the_len = 24;
+		break;
+	case 143:
+		strcpy (buf, "PGP/GPG Signed Content");
+		the_len = 22;
+		break;
+	case 144:
+		strcpy (buf, "Javascript open tag");
+		the_len = 19;
+		break;
+	case 145:
+		strcpy (buf, "Javascript close tag");
+		the_len = 20;
+		break;
+	case 146:
+		strcpy (buf, "Iframe open tag");
+		the_len = 15;
+		break;
+	case 147:
+		strcpy (buf, "Iframe close tag");
+		the_len = 16;
+		break;
+	case 65534:
+		strcpy (buf, "Zip Archive");
+		the_len = 11;
+		break;
+	case 65535:
+		strcpy (buf, "Unclassified Binary");
+		the_len = 19;
+		break;
+    default:
+    	the_len = 0;
+    	break;
+    }
+    buf[the_len] = '\0';    
 }
 

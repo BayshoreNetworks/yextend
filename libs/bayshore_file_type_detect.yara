@@ -1713,7 +1713,7 @@ rule IFRAME_CLOSE_TAG
 rule MSOFFICE_MACRO
 {
     meta:
-        type = "MS_Office macro detected"
+        type = "MS_Office macro"
         bayshore_ix = 148
     strings:
         $msofficemacro = { 00 41 74 74 72 69 62 75 74 00 }
