@@ -1309,6 +1309,10 @@ void get_file_type_str(int type, uint8_t *buf) {
 		strcpy (buf, "Iframe close tag");
 		the_len = 16;
 		break;
+	case 26000:
+		strcpy (buf, "Windows Executable");
+		the_len = 18;
+		break;
 	case 65534:
 		strcpy (buf, "Zip Archive");
 		the_len = 11;
