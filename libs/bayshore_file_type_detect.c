@@ -67,7 +67,7 @@ double compute_chi_square_zero (const uint8_t *data, size_t sz)
 		memset (observations, 0, sizeof(observations));
 
 		size_t n_points = sz;
-		if (sz < 0) {
+		if (sz != -1) {
 			while (sz--)
 				observations [*data++] ++;
 		}
