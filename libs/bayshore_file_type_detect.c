@@ -406,7 +406,7 @@ int tokenize_yara_str(char *buf) {
 	return return_type;
 }
 
-int get_file_type(const uint8_t *buf, size_t sz) {
+int get_buffer_type(const uint8_t *buf, size_t sz) {
 	int return_type = -1;
 	
     int zip_exception = -1;
@@ -734,7 +734,7 @@ int is_encrypted(int ix) {
 	return 0;
 }
 
-void get_file_type_str(int type, uint8_t *buf) {
+void get_buffer_type_str(int type, uint8_t *buf) {
 
     int the_len = 0;
 
@@ -1330,3 +1330,26 @@ void get_file_type_str(int type, uint8_t *buf) {
     buf[the_len] = '\0';    
 }
 
+
+void _read_file (const uint8_t *file_name, uint8_t *buf) {
+	if (!file_name)
+		return;
+	FILE *fp = fopen (file_name, "r");
+	if (fp) {
+		int r = fread (buf, 1, sizeof(buf)-1, fp);
+		fclose (fp);
+	}
+}
+
+int get_file_type(const uint8_t *file_name) {
+
+    // open and read file
+    // pass buffer and length to get_buffer_type
+    // return val returned from get_buffer_type
+    char b [2000];
+    _read_file (file_name, b);
+    printf("HHHHHHHHHHHH: %d\n\n", strlen(b));
+
+    return 0;
+
+}
