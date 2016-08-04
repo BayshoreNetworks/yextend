@@ -42,6 +42,8 @@ extern "C" {
 
 	char *get_content_type_string (int);
 
+    void get_file_object_type(const uint8_t*);
+
 	bool is_type_officex (int);
     bool is_type_pcap(int);
     bool is_type_unclassified(int);

@@ -50,7 +50,7 @@ using namespace std;
 
 int get_content_type (const uint8_t *data, size_t sz)
 {
-	return get_file_type (data, std::min(sz,(size_t)100000));
+	return get_buffer_type (data, std::min(sz,(size_t)100000));
 }
 
 
@@ -61,12 +61,18 @@ int get_content_type (const uint8_t *data, size_t sz)
 char *get_content_type_string (int ft)
 {
     char buf[2048];
-    get_file_type_str(ft, (uint8_t *)buf);
+    get_buffer_type_str(ft, (uint8_t *)buf);
 
     static char buf2 [2048];
     snprintf (buf2, sizeof(buf2), "%s", buf);
 
     return buf2;
+}
+
+
+void get_file_object_type(const uint8_t *file_name)
+{
+    get_file_type(file_name);
 }
 
 
