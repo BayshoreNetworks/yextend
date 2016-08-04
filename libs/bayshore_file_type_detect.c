@@ -31,6 +31,8 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "bayshore_file_type_detect.h"
 #include "bayshore_yara_wrapper.h"
@@ -1334,11 +1336,35 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 void _read_file (const uint8_t *file_name, uint8_t *buf) {
 	if (!file_name)
 		return;
+
 	FILE *fp = fopen (file_name, "r");
 	if (fp) {
-		int r = fread (buf, 1, sizeof(buf)-1, fp);
-		fclose (fp);
+
+        // Go to the end of the file
+        if (fseek(fp, 0L, SEEK_END) == 0) {
+            // Get the size of the file.
+            //long bufsize = ftell(fp);
+            long bufsize = 20000;
+            //if (bufsize == -1) { /* Error */ }
+            
+    
+            // Allocate our buffer to that size.
+            //source = malloc(sizeof(char) * (bufsize + 1));
+    
+            // Go back to the start of the file - err
+            if (fseek(fp, 0L, SEEK_SET) != 0) { }
+    
+            // Read the entire file into memory.
+            size_t newLen = fread(buf, sizeof(char), bufsize, fp);
+            if ( ferror( fp ) != 0 ) {
+                fputs("Error reading file", stderr);
+            } else {
+                buf[newLen++] = '\0';
+            }
+        }
+        fclose(fp);
 	}
+    //free(source);
 }
 
 int get_file_type(const uint8_t *file_name) {
@@ -1346,48 +1372,11 @@ int get_file_type(const uint8_t *file_name) {
     // open and read file
     // pass buffer and length to get_buffer_type
     // return val returned from get_buffer_type
-    char b [2000];
-    _read_file (file_name, b);
+    char b [20000];
+    _read_file (file_name, (uint8_t *)b);
     printf("HHHHHHHHHHHH: %d\n\n", strlen(b));
 
     return 0;
 
 }
 
-
-
-
-/*
-
-
-#include <stdio.h>
-#include <stdlib.h>
-
-char *source = NULL;
-FILE *fp = fopen("foo.txt", "r");
-if (fp != NULL) {
-    // Go to the end of the file
-    if (fseek(fp, 0L, SEEK_END) == 0) {
-        // Get the size of the file.
-        long bufsize = ftell(fp);
-        if (bufsize == -1) { /* Error */ }
-
-        // Allocate our buffer to that size.
-        source = malloc(sizeof(char) * (bufsize + 1));
-
-        // Go back to the start of the file - err
-        if (fseek(fp, 0L, SEEK_SET) != 0) { }
-
-        // Read the entire file into memory.
-        size_t newLen = fread(source, sizeof(char), bufsize, fp);
-        if ( ferror( fp ) != 0 ) {
-            fputs("Error reading file", stderr);
-        } else {
-            source[newLen++] = '\0';
-        }
-    }
-    fclose(fp);
-}
-
-free(source);
-*/
