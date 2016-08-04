@@ -222,7 +222,7 @@ void compute_coincidence_index (const char *buf, size_t sz, double *retval)
 
 	//bool ok = false;
 
-	if (buf && sz && retval) {
+	if (buf && *buf && sz && retval) {
 
 		// Only look at the first 1meg. This reduces accuracy but
 		// renders performance acceptable.
@@ -1353,3 +1353,41 @@ int get_file_type(const uint8_t *file_name) {
     return 0;
 
 }
+
+
+
+
+/*
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+char *source = NULL;
+FILE *fp = fopen("foo.txt", "r");
+if (fp != NULL) {
+    // Go to the end of the file
+    if (fseek(fp, 0L, SEEK_END) == 0) {
+        // Get the size of the file.
+        long bufsize = ftell(fp);
+        if (bufsize == -1) { /* Error */ }
+
+        // Allocate our buffer to that size.
+        source = malloc(sizeof(char) * (bufsize + 1));
+
+        // Go back to the start of the file - err
+        if (fseek(fp, 0L, SEEK_SET) != 0) { }
+
+        // Read the entire file into memory.
+        size_t newLen = fread(source, sizeof(char), bufsize, fp);
+        if ( ferror( fp ) != 0 ) {
+            fputs("Error reading file", stderr);
+        } else {
+            source[newLen++] = '\0';
+        }
+    }
+    fclose(fp);
+}
+
+free(source);
+*/
