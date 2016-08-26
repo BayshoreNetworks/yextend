@@ -783,6 +783,17 @@ void scan_content2 (
 								cb,
 								in_type_of_scan);
 						
+					// pdf inside gzip
+		            } else if (is_type_pdf(lf_type)) {
+
+						scan_pdf_api(
+								(void *)&ssp,
+								ssr_list,
+								" inside GZIP Archive file",
+								(remove_file_extension(tmpfname)).c_str(),
+								cb,
+								in_type_of_scan);
+						
 					// ms-office open xml inside gzip
 					} else if (is_type_officex(lf_type)) {
 						
@@ -818,8 +829,7 @@ void scan_content2 (
 #elsif ARCHIVE_VERSION_NUMBER >= 3000000
 				archive_read_support_filter_all(a);
 #endif
-				
-	
+
 				r = archive_read_open_memory(a, (uint8_t *)buf, sz);
 				
 				if (r < 0) {
@@ -879,6 +889,21 @@ void scan_content2 (
 									if (is_type_archive(lf_type)) {
 										
 										scan_content2 (final_buff, final_size, rules, ssr_list, fname, cb, in_type_of_scan);
+										
+									// pdf
+									} else if (is_type_pdf(lf_type)) {
+										
+										char scan_src [100];
+										snprintf (scan_src, sizeof(scan_src), " inside %s file", archive_format_name(a));
+										snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
+										/*
+										if (DEBUG) {
+											std::cout << "[DEBUG]PDF detected inside archive" << std::endl;
+											std::cout << "[DEBUG]SCAN SRC: " << scan_src << std::endl;
+											std::cout << "[DEBUG]PARENT FILE NAME: " << parent_file_name << std::endl;
+										}
+										*/
+										scan_pdf_api((void *)&ssp, ssr_list, scan_src, fname ? fname : "", cb, in_type_of_scan);
 										
 									// ms-office open xml inside archive
 									} else if (is_type_officex(lf_type) || is_type_open_document_format(lf_type)) {
@@ -961,7 +986,11 @@ void scan_content2 (
 			ssp.buffer_length = sz;
 			ssp.file_type = buffer_type;
 
-			if (is_type_officex(buffer_type) || is_type_open_document_format(buffer_type)) {
+			if (is_type_pdf(buffer_type)) {
+
+				scan_pdf_api((void *)&ssp, ssr_list, "", parent_file_name ? parent_file_name : "", cb, in_type_of_scan);
+
+			} else if (is_type_officex(buffer_type) || is_type_open_document_format(buffer_type)) {
 
 				scan_office_open_xml_api((void *)&ssp, ssr_list, "", parent_file_name ? parent_file_name : "", false, cb, in_type_of_scan);
 				
