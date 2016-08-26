@@ -50,9 +50,13 @@ extern "C" {
 #include <openssl/md5.h>
 #include <algorithm>
 
+///////////////////////////////////////////////////////
 #define DEBUG_PREFIX "[DEBUG]"
+#define IN_FUNC " in function "
+
 //bool DEBUG = false;
 bool DEBUG = true;
+///////////////////////////////////////////////////////
 
 struct security_scan_parameters_t {
 	const uint8_t *buffer;
@@ -246,7 +250,7 @@ void scan_pdf_api(void *cookie,
 		)
 {
 	if (DEBUG)
-		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 
@@ -297,7 +301,7 @@ void scan_office_open_xml_api(
 		)
 {
 	if (DEBUG)
-		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	size_t src_len = strlen(src);
@@ -563,7 +567,7 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 	 * directly to the bayshore yara wrapper 
 	 */
 	if (DEBUG)
-		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	
@@ -676,7 +680,7 @@ void scan_content (
 		)
 {
 	if (DEBUG)
-		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	iteration_counter = 0;
 	
@@ -705,7 +709,7 @@ void scan_content (
 		)
 {
 	if (DEBUG)
-		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	if (rule_file) {
 		YR_RULES* rules = bayshore_yara_preprocess_rules (rule_file);
@@ -733,7 +737,7 @@ void scan_content2 (
 		)
 {
 	if (DEBUG)
-		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	if (buf) {
 	
@@ -1055,8 +1059,4 @@ void scan_content2 (
 		/////////////////////////////////////////////////////
 	} // end if (buf)
 }
-
-
-
-
 
