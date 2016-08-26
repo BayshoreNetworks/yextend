@@ -3,7 +3,7 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2104-2016, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2016, Bayshore Networks, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -32,7 +32,7 @@
 #include <algorithm>
 using namespace std;
 
-#include <filedissect.h>
+#include "libs/bayshore_file_type_detect.h"
 #include <wrapper.h>
 
 #include <sys/stat.h>
@@ -50,8 +50,7 @@ using namespace std;
 
 int get_content_type (const uint8_t *data, size_t sz)
 {
-	FileDissect fd;
-	return fd.GetBufferType (data, std::min(sz,(size_t)100000));
+	return get_buffer_type (data, std::min(sz,(size_t)100000));
 }
 
 
@@ -59,22 +58,21 @@ int get_content_type (const uint8_t *data, size_t sz)
  * get_content_type_string
  * ***********************/
 
-const char *get_content_type_string (int ft)
+char *get_content_type_string (int ft)
 {
-	FileDissect fd;
-	string s = fd.GetFileTypeStr (ft);
+    char buf[2048];
+    get_buffer_type_str(ft, (uint8_t *)buf);
 
-	/*
-	 * WARNING, this is not thread-safe.
-	 * This needs refactoring because the underlying
-	 * function in FileDissect returns a std::string
-	 * instead of a static const char* as it probably
-	 * should
-	 */
-    static char buf [2048];
-    snprintf (buf, sizeof(buf), s.c_str());
+    static char buf2 [2048];
+    snprintf (buf2, sizeof(buf2), "%s", buf);
 
-    return buf;
+    return buf2;
+}
+
+
+int get_file_object_type(const uint8_t *file_name)
+{
+    return get_file_type(file_name);
 }
 
 
@@ -84,8 +82,7 @@ is_type_archive
 
 bool is_type_archive (int ix)
 {
-	FileDissect fd;
-	return fd.is_archive (ix);
+	return is_archive (ix);
 }
 
 /***************
@@ -94,8 +91,7 @@ is_type_officex
 
 bool is_type_officex (int ix)
 {
-	FileDissect fd;
-	return fd.is_officex (ix);
+	return is_officex (ix);
 }
 
 /************
@@ -104,8 +100,7 @@ is_type_pcap
 
 bool is_type_pcap (int ix)
 {
-	FileDissect fd;
-	return fd.is_pcap (ix);
+	return is_pcap (ix);
 }
 
 /********************
@@ -114,8 +109,7 @@ is_type_unclassified
 
 bool is_type_unclassified (int ix)
 {
-	FileDissect fd;
-	return fd.is_unclassified (ix);
+	return is_unclassified (ix);
 }
 
 /***********
@@ -124,8 +118,7 @@ is_type_tar
 
 bool is_type_tar (int ix)
 {
-	FileDissect fd;
-	return fd.is_tar (ix);
+	return is_tar (ix);
 }
 
 /***********
@@ -134,8 +127,7 @@ is_type_xml
 
 bool is_type_xml (int ix)
 {
-	FileDissect fd;
-	return fd.is_xml (ix);
+	return is_xml (ix);
 }
 
 /****************************
@@ -144,8 +136,7 @@ is_type_open_document_format
 
 bool is_type_open_document_format (int ix)
 {
-	FileDissect fd;
-	return fd.is_open_document_format (ix);
+	return is_open_document_format (ix);
 }
 
 /***********
@@ -154,8 +145,7 @@ is_type_php
 
 bool is_type_php (int ix)
 {
-	FileDissect fd;
-	return fd.is_php (ix);
+	return is_php (ix);
 }
 
 /***********
@@ -164,8 +154,7 @@ is_type_rar
 
 bool is_type_rar (int ix)
 {
-	FileDissect fd;
-	return fd.is_rar (ix);
+	return is_rar (ix);
 }
 
 /***************
@@ -174,8 +163,7 @@ is_type_win_exe
 
 bool is_type_win_exe (int ix)
 {
-	FileDissect fd;
-	return fd.is_win_exe (ix);
+	return is_win_exe (ix);
 }
 
 /************
@@ -184,8 +172,7 @@ is_type_html
 
 bool is_type_html (int ix)
 {
-	FileDissect fd;
-	return fd.is_html (ix);
+	return is_html (ix);
 }
 
 /************
@@ -194,8 +181,7 @@ is_type_gzip
 
 bool is_type_gzip (int ix)
 {
-	FileDissect fd;
-	return fd.is_gzip (ix);
+	return is_gzip (ix);
 }
 
 /***********
@@ -204,8 +190,7 @@ is_type_pdf
 
 bool is_type_pdf (int ix)
 {
-	FileDissect fd;
-	return fd.is_pdf (ix);
+	return is_pdf (ix);
 }
 
 /**************
@@ -214,8 +199,7 @@ is_type_office
 
 bool is_type_office (int ix)
 {
-	FileDissect fd;
-	return fd.is_office (ix);
+	return is_office (ix);
 }
 
 /*************
@@ -224,8 +208,7 @@ is_type_image
 
 bool is_type_image (int ix)
 {
-	FileDissect fd;
-	return fd.is_image (ix);
+	return is_image (ix);
 }
 
 
