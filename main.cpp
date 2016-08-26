@@ -3,7 +3,7 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2104-2016, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2016, Bayshore Networks, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -48,7 +48,7 @@
 extern "C" {
 #endif
 
-#include "bayshore_yara_wrapper.h"
+#include "libs/bayshore_yara_wrapper.h"
 
 #ifdef __cplusplus
 }
@@ -224,6 +224,11 @@ int main(int argc, char* argv[])
 
 					strncat (fs, epdf->d_name, strlen(epdf->d_name));
 					fs[strlen(fs)] = '\0';
+
+					if (is_directory(fs)) {
+						// We do not recurse into directories yet
+						continue;
+					}
 
 					if ((file = fopen(fs, "rb")) != NULL) {
 						// Get the size of the file in bytes

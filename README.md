@@ -8,9 +8,16 @@ yextend was written for the sake of augmenting yara. yara by itself is great but
 
 Notes:
 
+- (08/30/2016) yextend version 1.5
+
+	- native parsing for PDF documents such that the Yara rulesets are now running against the raw text from the target PDF (this is different than running against PDF’s binary format)
+	- file type detection has been re-written so that it is now performed against a Yara ruleset
+	- added some initial debug code (based on bool flag)
+	- more test files added
+
 - (03/18/2016) yextend version 1.4 - output enhancements and runtime helper prog
 
-	- output now includes the offset and string definition identifier for every hit reported by Yara.
+	- output now includes the offset and string definition identifier for every hit reported by Yara
 	- output now includes the name of the Yara ruleset file at hand
 	- initial release of run_yextend prog 
 
@@ -33,6 +40,8 @@ Requirements to build and run:
 - zlib devel lib (sudo yum install zlib-devel or sudo apt-get install zlib1g-dev)
 - libarchive (v4) be installed (sudo yum install libarchive-devel or sudo apt-get install libarchive-dev)
 - pcrecpp (sudo yum install pcre-devel or sudo apt-get install libpcre3-dev)
+- uuid (sudo yum install uuid-devel or sudo apt-get install uuid-dev)
+- pdf2text (sudo yum install poppler-utils or sudo apt-get install poppler-utils)
 - yara v3.X be fully installed
 - if you are running yara pre-version 3.1.X then yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
 	A. cd into the dir where you extracted yara (for this example I will use "/tmp/yara")
@@ -48,16 +57,10 @@ Instructions:
 	- cd THEDIR
 	- tar -xvzf yextend.tar.gz
 
-3 - Build:
+3 - Build (make sure the executable bit is set on the file system for build.sh):
 
-	- ./autogen.sh
-	
-	- ./configure
+	- ./build.sh
 
-	- make clean
-	
-	- make
-		
 4 - Test (optional)
 
 	- yarac test_rulesets/bayshore.yara.testing.ruleset test_rulesets/bayshore.yara.testing.ruleset.34.bin

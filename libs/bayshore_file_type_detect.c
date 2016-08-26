@@ -737,8 +737,23 @@ int is_encrypted(int ix) {
 	return 0;
 }
 
-void get_buffer_type_str(int type, uint8_t *buf) {
 
+
+void get_buffer_type_str(int type, uint8_t *buf) {
+	/*
+	 * this may not be cleanest way of doing this
+	 * (getting the text string of a detected file type)
+	 * but it seems fast enough
+	 * 
+	 * I just hate maintaining this data set here
+	 * on top of the yara ruleset used for type
+	 * detection but this is the path of least
+	 * resistance at the moment ...
+	 * 
+	 * The { case ... } code here was generated via
+	 * a py script run against the bayshore file
+	 * type detection yara ruleset 
+	 */
     int the_len = 0;
 
     switch (type) {
@@ -1313,6 +1328,10 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 	case 147:
 		strcpy (buf, "Iframe close tag");
 		the_len = 16;
+		break;
+	case 148:
+		strcpy (buf, "MS-Office macro");
+		the_len = 15;
 		break;
 	case 26000:
 		strcpy (buf, "Windows Executable");

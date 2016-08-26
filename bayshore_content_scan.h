@@ -3,7 +3,7 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2104-2016, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2016, Bayshore Networks, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -94,6 +94,7 @@ void scan_content (const uint8_t *, size_t, YR_RULES *, std::list<security_scan_
 
 
 // by type (used by the API entry points)
+void scan_pdf_api(void *, std::list<security_scan_results_t> *, const char *, const char *, void (*cb)(void*, std::list<security_scan_results_t> *, const char *), int);
 void scan_office_open_xml_api(void *, std::list<security_scan_results_t> *, const char *, const char *, bool, void (*cb)(void*, std::list<security_scan_results_t> *, const char *), int);
 
 

@@ -3,7 +3,7 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2104-2016, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2016, Bayshore Networks, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-#include "bayshore_yara_wrapper.h"
+#include "libs/bayshore_yara_wrapper.h"
 
 #ifdef __cplusplus
 }
@@ -41,12 +41,22 @@ extern "C" {
 
 #include "bayshore_content_scan.h"
 #include "wrapper.h"
-#include "zl.h"
+#include "libs/zl.h"
+#include "libs/pdf_parser.h"
 
 #include <archive.h>
 #include <archive_entry.h>
 #include <assert.h>
 #include <openssl/md5.h>
+#include <algorithm>
+
+///////////////////////////////////////////////////////
+#define DEBUG_PREFIX "[DEBUG]"
+#define IN_FUNC " in function "
+
+bool DEBUG = false;
+//bool DEBUG = true;
+///////////////////////////////////////////////////////
 
 struct security_scan_parameters_t {
 	const uint8_t *buffer;
@@ -200,7 +210,79 @@ void get_buf_hex(char *dest, const char *src, int threshold)
     }
     dest[i*2] = '\0';
 }
+
+void find_open_office_embeddings(void *membuf, size_t size, std::list<std::string> &embeddings)
+{
+	struct archive *a = archive_read_new();
+	if (!a) return;
+
+	struct archive_entry *entry;
+	std::string cmp("ObjectReplacements");
+
+	archive_read_support_format_all(a);
+	archive_read_support_filter_all(a);
+
+	if (ARCHIVE_OK!=archive_read_open_memory(a, (uint8_t *)membuf, size)) return;
+	while (ARCHIVE_OK==archive_read_next_header(a, &entry)) {
+		if (archive_entry_size(entry)>0) {
+			std::string item(archive_entry_pathname(entry));
+			if (item.compare(0, 18, cmp)==0) {
+				embeddings.push_back(&item[19]);
+			}
+		}
+	}
+	archive_read_close(a);
+	archive_read_free(a);
+}
 //////////////////////////////////////////////////////////////
+
+/************
+scan_pdf_api
+*************/
+
+
+void scan_pdf_api(void *cookie,
+		std::list<security_scan_results_t> *ssr_list,
+		const char *src,
+		const char *child_file_name,
+		void (*cb)(void*, std::list<security_scan_results_t> *, const char *),
+		int in_type_of_scan
+		)
+{
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
+	
+	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
+
+	size_t src_len = strlen(src);
+	/*
+	 * declare str_buf here so that it doesnt go
+	 * out of scope when "if (in_type_of_scan == 1)"
+	 * completes
+	 */
+	std::string str_buf;
+	
+	if (in_type_of_scan == 1) {
+		PDFParser pdf;		
+		str_buf = pdf.extract_text_buffer(ssp_local->buffer, ssp_local->buffer_length);
+
+		ssp_local->buffer = (const uint8_t*)str_buf.c_str();
+		ssp_local->buffer_length = str_buf.length();
+	}
+	
+	if (src_len == 0) {
+		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF)");
+	} else {
+		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s%s", type_of_scan[in_type_of_scan], "(PDF)", src);
+	}
+	
+	if (child_file_name)
+		cb((void *)ssp_local, ssr_list, child_file_name);
+	else
+		cb((void *)ssp_local, ssr_list, "");
+	
+}
+
 
 
 /************************
@@ -218,6 +300,8 @@ void scan_office_open_xml_api(
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	size_t src_len = strlen(src);
@@ -226,12 +310,18 @@ void scan_office_open_xml_api(
 	assert(a);
 	struct archive_entry *entry;
 	int r;
+	std::list<std::string> embeddings;
+
+
+	find_open_office_embeddings((uint8_t *)ssp_local->buffer, ssp_local->buffer_length, embeddings);
+
 
 	archive_read_support_format_all(a);
-	// pre-v4 libarchive
-	//archive_read_support_compression_all(a);
-	// v4 libarchive
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_read_support_compression_all(a);
+#elsif ARCHIVE_VERSION_NUMBER >= 3000000
 	archive_read_support_filter_all(a);
+#endif
 
 	r = archive_read_open_memory(a, (uint8_t *)ssp_local->buffer, ssp_local->buffer_length);
 
@@ -293,10 +383,27 @@ void scan_office_open_xml_api(
 							) {
 						embedded_doc = true;
 					}
-					
+
+
+					// OpenOffice/LibreOffice -- document content
+					if (strncmp(fname, "content.xml", 11)==0) {
+						// The document's content
+						oox_type = "odt";
+					}
+
+					// Check if this is match for OpenOffice/LibreOffice embeddings
+					std::list<std::string>::iterator it;
+					std::string item(fname);
+
+					if (embeddings.end()!=std::find(embeddings.begin(), embeddings.end(), item)) {
+						oox_type = "odt";
+						embedded_doc = true;
+					}
+
 					if (oox_type == "docx" ||
 							oox_type == "pptx" ||
 							oox_type == "xlsx" ||
+							oox_type == "odt" ||
 							embedded_doc
 						)
 					{	
@@ -394,7 +501,6 @@ void scan_office_open_xml_api(
 									
 									int lf_type = get_content_type ((const uint8_t *)ss.c_str(), ss.length());
 									ssp_local->file_type = lf_type;
-									
 									ssp_local->buffer = (const uint8_t *)ss.c_str();
 									ssp_local->buffer_length = ss.length();
 									
@@ -460,6 +566,9 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 	 * this should be the only spot that makes calls out
 	 * directly to the bayshore yara wrapper 
 	 */
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
+	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	
 	char local_api_yara_results[MAX_YARA_RES_BUF + 1024];
@@ -488,13 +597,18 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 				security_scan_results_t ssr;
 				// populate struct elements
 				ssr.file_scan_type = ssp_local->scan_type;
-				ssr.file_scan_result = std::string(local_api_yara_results, local_api_yara_results_len);
+				std::string sres(local_api_yara_results, local_api_yara_results_len);
+				ssr.file_scan_result = sres;
 				
-				if (ssp_local->parent_file_name)
-					ssr.parent_file_name = std::string(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+				if (ssp_local->parent_file_name) {
+					std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+					ssr.parent_file_name = sfname;
+				}
 				
-				if (child_file_name)
-					ssr.child_file_name = std::string(child_file_name);
+				if (child_file_name) {
+					std::string schfname(child_file_name);
+					ssr.child_file_name = schfname;
+				}
 	
 				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
 				if (output) {
@@ -521,13 +635,18 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 				security_scan_results_t ssr;
 				// populate struct elements
 				ssr.file_scan_type = ssp_local->scan_type;
-				ssr.file_scan_result = std::string(local_api_yara_results, local_api_yara_results_len);
+				std::string sres(local_api_yara_results, local_api_yara_results_len);
+				ssr.file_scan_result = sres;
 				
-				if (ssp_local->parent_file_name)
-					ssr.parent_file_name = std::string(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+				if (ssp_local->parent_file_name) {
+					std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+					ssr.parent_file_name = sfname;
+				}
 				
-				if (child_file_name)
-					ssr.child_file_name = std::string(child_file_name);
+				if (child_file_name) {
+					std::string schfname(child_file_name);
+					ssr.child_file_name = schfname;
+				}
 	
 				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
 				if (output) {
@@ -560,6 +679,9 @@ void scan_content (
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
+	
 	iteration_counter = 0;
 	
 	int lin_type_of_scan = -1;
@@ -586,6 +708,9 @@ void scan_content (
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
+	
 	if (rule_file) {
 		YR_RULES* rules = bayshore_yara_preprocess_rules (rule_file);
 		if (rules) {
@@ -611,6 +736,9 @@ void scan_content2 (
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
+	
 	if (buf) {
 	
 		/////////////////////////////////////////////////////
@@ -638,7 +766,7 @@ void scan_content2 (
 		int buffer_type = get_content_type (buf, sz);
 		//std::cout << buffer_type << std::endl;
 		bool is_buf_archive = is_type_archive(buffer_type);
-		
+
 		// archive
 		if (is_buf_archive) {
 			
@@ -680,6 +808,17 @@ void scan_content2 (
 								cb,
 								in_type_of_scan);
 						
+					// pdf inside gzip
+		            } else if (is_type_pdf(lf_type)) {
+
+						scan_pdf_api(
+								(void *)&ssp,
+								ssr_list,
+								" inside GZIP Archive file",
+								(remove_file_extension(tmpfname)).c_str(),
+								cb,
+								in_type_of_scan);
+						
 					// ms-office open xml inside gzip
 					} else if (is_type_officex(lf_type)) {
 						
@@ -710,11 +849,12 @@ void scan_content2 (
 				int r;
 		
 				archive_read_support_format_all(a);
-				// pre-v4 libarchive
-				//archive_read_support_compression_all(a);
-				// v4 libarchive
+#if ARCHIVE_VERSION_NUMBER < 3000000
+				archive_read_support_compression_all(a);
+#elsif ARCHIVE_VERSION_NUMBER >= 3000000
 				archive_read_support_filter_all(a);
-		
+#endif
+
 				r = archive_read_open_memory(a, (uint8_t *)buf, sz);
 				
 				if (r < 0) {
@@ -769,15 +909,29 @@ void scan_content2 (
 									ssp.buffer = final_buff;
 									ssp.buffer_length = final_size;
 									ssp.file_type = lf_type;
-		
-		
+
 									// archive, make recursive call into scan_content
 									if (is_type_archive(lf_type)) {
 										
 										scan_content2 (final_buff, final_size, rules, ssr_list, fname, cb, in_type_of_scan);
 										
+									// pdf
+									} else if (is_type_pdf(lf_type)) {
+										
+										char scan_src [100];
+										snprintf (scan_src, sizeof(scan_src), " inside %s file", archive_format_name(a));
+										snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
+										/*
+										if (DEBUG) {
+											std::cout << "[DEBUG]PDF detected inside archive" << std::endl;
+											std::cout << "[DEBUG]SCAN SRC: " << scan_src << std::endl;
+											std::cout << "[DEBUG]PARENT FILE NAME: " << parent_file_name << std::endl;
+										}
+										*/
+										scan_pdf_api((void *)&ssp, ssr_list, scan_src, fname ? fname : "", cb, in_type_of_scan);
+										
 									// ms-office open xml inside archive
-									} else if (is_type_officex(lf_type)) {
+									} else if (is_type_officex(lf_type) || is_type_open_document_format(lf_type)) {
 									
 										char scan_src [100];
 										snprintf (scan_src, sizeof(scan_src), "inside %s file", archive_format_name(a));
@@ -841,7 +995,7 @@ void scan_content2 (
 			} // end if gzip else
 		
 		} else { // not an archive
-			
+
 			/*
 			 * if we are here then we are not dealing
 			 * with an archive in the buffer, i.e. not
@@ -856,9 +1010,13 @@ void scan_content2 (
 			ssp.buffer = buf;
 			ssp.buffer_length = sz;
 			ssp.file_type = buffer_type;
-			
-			if (is_type_officex(buffer_type)) {
-				
+
+			if (is_type_pdf(buffer_type)) {
+
+				scan_pdf_api((void *)&ssp, ssr_list, "", parent_file_name ? parent_file_name : "", cb, in_type_of_scan);
+
+			} else if (is_type_officex(buffer_type) || is_type_open_document_format(buffer_type)) {
+
 				scan_office_open_xml_api((void *)&ssp, ssr_list, "", parent_file_name ? parent_file_name : "", false, cb, in_type_of_scan);
 				
 			} else {
@@ -886,9 +1044,11 @@ void scan_content2 (
 			
 			ssr.file_scan_result = "Anomalies present in Archive (possible Decompression Bomb)";
 			
-			if (parent_file_name)
-				ssr.parent_file_name = std::string(parent_file_name);
-		
+			if (parent_file_name) {
+				std::string sfname(parent_file_name);
+				ssr.parent_file_name = sfname;
+			}
+	
 			char *output = str2md5((const char *)buf, sz);
 			if (output) {
 				memcpy (ssr.file_signature_md5, output, 33);
@@ -899,8 +1059,4 @@ void scan_content2 (
 		/////////////////////////////////////////////////////
 	} // end if (buf)
 }
-
-
-
-
 
