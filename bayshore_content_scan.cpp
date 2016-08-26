@@ -54,8 +54,8 @@ extern "C" {
 #define DEBUG_PREFIX "[DEBUG]"
 #define IN_FUNC " in function "
 
-//bool DEBUG = false;
-bool DEBUG = true;
+bool DEBUG = false;
+//bool DEBUG = true;
 ///////////////////////////////////////////////////////
 
 struct security_scan_parameters_t {
