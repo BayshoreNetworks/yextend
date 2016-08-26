@@ -42,7 +42,7 @@ extern "C" {
 int get_buffer_type(const uint8_t *, size_t);
 void get_buffer_type_str(int, uint8_t *);
 
-void _read_file (const uint8_t *, uint8_t *);
+
 int get_file_type(const uint8_t *);
 
 int is_officex(int);

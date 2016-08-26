@@ -40,6 +40,7 @@
 
 static void compute_coincidence_index (const char*, size_t, double*);
 #define AMT 600
+#define MAXBUFLEN 2048
 
 int min(int x, int y)
 {
@@ -736,8 +737,23 @@ int is_encrypted(int ix) {
 	return 0;
 }
 
-void get_buffer_type_str(int type, uint8_t *buf) {
 
+
+void get_buffer_type_str(int type, uint8_t *buf) {
+	/*
+	 * this may not be cleanest way of doing this
+	 * (getting the text string of a detected file type)
+	 * but it seems fast enough
+	 * 
+	 * I just hate maintaining this data set here
+	 * on top of the yara ruleset used for type
+	 * detection but this is the path of least
+	 * resistance at the moment ...
+	 * 
+	 * The { case ... } code here was generated via
+	 * a py script run against the bayshore file
+	 * type detection yara ruleset 
+	 */
     int the_len = 0;
 
     switch (type) {
@@ -1313,6 +1329,10 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		strcpy (buf, "Iframe close tag");
 		the_len = 16;
 		break;
+	case 148:
+		strcpy (buf, "MS-Office macro");
+		the_len = 15;
+		break;
 	case 26000:
 		strcpy (buf, "Windows Executable");
 		the_len = 18;
@@ -1333,50 +1353,25 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 }
 
 
-void _read_file (const uint8_t *file_name, uint8_t *buf) {
-	if (!file_name)
-		return;
-
-	FILE *fp = fopen (file_name, "r");
-	if (fp) {
-
-        // Go to the end of the file
-        if (fseek(fp, 0L, SEEK_END) == 0) {
-            // Get the size of the file.
-            //long bufsize = ftell(fp);
-            long bufsize = 20000;
-            //if (bufsize == -1) { /* Error */ }
-            
-    
-            // Allocate our buffer to that size.
-            //source = malloc(sizeof(char) * (bufsize + 1));
-    
-            // Go back to the start of the file - err
-            if (fseek(fp, 0L, SEEK_SET) != 0) { }
-    
-            // Read the entire file into memory.
-            size_t newLen = fread(buf, sizeof(char), bufsize, fp);
-            if ( ferror( fp ) != 0 ) {
-                fputs("Error reading file", stderr);
-            } else {
-                buf[newLen++] = '\0';
-            }
-        }
-        fclose(fp);
-	}
-    //free(source);
-}
-
 int get_file_type(const uint8_t *file_name) {
 
     // open and read file
     // pass buffer and length to get_buffer_type
     // return val returned from get_buffer_type
-    char b [20000];
-    _read_file (file_name, (uint8_t *)b);
-    printf("HHHHHHHHHHHH: %d\n\n", strlen(b));
+    int ret = -1;
+    char source[MAXBUFLEN + 1];
 
-    return 0;
-
+    FILE *fp = fopen(file_name, "r");
+    if (fp != NULL) {
+        size_t newLen = fread(source, sizeof(char), MAXBUFLEN, fp);
+        if ( ferror( fp ) != 0 ) {
+            fputs("Error reading file", stderr);
+        } else {
+            source[newLen++] = '\0'; /* Just to be safe. */
+        }
+        ret = get_buffer_type((uint8_t *)source, strlen(source));
+        fclose(fp);
+    }
+    //printf("RET: %d\n\n", ret);
+    return ret;
 }
-
