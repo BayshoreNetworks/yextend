@@ -259,10 +259,11 @@ void scan_office_open_xml_api(
 
 
 	archive_read_support_format_all(a);
-	// pre-v4 libarchive
-	//archive_read_support_compression_all(a);
-	// v4 libarchive
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_read_support_compression_all(a);
+#elsif ARCHIVE_VERSION_NUMBER >= 3000000
 	archive_read_support_filter_all(a);
+#endif
 
 	r = archive_read_open_memory(a, (uint8_t *)ssp_local->buffer, ssp_local->buffer_length);
 
@@ -535,13 +536,18 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 				security_scan_results_t ssr;
 				// populate struct elements
 				ssr.file_scan_type = ssp_local->scan_type;
-				ssr.file_scan_result = std::string(local_api_yara_results, local_api_yara_results_len);
+				std::string sres(local_api_yara_results, local_api_yara_results_len);
+				ssr.file_scan_result = sres;
 				
-				if (ssp_local->parent_file_name)
-					ssr.parent_file_name = std::string(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+				if (ssp_local->parent_file_name) {
+					std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+					ssr.parent_file_name = sfname;
+				}
 				
-				if (child_file_name)
-					ssr.child_file_name = std::string(child_file_name);
+				if (child_file_name) {
+					std::string schfname(child_file_name);
+					ssr.child_file_name = schfname;
+				}
 	
 				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
 				if (output) {
@@ -568,13 +574,18 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 				security_scan_results_t ssr;
 				// populate struct elements
 				ssr.file_scan_type = ssp_local->scan_type;
-				ssr.file_scan_result = std::string(local_api_yara_results, local_api_yara_results_len);
+				std::string sres(local_api_yara_results, local_api_yara_results_len);
+				ssr.file_scan_result = sres;
 				
-				if (ssp_local->parent_file_name)
-					ssr.parent_file_name = std::string(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+				if (ssp_local->parent_file_name) {
+					std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+					ssr.parent_file_name = sfname;
+				}
 				
-				if (child_file_name)
-					ssr.child_file_name = std::string(child_file_name);
+				if (child_file_name) {
+					std::string schfname(child_file_name);
+					ssr.child_file_name = schfname;
+				}
 	
 				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
 				if (output) {
@@ -757,11 +768,13 @@ void scan_content2 (
 				int r;
 		
 				archive_read_support_format_all(a);
-				// pre-v4 libarchive
-				//archive_read_support_compression_all(a);
-				// v4 libarchive
+#if ARCHIVE_VERSION_NUMBER < 3000000
+				archive_read_support_compression_all(a);
+#elsif ARCHIVE_VERSION_NUMBER >= 3000000
 				archive_read_support_filter_all(a);
-		
+#endif
+				
+	
 				r = archive_read_open_memory(a, (uint8_t *)buf, sz);
 				
 				if (r < 0) {
@@ -932,9 +945,11 @@ void scan_content2 (
 			
 			ssr.file_scan_result = "Anomalies present in Archive (possible Decompression Bomb)";
 			
-			if (parent_file_name)
-				ssr.parent_file_name = std::string(parent_file_name);
-		
+			if (parent_file_name) {
+				std::string sfname(parent_file_name);
+				ssr.parent_file_name = sfname;
+			}
+	
 			char *output = str2md5((const char *)buf, sz);
 			if (output) {
 				memcpy (ssr.file_signature_md5, output, 33);
