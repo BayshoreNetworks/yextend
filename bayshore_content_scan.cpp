@@ -50,6 +50,10 @@ extern "C" {
 #include <openssl/md5.h>
 #include <algorithm>
 
+#define DEBUG_PREFIX "[DEBUG]"
+//bool DEBUG = false;
+bool DEBUG = true;
+
 struct security_scan_parameters_t {
 	const uint8_t *buffer;
 	size_t buffer_length;
@@ -241,6 +245,9 @@ void scan_pdf_api(void *cookie,
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 
 	size_t src_len = strlen(src);
@@ -289,6 +296,8 @@ void scan_office_open_xml_api(
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
 	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	size_t src_len = strlen(src);
@@ -553,6 +562,9 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 	 * this should be the only spot that makes calls out
 	 * directly to the bayshore yara wrapper 
 	 */
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	
 	char local_api_yara_results[MAX_YARA_RES_BUF + 1024];
@@ -663,6 +675,9 @@ void scan_content (
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+	
 	iteration_counter = 0;
 	
 	int lin_type_of_scan = -1;
@@ -689,6 +704,9 @@ void scan_content (
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+	
 	if (rule_file) {
 		YR_RULES* rules = bayshore_yara_preprocess_rules (rule_file);
 		if (rules) {
@@ -714,6 +732,9 @@ void scan_content2 (
 		int in_type_of_scan
 		)
 {
+	if (DEBUG)
+		std::cout << DEBUG_PREFIX << " in function " << __FUNCTION__ << std::endl;
+	
 	if (buf) {
 	
 		/////////////////////////////////////////////////////
