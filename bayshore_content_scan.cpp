@@ -228,6 +228,51 @@ void find_open_office_embeddings(void *membuf, size_t size, std::list<std::strin
 }
 //////////////////////////////////////////////////////////////
 
+/************
+scan_pdf_api
+*************/
+
+
+void scan_pdf_api(void *cookie,
+		std::list<security_scan_results_t> *ssr_list,
+		const char *src,
+		const char *child_file_name,
+		void (*cb)(void*, std::list<security_scan_results_t> *, const char *),
+		int in_type_of_scan
+		)
+{
+	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
+
+	size_t src_len = strlen(src);
+	/*
+	 * declare str_buf here so that it doesnt go
+	 * out of scope when "if (in_type_of_scan == 1)"
+	 * completes
+	 */
+	std::string str_buf;
+	
+	if (in_type_of_scan == 1) {
+		PDFParser pdf;		
+		str_buf = pdf.extract_text_buffer(ssp_local->buffer, ssp_local->buffer_length);
+
+		ssp_local->buffer = (const uint8_t*)str_buf.c_str();
+		ssp_local->buffer_length = str_buf.length();
+	}
+	
+	if (src_len == 0) {
+		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF)");
+	} else {
+		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s%s", type_of_scan[in_type_of_scan], "(PDF)", src);
+	}
+	
+	if (child_file_name)
+		cb((void *)ssp_local, ssr_list, child_file_name);
+	else
+		cb((void *)ssp_local, ssr_list, "");
+	
+}
+
+
 
 /************************
 scan_office_open_xml_api
