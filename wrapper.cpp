@@ -45,8 +45,8 @@ using namespace std;
  */
 
 /****************
- * get_content_type
- * ****************/
+get_content_type
+****************/
 
 int get_content_type (const uint8_t *data, size_t sz)
 {
@@ -55,8 +55,8 @@ int get_content_type (const uint8_t *data, size_t sz)
 
 
 /***********************
- * get_content_type_string
- * ***********************/
+get_content_type_string
+***********************/
 
 char *get_content_type_string (int ft)
 {
@@ -70,12 +70,34 @@ char *get_content_type_string (int ft)
 }
 
 
-void get_file_object_type(const uint8_t *file_name)
+/********************
+get_file_object_type
+********************/
+
+
+int get_file_object_type(const uint8_t *file_name)
 {
-    get_file_type(file_name);
+    return get_file_type(file_name);
 }
 
 
+/**************
+is_type_matlab
+**************/
+
+bool is_type_matlab (int ix)
+{
+	return is_matlab (ix);
+}
+
+/************
+is_type_7zip
+************/
+
+bool is_type_7zip (int ix)
+{
+	return is_7zip (ix);
+}
 /***************
 is_type_archive
 ***************/

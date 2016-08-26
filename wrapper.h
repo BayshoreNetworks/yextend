@@ -42,7 +42,6 @@ extern "C" {
 
 	char *get_content_type_string (int);
 
-    void get_file_object_type(const uint8_t*);
 
 	bool is_type_officex (int);
     bool is_type_pcap(int);
@@ -59,6 +58,10 @@ extern "C" {
     bool is_type_office(int);
     bool is_type_image(int);
     bool is_type_archive(int);
+    bool is_type_matlab(int);
+    bool is_type_7zip(int);
+    
+    int get_file_object_type(const uint8_t *);
 }
 
 #endif // __ContentInspection__H_
