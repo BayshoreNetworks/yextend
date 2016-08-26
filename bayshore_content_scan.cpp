@@ -42,7 +42,7 @@ extern "C" {
 #include "bayshore_content_scan.h"
 #include "wrapper.h"
 #include "libs/zl.h"
-#include "libs/PDFParser.h"
+#include "libs/pdf_parser.h"
 
 #include <archive.h>
 #include <archive_entry.h>
