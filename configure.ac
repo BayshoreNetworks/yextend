@@ -20,9 +20,14 @@ AC_CHECK_LIB([yara], [main])
 AC_CHECK_LIB([z], [main])
 AC_CHECK_LIB([pcrecpp], [main])
 AC_CHECK_LIB([uuid], [main])
+AC_CHECK_LIB([uuid], [exc_extract_text_buffer])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h syslog.h unistd.h uuid.h])
+
+# Checks for installed progs
+AC_CHECK_PROG(PDFTOTEXT,[pdftotext],[pdftotext],[no])
+test "$PDFTOTEXT" == "no" && AC_MSG_ERROR([Required program 'pdftotext' not found.])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
