@@ -26,14 +26,41 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #****************************************************************************/
+import os
+from subprocess import Popen, PIPE
 
+######################################################
+LD_LIBRARY_PATH = 'LD_LIBRARY_PATH'
+LIB_PATHS = "/usr/local/lib"
+CMD = "./yextend"
 
-CPPFLAGS=-I.
-include_HEADERS = /usr/local/include libs/bayshore_yara_wrapper.h wrapper.h bayshore_content_scan.h libs/bayshore_file_type_detect.h libs/zl.h libs/pdf_parser.h
-lib_YARA = /usr/local/lib
+TARG_DIR = "test_files/"
+YARA_RULES_ROOT = "test_rulesets/"
 
-bin_PROGRAMS = yextend
-yextend_SOURCES = wrapper.cpp bayshore_content_scan.cpp libs/bayshore_file_type_detect.cpp main.cpp libs/zl.cpp libs/bayshore_yara_wrapper.c libs/pdf_parser.cpp
+GUANGGAO_YARA_RULESET = "%sguanggao_rules.yara" % YARA_RULES_ROOT
 
-unittests:
-	nosetests -s test/
+GUANGGAO_FILE = "guanggao.gif"
+######################################################
+
+class Test_Yextend_files():
+    
+    '''
+        GIF file with embedded javascript
+    '''
+    def test_yara_guanggao_gif(self):
+        f_obj = TARG_DIR + GUANGGAO_FILE
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, GUANGGAO_YARA_RULESET, f_obj],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            assert("0x0:$gif_image_file" in out)
+            assert("0x6a96:$scriptbin" in out)
+            assert("0x69f9:$iframebin" in out)
+            #print out
+        
+  
+            
+            
