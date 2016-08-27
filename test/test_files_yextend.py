@@ -38,8 +38,13 @@ TARG_DIR = "test_files/"
 YARA_RULES_ROOT = "test_rulesets/"
 
 GUANGGAO_YARA_RULESET = "%sguanggao_rules.yara" % YARA_RULES_ROOT
+LIPSUMPDF_YARA_RULESET = "%slorem_pdf.yara" % YARA_RULES_ROOT
 
 GUANGGAO_FILE = "guanggao.gif"
+LIPSUM_PDF_FILE = "lipsum.txt.pdf"
+
+LIPSUM_LOREM_YARA_RULE_ID = "LOREM_FILE_BODY"
+LIPSUM_LOREM_YARA_RULE_VAR = "$lipsum_pdf_body_lorem"
 ######################################################
 
 class Test_Yextend_files():
@@ -56,9 +61,22 @@ class Test_Yextend_files():
                          stderr=PIPE,
                          )
             out, err = proc.communicate()
-            assert("0x0:$gif_image_file" in out)
-            assert("0x6a96:$scriptbin" in out)
-            assert("0x69f9:$iframebin" in out)
+            assert("0x0:$gif_image_file" in out and "0x6a96:$scriptbin" in out and "0x69f9:$iframebin" in out)
+            #print out
+            
+    '''
+        simple PDF
+    '''
+    def test_lipsum_pdf(self):
+        f_obj = TARG_DIR + LIPSUM_PDF_FILE
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, LIPSUMPDF_YARA_RULESET, f_obj],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            assert(LIPSUM_PDF_FILE in out and LIPSUM_LOREM_YARA_RULE_ID in out and out.count(LIPSUM_LOREM_YARA_RULE_VAR) > 1)
             #print out
         
   
