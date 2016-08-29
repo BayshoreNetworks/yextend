@@ -1483,7 +1483,7 @@ rule AUDIO_VIDEO_INTERLEAVED_FILE_AVI_0
     strings:
         $audio_video_interleaved_file_avi = { 41 56 49 }
     condition:
-        $audio_video_interleaved_file_avi at 0
+        $audio_video_interleaved_file_avi at 8
 }
 
 rule REAL_AUDIO_METADATA_FILE_RAM_0
