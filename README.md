@@ -10,10 +10,13 @@ Notes:
 
 - (08/30/2016) yextend version 1.5
 
-	- native parsing for PDF documents such that the Yara rulesets are now running against the raw text from the target PDF (this is different than running against PDF’s binary format)
+	- native parsing for PDF documents such that the Yara rulesets are now running against:
+	—- the target PDF’s binary data set
+	—- the raw text (extracted out of the binary data set) from the target PDF
 	- file type detection has been re-written so that it is now performed against a Yara ruleset
 	- added some initial debug code (based on bool flag)
 	- more test files added
+	- nose based unit tests added
 
 - (03/18/2016) yextend version 1.4 - output enhancements and runtime helper prog
 
@@ -32,6 +35,7 @@ Notes:
 - If a dir (and not a file) is passed in then this version will process all of the files at that top level. Subdirectories are not processed yet.
 
 
+
 Requirements to build and run:
 
 - g++ (GNU c++ compiler)
@@ -46,6 +50,7 @@ Requirements to build and run:
 - if you are running yara pre-version 3.1.X then yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
 	A. cd into the dir where you extracted yara (for this example I will use "/tmp/yara")
 	B. sudo cp /tmp/yara/libyara/include/yara/* /usr/local/include/yara/
+
 
 
 Instructions:
@@ -63,10 +68,7 @@ Instructions:
 
 4 - Test (optional)
 
-	- yarac test_rulesets/bayshore.yara.testing.ruleset test_rulesets/bayshore.yara.testing.ruleset.34.bin
-	- yarac test_rulesets/bayshore.yara.testing.meta.ruleset test_rulesets/bayshore.yara.testing.meta.ruleset.34.bin
-	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.ruleset.34.bin test_files/
-	- LD_LIBRARY_PATH=/usr/local/lib ./yextend test_rulesets/bayshore.yara.testing.meta.ruleset.34.bin test_files/
+	- make unittests
 
 5 - Run:
 
