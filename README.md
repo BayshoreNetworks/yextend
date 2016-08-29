@@ -17,6 +17,7 @@ Notes:
 	- added some initial debug code (based on bool flag)
 	- more test files added
 	- nose based unit tests added
+	- yextend is now licensed via the BSD (3-clause) license
 
 - (03/18/2016) yextend version 1.4 - output enhancements and runtime helper prog
 
