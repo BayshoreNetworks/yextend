@@ -253,8 +253,27 @@ void scan_pdf_api(void *cookie,
 		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
-
+	
 	size_t src_len = strlen(src);
+	
+	/////////////////////////////////////////////////////////
+	/*
+	 * 1.
+	 * scan the entire raw data set (binary format) so that we
+	 * can analyze the document in terms of possible malware
+	 */
+	if (src_len == 0) {
+		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF - Raw data)");
+	} else {
+		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s%s", type_of_scan[in_type_of_scan], "(PDF - Raw data)", src);
+	}
+	
+	if (child_file_name)
+		cb((void *)ssp_local, ssr_list, child_file_name);
+	else
+		cb((void *)ssp_local, ssr_list, "");	
+	/////////////////////////////////////////////////////////
+	
 	/*
 	 * declare str_buf here so that it doesnt go
 	 * out of scope when "if (in_type_of_scan == 1)"
@@ -262,6 +281,11 @@ void scan_pdf_api(void *cookie,
 	 */
 	std::string str_buf;
 	
+	/*
+	 * 2.
+	 * scan the extracted text from the PDF so that we
+	 * can scan for actual strings
+	 */
 	if (in_type_of_scan == 1) {
 		PDFParser pdf;		
 		str_buf = pdf.extract_text_buffer(ssp_local->buffer, ssp_local->buffer_length);
@@ -271,16 +295,16 @@ void scan_pdf_api(void *cookie,
 	}
 	
 	if (src_len == 0) {
-		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF)");
+		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)");
 	} else {
-		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s%s", type_of_scan[in_type_of_scan], "(PDF)", src);
+		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s%s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)", src);
 	}
 	
 	if (child_file_name)
 		cb((void *)ssp_local, ssr_list, child_file_name);
 	else
 		cb((void *)ssp_local, ssr_list, "");
-	
+	/////////////////////////////////////////////////////////
 }
 
 
