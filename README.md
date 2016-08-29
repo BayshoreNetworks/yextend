@@ -11,8 +11,8 @@ Notes:
 - (08/30/2016) yextend version 1.5
 
 	- native parsing for PDF documents such that the Yara rulesets are now running against:
-	-- the target PDF's binary data set
-	-- the raw text (extracted out of the binary data set) from the target PDF
+	 -- the target PDF's binary data set
+	 -- the raw text (extracted out of the binary data set) from the target PDF
 	- file type detection has been re-written so that it is now performed against a Yara ruleset
 	- added some initial debug code (based on bool flag)
 	- more test files added
