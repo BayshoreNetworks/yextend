@@ -989,6 +989,10 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		strcpy (buf, "Generic E-Mail (EML) File");
 		the_len = 25;
 		break;
+	case 62:
+		strcpy (buf, "Generic E-Mail (EML) File");
+		the_len = 25;
+		break;
 	case 63:
 		strcpy (buf, "Generic E-Mail (EML) File");
 		the_len = 25;
