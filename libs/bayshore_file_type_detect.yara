@@ -694,6 +694,18 @@ rule GENERIC_EMAIL_EML_FILE_2
         $generic_email_eml_file
 }
 
+rule GENERIC_EMAIL_EML_FILE_3
+{
+    meta:
+        type = "Generic E-Mail (EML) File"
+        bayshore_ix = 62
+        offset = 0
+    strings:
+        $generic_email_eml_file = { 52 65 63 65 69 76 65 64 3a }
+    condition:
+        $generic_email_eml_file
+}
+
 rule GENERIC_EMAIL_EML_FILE_4
 {
     meta:
