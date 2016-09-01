@@ -1733,6 +1733,42 @@ rule MSOFFICE_MACRO
         $msofficemacro
 }
 
+rule MPEG_1_AUDIO_FILE_MP3_0
+{
+    meta:
+        type = "MPEG-1 Audio Layer 3 File (MP3)"
+        bayshore_ix = 149
+        offset = 0
+    strings:
+        $mpeg1_audio_file_mp3 = { 49 44 33 03 00 00 00 00 }
+    condition:
+        $mpeg1_audio_file_mp3
+}
+
+rule EXPERT_WITNESS_COMPRESSED_FILE_0
+{
+    meta:
+        type = "Expert Witness Compression Formatted file (EWF)"
+        bayshore_ix = 150
+        offset = 0
+    strings:
+        $expert_witness_compressed_file = { 45 56 46 09 0D 0A FF 00 }
+    condition:
+        $expert_witness_compressed_file
+}
+
+rule ENCASE_EVIDENCE_FORMATTED_FILE_0
+{
+    meta:
+        type = "EnCase Evidence File Format (Version 2)"
+        bayshore_ix = 151
+        offset = 0
+    strings:
+        $encase_evidence_formatted_file = { 45 56 46 32 0D 0A 81 }
+    condition:
+        $encase_evidence_formatted_file
+}
+
 rule ZIP_ARCHIVE_2
 {
     meta:
