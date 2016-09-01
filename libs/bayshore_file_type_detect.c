@@ -1337,6 +1337,18 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		strcpy (buf, "MS-Office macro");
 		the_len = 15;
 		break;
+	case 149:
+		strcpy (buf, "MPEG-1 Audio Layer 3 File (MP3)");
+		the_len = 31;
+		break;
+	case 150:
+		strcpy (buf, "Expert Witness Compression Formatted file (EWF)");
+		the_len = 47;
+		break;
+	case 151:
+		strcpy (buf, "EnCase Evidence File Format (Version 2)");
+		the_len = 39;
+		break;
 	case 26000:
 		strcpy (buf, "Windows Executable");
 		the_len = 18;
