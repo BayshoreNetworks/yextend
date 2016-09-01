@@ -627,6 +627,20 @@ int is_win_exe(int ix) {
 	return 0;
 }
 
+// executable
+int is_executable(int ix) {
+	
+	if ((ix == 0) || (ix == 4) || (ix == 5) ||
+		(ix == 26) || (ix == 27) || (ix == 95) ||
+		(ix == 96) || (ix == 97) || (ix == 98) ||
+		(ix == 99) || (ix == 100) || (ix == 101) ||
+		(ix == 26000) || (ix == 65535)
+	) {
+		return 1;
+	}
+	return 0;
+}
+
 // html
 int is_html(int ix) {
 	if ((ix == 22) || (ix == 23) || (ix == 24) || (ix == 25)) {
