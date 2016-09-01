@@ -188,6 +188,15 @@ bool is_type_win_exe (int ix)
 	return is_win_exe (ix);
 }
 
+/*****************
+is_type_executable
+*****************/
+
+bool is_type_executable (int ix)
+{
+	return is_executable (ix);
+}
+
 /************
 is_type_html
 ************/
