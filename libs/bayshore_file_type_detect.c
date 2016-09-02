@@ -1363,6 +1363,18 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		strcpy (buf, "EnCase Evidence File Format (Version 2)");
 		the_len = 39;
 		break;
+	case 152:
+		strcpy (buf, "Adobe PostScript File (PS)");
+		the_len = 26;
+		break;
+	case 153:
+		strcpy (buf, "Adobe PostScript File (PS)");
+		the_len = 26;
+		break;
+	case 154:
+		strcpy (buf, "Adobe Encapsulated PostScript File (PS)");
+		the_len = 39;
+		break;
 	case 26000:
 		strcpy (buf, "Windows Executable");
 		the_len = 18;
