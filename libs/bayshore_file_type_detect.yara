@@ -1752,7 +1752,7 @@ rule EXPERT_WITNESS_COMPRESSED_FILE_0
         bayshore_ix = 150
         offset = 0
     strings:
-        $expert_witness_compressed_file = { 45 56 46 09 0D 0A FF 00 }
+        $expert_witness_compressed_file = { 45 56 46 09 0d 0a ff 00 }
     condition:
         $expert_witness_compressed_file
 }
@@ -1764,9 +1764,45 @@ rule ENCASE_EVIDENCE_FORMATTED_FILE_0
         bayshore_ix = 151
         offset = 0
     strings:
-        $encase_evidence_formatted_file = { 45 56 46 32 0D 0A 81 }
+        $encase_evidence_formatted_file = { 45 56 46 32 0d 0a 81 }
     condition:
         $encase_evidence_formatted_file
+}
+
+rule ADOBE_POSTSCRIPT_0
+{
+    meta:
+        type = "Adobe PostScript File (PS)"
+        bayshore_ix = 152
+        offset = 0
+    strings:
+        $adobe_postscript_file = { 25 21 50 53 2d 41 64 6f 62 65 2d ?? 2e 30 0a 25 25 }
+    condition:
+        $adobe_postscript_file
+}
+
+rule ADOBE_POSTSCRIPT_1
+{
+    meta:
+        type = "Adobe PostScript File (PS)"
+        bayshore_ix = 153
+        offset = 0
+    strings:
+        $adobe_postscript_file = { 25 21 50 53 2d 41 64 6f 62 65 2d 0a 25 25 }
+    condition:
+        $adobe_postscript_file
+}
+
+rule ADOBE_ENCAPSULATED_POSTSCRIPT_0
+{
+    meta:
+        type = "Adobe Encapsulated PostScript File (EPS)"
+        bayshore_ix = 154
+        offset = 0
+    strings:
+        $adobe_encapsulated_postscript_file = { 25 21 50 53 2d 41 64 6f 62 65 2d 33 2e 30 20 45 50 53 46 2d 33 20 30 }
+    condition:
+        $adobe_encapsulated_postscript_file
 }
 
 rule ZIP_ARCHIVE_2

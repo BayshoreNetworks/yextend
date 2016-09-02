@@ -627,6 +627,20 @@ int is_win_exe(int ix) {
 	return 0;
 }
 
+// executable
+int is_executable(int ix) {
+	
+	if ((ix == 0) || (ix == 4) || (ix == 5) ||
+		(ix == 26) || (ix == 27) || (ix == 95) ||
+		(ix == 96) || (ix == 97) || (ix == 98) ||
+		(ix == 99) || (ix == 100) || (ix == 101) ||
+		(ix == 26000) || (ix == 65535)
+	) {
+		return 1;
+	}
+	return 0;
+}
+
 // html
 int is_html(int ix) {
 	if ((ix == 22) || (ix == 23) || (ix == 24) || (ix == 25)) {
@@ -1347,6 +1361,18 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		break;
 	case 151:
 		strcpy (buf, "EnCase Evidence File Format (Version 2)");
+		the_len = 39;
+		break;
+	case 152:
+		strcpy (buf, "Adobe PostScript File (PS)");
+		the_len = 26;
+		break;
+	case 153:
+		strcpy (buf, "Adobe PostScript File (PS)");
+		the_len = 26;
+		break;
+	case 154:
+		strcpy (buf, "Adobe Encapsulated PostScript File (PS)");
 		the_len = 39;
 		break;
 	case 26000:

@@ -64,7 +64,7 @@ int is_matlab(int);
 int is_7zip(int);
 int is_archive(int);
 int is_encrypted(int);
-
+int is_executable(int);
 
 #ifdef __cplusplus
 }

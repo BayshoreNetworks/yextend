@@ -60,6 +60,7 @@ extern "C" {
     bool is_type_archive(int);
     bool is_type_matlab(int);
     bool is_type_7zip(int);
+    bool is_type_executable(int);
     
     int get_file_object_type(const uint8_t *);
 }
