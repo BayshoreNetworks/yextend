@@ -1800,7 +1800,7 @@ rule ADOBE_ENCAPSULATED_POSTSCRIPT_0
         bayshore_ix = 154
         offset = 0
     strings:
-        $adobe_encapsulated_postscript_file = { 25 21 50 53 2d 41 64 6f 62 65 2d 33 2e 30 20 45 50 53 46 2d 33 20 30 }
+        $adobe_encapsulated_postscript_file = { 25 21 50 53 2d 41 64 6f 62 65 2d 33 2e 30 20 45 50 53 46 2d 33 ?? 30 }
     condition:
         $adobe_encapsulated_postscript_file
 }
