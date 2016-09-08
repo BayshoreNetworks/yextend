@@ -8,6 +8,9 @@
 #include <fstream>
 #include <string>
 
+static const char *tmp_path = "/tmp/";
+static const char *pdf_to_text = "pdftotext";
+
 PDFParser::PDFParser() {
 }
 
@@ -26,16 +29,23 @@ std::string PDFParser::exc_ExtractText( const char* filepath  )
     char *cmd = NULL;
 
     try {
-        output_filename = new char[36+1];
+    	// 36 + 1
+        output_filename = new char[37];
         uuid_t id;
         uuid_generate(id);
         uuid_unparse(id, output_filename);
-        output_filepath = new char[5+strlen(output_filename)+1];
-        strcpy(output_filepath, "/tmp/");
+        // 5+strlen(output_filename)+1
+        output_filepath = new char[6 + strlen(output_filename)];
+        strcpy(output_filepath, tmp_path);
         strcat(output_filepath, output_filename);
 
-        cmd = new char[9+1+strlen(filepath)+1+strlen(output_filepath)+1];
-        strcpy(cmd, "pdftotext ");
+        /*
+         * pdftotext = the first 9
+         * 9 + 1 + strlen(filepath) + 1 + strlen(output_filepath) + 1
+         */
+        cmd = new char[12 + strlen(filepath) + strlen(output_filepath)];
+        strcpy(cmd, pdf_to_text);
+        strcat(cmd, " ");
         strcat(cmd, filepath);        
         strcat(cmd, " ");        
         strcat(cmd, output_filepath);        
@@ -79,10 +89,12 @@ std::string PDFParser::exc_extract_text_buffer(const uint8_t *buffer, size_t buf
     try {
         uuid_t id;
         uuid_generate(id);
-        input_filename = new char[36+1];
+    	// 36 + 1
+        input_filename = new char[37];
         uuid_unparse(id, input_filename);
-        input_filepath = new char[5+strlen(input_filename)+1];
-        strcpy(input_filepath, "/tmp/");
+        // 5+strlen(input_filename)+1
+        input_filepath = new char[6 + strlen(input_filename)];
+        strcpy(input_filepath, tmp_path);
         strcat(input_filepath, input_filename);
         
         std::ofstream fp;
@@ -90,15 +102,21 @@ std::string PDFParser::exc_extract_text_buffer(const uint8_t *buffer, size_t buf
         fp.write((char*)buffer, buffer_length);
         fp.close();
 
-        char *output_filename = new char[36+1];
+        // 36 + 1
+        char *output_filename = new char[37];
         uuid_generate(id);
         uuid_unparse(id, output_filename);
         char *output_filepath = new char[5+strlen(output_filename)+1];
-        strcpy(output_filepath, "/tmp/");
+        strcpy(output_filepath, tmp_path);
         strcat(output_filepath, output_filename);
 
-        char * cmd = new char[9+1+strlen(input_filepath)+1+strlen(output_filepath)+1];
-        strcpy(cmd, "pdftotext ");
+        /*
+         * pdftotext = the first 9
+         * 9 + 1 + strlen(input_filepath) + 1 + strlen(output_filepath) + 1
+         */
+        char * cmd = new char[12 + strlen(input_filepath) + strlen(output_filepath)];
+        strcpy(cmd, pdf_to_text);
+        strcat(cmd, " ");
         strcat(cmd, input_filepath);        
         strcat(cmd, " ");        
         strcat(cmd, output_filepath);        
