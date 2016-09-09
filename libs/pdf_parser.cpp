@@ -1,3 +1,32 @@
+/*****************************************************************************
+ *
+ * YEXTEND: Help for YARA users.
+ * This file is part of yextend.
+ *
+ * Copyright (c) 2014-2016, Bayshore Networks, Inc.
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
+ * the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
+ * following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *****************************************************************************/
+
 #include "pdf_parser.h"
 #include <iostream>
 #include <stdio.h>
@@ -10,8 +39,10 @@
 
 static const char *tmp_path = "/tmp/";
 static const char *pdf_to_text = "pdftotext";
+static const char *pdf_detach = "pdfdetach";
 
-static std::string get_stdout_cmd(std::string lcmd) {
+static std::string get_stdout_cmd(std::string lcmd)
+{
 
 	std::string data;
 	FILE *stream;
@@ -29,7 +60,8 @@ static std::string get_stdout_cmd(std::string lcmd) {
 	return data;
 }
 
-PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length) {
+PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length)
+{
 	
     char *input_filename = NULL;
     char *input_filepath = NULL;
@@ -73,62 +105,11 @@ PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length) {
     
 }
 
-PDFParser::~PDFParser() {
+PDFParser::~PDFParser()
+{
 	// should we shred here instead?
 	remove(stored_file_name.c_str());
 	remove(extracted_file_name.c_str());
-}
-
-std::string PDFParser::ExtractText( const char* filepath  )
-{
-    return exc_ExtractText (filepath);
-}
-
-std::string PDFParser::exc_ExtractText( const char* filepath  )
-{
-    char *output_filename = NULL;
-    char *output_filepath = NULL;
-    char *cmd = NULL;
-
-    try {
-    	// 36 + 1
-        output_filename = new char[37];
-        uuid_t id;
-        uuid_generate(id);
-        uuid_unparse(id, output_filename);
-        // 5+strlen(output_filename)+1
-        output_filepath = new char[6 + strlen(output_filename)];
-        strcpy(output_filepath, tmp_path);
-        strcat(output_filepath, output_filename);
-
-        cmd = new char[12 + strlen(filepath) + strlen(output_filepath)];
-        strcpy(cmd, pdf_to_text);
-        strcat(cmd, " ");
-        strcat(cmd, filepath);        
-        strcat(cmd, " ");        
-        strcat(cmd, output_filepath);        
-        system(cmd);
-        std::ifstream ifs(output_filepath);
-        std::string content( (std::istreambuf_iterator<char>(ifs) ),
-            (std::istreambuf_iterator<char>()) );
-        remove(output_filepath);
-        
-        delete output_filename;
-        delete output_filepath;
-        delete cmd;
-
-        return content;
-    
-    } catch (std::exception e) {
-        
-        if(output_filename){delete output_filename;}
-        if(output_filepath){delete output_filepath;}
-        if(cmd){delete cmd;}
-        remove(output_filepath);
-        
-        syslog (LOG_INFO|LOG_LOCAL6, "PDFParser encountered fatal error");
-        return "";
-	}
 }
 
 std::string PDFParser::extract_text_buffer()
@@ -166,10 +147,29 @@ std::string PDFParser::exc_extract_text_buffer()
 }
 
 
-int PDFParser::has_embedded_files(const uint8_t *) {
+int PDFParser::has_embedded_files()
+{
 	
-	std::cout << get_stdout_cmd("pdfdetach -list test_files/lipsum.txt.pdf") << std::endl;
-	return 1;
+	// returns 0 or the number of files detected as emebedded
+	char *cmd = new char[8 + strlen(pdf_detach) + stored_file_name.size()];
 	
+    strcpy(cmd, pdf_detach);
+    strcat(cmd, " -list ");
+    strcat(cmd, stored_file_name.c_str());
+	
+    std::string stmp = std::string(get_stdout_cmd(cmd), 0, 3);
+    /*
+     * we will take 3 bytes above so that should cover some
+     * pretty crazy situations cause that represents a lot
+     * of attachments.
+     * 
+     * Might tweak that later to less.
+     * 
+     * atoi gets rid of chars that don't convert cleanly
+     * to int types so no extra work needed there it seems.
+     * And if there is no conversion i_auto gets zero
+     */
+    int i_auto = atoi(stmp.c_str());
+	return i_auto;
 }
 
