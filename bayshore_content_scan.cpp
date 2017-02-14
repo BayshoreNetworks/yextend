@@ -280,6 +280,7 @@ void scan_pdf_api(void *cookie,
 	 * completes
 	 */
 	std::string str_buf;
+	PDFParser pdf(ssp_local->buffer, ssp_local->buffer_length);
 	
 	/*
 	 * 2.
@@ -287,8 +288,8 @@ void scan_pdf_api(void *cookie,
 	 * can scan for actual strings
 	 */
 	if (in_type_of_scan == 1) {
-		PDFParser pdf;		
-		str_buf = pdf.extract_text_buffer(ssp_local->buffer, ssp_local->buffer_length);
+
+		str_buf = pdf.extract_text_buffer();
 
 		ssp_local->buffer = (const uint8_t*)str_buf.c_str();
 		ssp_local->buffer_length = str_buf.length();

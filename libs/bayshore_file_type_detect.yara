@@ -1805,6 +1805,42 @@ rule ADOBE_ENCAPSULATED_POSTSCRIPT_0
         $adobe_encapsulated_postscript_file
 }
 
+rule LNK_WINDOWS_SHELL
+{
+    meta:
+    	type = "Windows shell link (shortcut) file"
+        bayshore_ix = 155
+        offset = 0
+    strings:
+        $lnk_windows_shell = { 4c 00 00 00 01 14 02 00 }
+    condition:
+        $lnk_windows_shell
+}
+
+rule MS_COFF_OBJECT
+{
+    meta:
+    	type = "Microsoft Common Object File Format (COFF) relocatable object code file"
+        bayshore_ix = 156
+        offset = 0
+    strings:
+        $ms_coff_object = { 4c 01 }
+    condition:
+        $ms_coff_object
+}
+
+rule BZIP2_ARCHIVE
+{
+    meta:
+        type = "bzip2 Compressed Archive"
+        bayshore_ix = 157
+        offset = 0
+    strings:
+        $bzip2_archive = { 42 5a 68 }
+    condition:
+        $bzip2_archive
+}
+
 rule ZIP_ARCHIVE_2
 {
     meta:
