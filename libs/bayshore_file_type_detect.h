@@ -42,7 +42,6 @@ extern "C" {
 int get_buffer_type(const uint8_t *, size_t);
 void get_buffer_type_str(int, uint8_t *);
 
-
 int get_file_type(const uint8_t *);
 
 int is_officex(int);
@@ -65,6 +64,7 @@ int is_7zip(int);
 int is_archive(int);
 int is_encrypted(int);
 int is_executable(int);
+int is_bzip2(int);
 
 #ifdef __cplusplus
 }

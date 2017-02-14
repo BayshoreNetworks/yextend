@@ -59,7 +59,7 @@ void *bayshoresubstring(size_t start, size_t stop, const char *src, char *dst, s
 
 /***********************
 compute_chi_square_zero
-***********************/
+ ***********************/
 
 double compute_chi_square_zero (const uint8_t *data, size_t sz)
 {
@@ -98,7 +98,7 @@ double compute_chi_square_zero (const uint8_t *data, size_t sz)
 
 /**********************
 compute_chi_square_b64
-**********************/
+ **********************/
 
 double compute_chi_square_b64 (const uint8_t *data, size_t sz)
 {
@@ -134,7 +134,7 @@ double compute_chi_square_b64 (const uint8_t *data, size_t sz)
 
 /******************
 is_buffer_encrypted
-*******************/
+ *******************/
 
 int is_buffer_encrypted(const uint8_t* buf, size_t nL)
 {
@@ -151,10 +151,10 @@ int is_buffer_encrypted(const uint8_t* buf, size_t nL)
 
 	size_t amt = AMT;
 	size_t sz;
-			    		
+
 	if (buf && (nL > 0)) {
 		sz = min(nL, amt);
-		
+
 		dres = compute_chi_square_zero (buf, sz);
 
 		/*
@@ -166,7 +166,7 @@ int is_buffer_encrypted(const uint8_t* buf, size_t nL)
 			dres = compute_chi_square_b64 (buf, sz);
 		}
 	}
-	
+
 	if (dres > 0.0) {
 		if (dres < threshold)
 			ret = 1;
@@ -178,39 +178,39 @@ int is_buffer_encrypted(const uint8_t* buf, size_t nL)
 
 /*************
 get_buffer_hex
-**************/
+ **************/
 
 void get_buffer_hex(char *dest, const char *src, int threshold, int *ispe)
 {
-    int i;
-    //int offs = 0;
-    /*
+	int i;
+	//int offs = 0;
+	/*
     	hex for PE\0\0 - identifier for a 
     	windows portable executable
-    */
-    const char pestr[] = "50450000";
-    char * pt;
-    static const char *hexdigits = "0123456789abcdef";
+	 */
+	const char pestr[] = "50450000";
+	char * pt;
+	static const char *hexdigits = "0123456789abcdef";
 
-    for(i = 0; i < threshold; i++)
-    {
-        unsigned char u = (unsigned char)(src[i]);
-        dest[i*2] = hexdigits [u >> 4];
-        dest[(i*2)+1] = hexdigits [u & 0xf];
-    }
-    dest[i*2] = '\0';
-    // look for the PE header
-    pt = strstr(dest, pestr);
-    if( pt != NULL )
-    {
-        *ispe = 1;
-    }
+	for(i = 0; i < threshold; i++)
+	{
+		unsigned char u = (unsigned char)(src[i]);
+		dest[i*2] = hexdigits [u >> 4];
+		dest[(i*2)+1] = hexdigits [u & 0xf];
+	}
+	dest[i*2] = '\0';
+	// look for the PE header
+	pt = strstr(dest, pestr);
+	if( pt != NULL )
+	{
+		*ispe = 1;
+	}
 }
 
 
 /*************************
 compute_coincidence_index
-*************************/
+ *************************/
 
 void compute_coincidence_index (const char *buf, size_t sz, double *retval)
 {
@@ -260,7 +260,7 @@ void compute_coincidence_index (const char *buf, size_t sz, double *retval)
 
 /*************
 is_text_buffer
-*************/
+ *************/
 
 int is_text_buffer(const uint8_t *buf, size_t sz) {
 	/*
@@ -272,15 +272,15 @@ int is_text_buffer(const uint8_t *buf, size_t sz) {
 	 * 1 = ascii text
 	 * 0 = not ascii text
 	 */
-	
+
 	int i;
 	for(i = 0; i < sz; i++)
 	{
 		if ((int)buf[i] < 0x20)
 		{
-            if ((buf[i] != '\n') && (buf[i] != '\r') && (buf[i] != '\t')) {
-            	return 0;
-            }
+			if ((buf[i] != '\n') && (buf[i] != '\r') && (buf[i] != '\t')) {
+				return 0;
+			}
 		}
 		if ((int)buf[i] > 0xff)
 			return 0;
@@ -291,12 +291,12 @@ int is_text_buffer(const uint8_t *buf, size_t sz) {
 
 /****************
 tokenize_yara_str
-*****************/
+ *****************/
 
 int tokenize_yara_str(char *buf) {
-	
+
 	int return_type = -1;
-	
+
 	const char s[2] = "-";
 	const char ss[3] = ":[";
 	char *token;
@@ -305,20 +305,20 @@ int tokenize_yara_str(char *buf) {
 	char *token2_save;
 	int iter_cnt;
 	int hex_dec;
-	
+
 	const char sss[2] = ",";
 	char *token3;
 	char *token3_save;
-	
+
 	const char ssss[2] = "=";
 	char *token4;
 	char *token4_save;
-	
+
 	int known_offset = -1;
 	int detected_offset = -1;
 	int bayshore_ix = -1;
 	int inner_iter_cnt;
-	
+
 	int write_val_ix = 0;
 	int write_val_known = 0;
 	int write_val_detected = 0;
@@ -333,7 +333,7 @@ int tokenize_yara_str(char *buf) {
 		/*
 		printf("\n\nStarting ...\n");
 		printf( "TOKEN: %s\n", token );
-		*/
+		 */
 		token2 = strtok_r(token, ss, &token2_save);
 		while(token2 != NULL)
 		{
@@ -352,7 +352,7 @@ int tokenize_yara_str(char *buf) {
 						while( token4 != NULL )
 						{
 							//printf( "TOKEN4: %s - %d\n", token4, inner_iter_cnt );
-							
+
 							if (write_val_ix == 1) {
 								bayshore_ix = atoi(token4);
 								write_val_ix = -1;
@@ -366,7 +366,7 @@ int tokenize_yara_str(char *buf) {
 								write_val_detected = -1;
 							}
 
-							
+
 							if (strncmp(token4, "bayshore_ix", 11) == 0)
 								write_val_ix = 1;
 							if (strncmp(token4, "offset", 6) == 0)
@@ -380,7 +380,7 @@ int tokenize_yara_str(char *buf) {
 							printf("BAYIX: %d\n", bayshore_ix);
 							printf("KNOWNOFF: %d\n", known_offset);
 							printf("DETOFF: %d\n", detected_offset);
-							*/
+							 */
 							if (bayshore_ix != -1 && known_offset != -1 && detected_offset != -1) {
 								if (known_offset == detected_offset)
 									return bayshore_ix;
@@ -392,14 +392,14 @@ int tokenize_yara_str(char *buf) {
 			}
 			/*
 			if (iter_cnt == 0) {
-				
+
 				//printf( " %s\n", token2 );
 				//printf( "Hex: ");
 				sscanf(token2, "%x", &hex_dec);
 				//printf( "Dec: %u\n", hex_dec );
 			} //else
 			//	printf( "String Def: ");
-			*/
+			 */
 			token2 = strtok_r(NULL, ss, &token2_save);
 			if (iter_cnt == 0)
 				iter_cnt++;
@@ -411,12 +411,12 @@ int tokenize_yara_str(char *buf) {
 
 int get_buffer_type(const uint8_t *buf, size_t sz) {
 	int return_type = -1;
-	
-    int zip_exception = -1;
-    int xml_exception = -1;
-    int is_pe = 0;
-    double text_ioc_threshold = 0.1;
-    
+
+	int zip_exception = -1;
+	int xml_exception = -1;
+	int is_pe = 0;
+	double text_ioc_threshold = 0.1;
+
 	//////////////////////////////////////////////////////////
 	/*
 	 * this has to get replaced for production, using it
@@ -437,7 +437,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 	//char local_tmp_file_name[] 
 	//YR_RULES* rules = bayshore_yara_preprocess_rules (ltfn.c_str());
 	YR_RULES* rules = bayshore_yara_preprocess_rules (path);
-	
+
 	/* 
 	 * When calling bayshore_yara_wrapper_yrrules_api, the next-to-last parameter is a
 	 * pointer to a caller-supplied char buffer. The caller is required to ensure
@@ -452,7 +452,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 		}
 		yr_rules_destroy (rules);
 	}
-	
+
 	/*
 	 * at this stage the yara ruleset data has been processed
 	 * depending on what was discovered, or if nothing was
@@ -476,29 +476,29 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 		}
 		return return_type;
 	}
-	
-    /*
-     * if we got here and nothing was detected, plus the zip format
-     * WAS detected, then return zip or jar as the return type, otherwise
-     * move on
-     */
+
+	/*
+	 * if we got here and nothing was detected, plus the zip format
+	 * WAS detected, then return zip or jar as the return type, otherwise
+	 * move on
+	 */
 	if (zip_exception != -1) {
 		//skeyshm_increment_u64 (FILES_RECOGNIZED);
 		//skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_ZIP);
 		return zip_exception;
 	}
-	
+
 	/*
 	 * if we are here no standard type has been detected so
 	 * either we dont know what it is or we have an XML
 	 * exception to process
 	 */
 	// need the buffer in hex for a few checks
-    int the_len;
-    size_t THRESH = THRESHOLD;
-    size_t threshold = min(sz-1, THRESH);
-    char hex_str[threshold * 2 + 1];
-    get_buffer_hex(hex_str, buf, threshold, &is_pe);
+	int the_len;
+	size_t THRESH = THRESHOLD;
+	size_t threshold = min(sz-1, THRESH);
+	char hex_str[threshold * 2 + 1];
+	get_buffer_hex(hex_str, buf, threshold, &is_pe);
 
 	// we have php, or is it xml??
 	if (xml_exception != -1) {
@@ -511,7 +511,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 			//skeyshm_increment_u64 (FILES_RECOGNIZED_XML);
 			return 45;
 		} else {
-        	return xml_exception;
+			return xml_exception;
 		}
 	}
 
@@ -567,7 +567,7 @@ int is_officex(int ix) {
 // pcap & pcapng
 int is_pcap(int ix) {
 	if ((ix == 47) || (ix == 48) || (ix == 49) ||
-		(ix == 87) || (ix == 88) || (ix == 89))
+			(ix == 87) || (ix == 88) || (ix == 89))
 		return 1;
 	return 0;
 }
@@ -629,12 +629,12 @@ int is_win_exe(int ix) {
 
 // executable
 int is_executable(int ix) {
-	
+
 	if ((ix == 0) || (ix == 4) || (ix == 5) ||
-		(ix == 26) || (ix == 27) || (ix == 95) ||
-		(ix == 96) || (ix == 97) || (ix == 98) ||
-		(ix == 99) || (ix == 100) || (ix == 101) ||
-		(ix == 26000) || (ix == 65535)
+			(ix == 26) || (ix == 27) || (ix == 95) ||
+			(ix == 96) || (ix == 97) || (ix == 98) ||
+			(ix == 99) || (ix == 100) || (ix == 101) ||
+			(ix == 26000) || (ix == 65535)
 	) {
 		return 1;
 	}
@@ -730,27 +730,35 @@ int is_archive(int ix) {
 	 * is_rar() covers all known rar patterns
 	 * 21 = 7-zip
 	 */
-    if ((is_zip(ix)) ||
-        (is_gzip(ix)) ||
-        (is_tar(ix)) ||
-        (is_rar(ix)) ||
-        (is_7zip(ix))
-        )
-        return 1;
+	if ((is_zip(ix)) ||
+			(is_gzip(ix)) ||
+			(is_tar(ix)) ||
+			(is_rar(ix)) ||
+			(is_7zip(ix)) ||
+			(is_bzip2(ix))
+	)
+		return 1;
 	return 0;
 }
 
 // encrypted
 int is_encrypted(int ix) {
 	if ((ix == 0) || (ix == 11) || (ix == 12) || (ix == 13) ||
-		(ix == 14) || (ix == 54) || (ix == 80) || (ix == 81) ||
-		(ix == 82) || (ix == 83) || (ix == 84) || (ix == 113) ||
-		(ix == 114)) {
+			(ix == 14) || (ix == 54) || (ix == 80) || (ix == 81) ||
+			(ix == 82) || (ix == 83) || (ix == 84) || (ix == 113) ||
+			(ix == 114)) {
 		return 1;
 	}
 	return 0;
 }
 
+// bzip2
+int is_bzip2(int ix) {
+	if (ix == 157) {
+		return 1;
+	}
+	return 0;
+}
 
 
 void get_buffer_type_str(int type, uint8_t *buf) {
@@ -768,10 +776,10 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 	 * a py script run against the bayshore file
 	 * type detection yara ruleset 
 	 */
-    int the_len = 0;
+	int the_len = 0;
 
-    switch (type) {
-    case 0:
+	switch (type) {
+	case 0:
 		strcpy (buf, "Goodwill guess  Encrypted file detected");
 		the_len = 39;
 		break;
@@ -1399,33 +1407,33 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		strcpy (buf, "Unclassified Binary");
 		the_len = 19;
 		break;
-    default:
-    	the_len = 0;
-    	break;
-    }
-    buf[the_len] = '\0';    
+	default:
+		the_len = 0;
+		break;
+	}
+	buf[the_len] = '\0';    
 }
 
 
 int get_file_type(const uint8_t *file_name) {
 
-    // open and read file
-    // pass buffer and length to get_buffer_type
-    // return val returned from get_buffer_type
-    int ret = -1;
-    char source[MAXBUFLEN + 1];
+	// open and read file
+	// pass buffer and length to get_buffer_type
+	// return val returned from get_buffer_type
+	int ret = -1;
+	char source[MAXBUFLEN + 1];
 
-    FILE *fp = fopen(file_name, "r");
-    if (fp != NULL) {
-        size_t newLen = fread(source, sizeof(char), MAXBUFLEN, fp);
-        if ( ferror( fp ) != 0 ) {
-            fputs("Error reading file", stderr);
-        } else {
-            source[newLen++] = '\0'; /* Just to be safe. */
-        }
-        ret = get_buffer_type((uint8_t *)source, strlen(source));
-        fclose(fp);
-    }
-    //printf("RET: %d\n\n", ret);
-    return ret;
+	FILE *fp = fopen(file_name, "r");
+	if (fp != NULL) {
+		size_t newLen = fread(source, sizeof(char), MAXBUFLEN, fp);
+		if ( ferror( fp ) != 0 ) {
+			fputs("Error reading file", stderr);
+		} else {
+			source[newLen++] = '\0'; /* Just to be safe. */
+		}
+		ret = get_buffer_type((uint8_t *)source, strlen(source));
+		fclose(fp);
+	}
+	//printf("RET: %d\n\n", ret);
+	return ret;
 }
