@@ -98,6 +98,7 @@ bool is_type_7zip (int ix)
 {
 	return is_7zip (ix);
 }
+
 /***************
 is_type_archive
 ***************/
@@ -242,6 +243,13 @@ bool is_type_image (int ix)
 	return is_image (ix);
 }
 
+/*************
+is_type_bzip2
+*************/
 
+bool is_type_bzip2 (int ix)
+{
+	return is_bzip2 (ix);
+}
 
 
