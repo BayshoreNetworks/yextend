@@ -1372,8 +1372,20 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		the_len = 26;
 		break;
 	case 154:
-		strcpy (buf, "Adobe Encapsulated PostScript File (PS)");
-		the_len = 39;
+		strcpy (buf, "Adobe Encapsulated PostScript File (EPS)");
+		the_len = 40;
+		break;
+	case 155:
+		strcpy (buf, "Windows shell link (shortcut) file");
+		the_len = 34;
+		break;
+	case 156:
+		strcpy (buf, "Microsoft Common Object File Format (COFF) relocatable object code file");
+		the_len = 71;
+		break;
+	case 157:
+		strcpy (buf, "bzip2 Compressed Archive");
+		the_len = 24;
 		break;
 	case 26000:
 		strcpy (buf, "Windows Executable");
