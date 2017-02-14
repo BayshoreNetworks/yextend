@@ -45,7 +45,7 @@ Requirements to build and run:
 - zlib devel lib (sudo yum install zlib-devel or sudo apt-get install zlib1g-dev)
 - libarchive (v4) be installed (sudo yum install libarchive-devel or sudo apt-get install libarchive-dev)
 - pcrecpp (sudo yum install pcre-devel or sudo apt-get install libpcre3-dev)
-- uuid (sudo yum install uuid-devel or sudo apt-get install uuid-dev)
+- uuid (sudo yum install uuid-devel or sudo apt-get install uuid-dev libuuid-devel)
 - pdf2text (sudo yum install poppler-utils or sudo apt-get install poppler-utils)
 - yara v3.X be fully installed
 - if you are running yara pre-version 3.1.X then yara v3 lib header files to be moved to a specific location after a typical yara install, steps:

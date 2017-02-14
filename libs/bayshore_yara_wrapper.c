@@ -258,7 +258,7 @@ int bayshore_yara_callback(
 		int message,
 		void* message_data,
 		void* user_data
-        )
+		)
 {
 	YR_MODULE_IMPORT* mi;
 	YR_OBJECT* object;
@@ -593,6 +593,7 @@ YR_RULES *bayshore_yara_preprocess_rules (const char *rule_filename)
 			fprintf(stderr, "error: could not open file: %s\n", rule_filename);
 			//exit_with_code(EXIT_FAILURE);
 			exit_with_code_cleanup(EXIT_FAILURE, compiler, rules);
+			return NULL;
 		}
 
 		int errors = yr_compiler_add_file(compiler, rule_file, NULL, rule_filename);
@@ -770,6 +771,7 @@ int bayshore_yara_wrapper_api(
 		    	fprintf(stderr, "error: could not open file: %s\n", yara_ruleset_filename);
 		    	//exit_with_code(EXIT_FAILURE);
 		    	exit_with_code_cleanup(EXIT_FAILURE, compiler, rules);
+		    	return 0;
 		    }
 
 		    int errors = yr_compiler_add_file(compiler, rule_file, NULL, yara_ruleset_filename);
