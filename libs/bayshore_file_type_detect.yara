@@ -1829,3 +1829,15 @@ rule UNCLASSIFIED_BINARY_0
         $unclassified_binary
 }
 
+rule Lnk_Extension {
+    meta:
+        type = "Lnk Extension All"
+        bayshore_ix = 65536
+        offset = 0
+    strings:
+        $link_extension = {4c0000000114020000000000c000000000000046}
+    condition:
+      $link_extension
+}
+
+
