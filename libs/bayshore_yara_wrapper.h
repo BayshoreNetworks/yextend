@@ -42,7 +42,7 @@
  * all in order to find the right type
  */
 #define MAX_YARA_RES_BUF 1048576
-#define YEXTEND_VERSION 1.4
+#define YEXTEND_VERSION 1.6
 
 /* 
  * When calling bayshore_yara_wrapper_api, the next-to-last parameter is a
