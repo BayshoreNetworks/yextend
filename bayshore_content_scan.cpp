@@ -295,6 +295,8 @@ void scan_pdf_api(void *cookie,
 		ssp_local->buffer_length = str_buf.length();
 	}
 	
+	//std::cout << "EMBED: " << pdf.has_embedded_files() << std::endl;
+	
 	if (src_len == 0) {
 		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)");
 	} else {
@@ -800,7 +802,7 @@ void scan_content2 (
 			
 			increment_recur_counter();
 			/*
-			 * intercept gzip archives and handle them
+			 * intercept gzip compression and handle it
 			 * outside of libarchive
 			 */
 			if (is_type_gzip(buffer_type)) {
@@ -865,6 +867,16 @@ void scan_content2 (
 					}
 				} // end if (myzl.single_result.data && myzl.single_result.used)
 				
+			} else if (is_type_bzip2(buffer_type)) {
+				
+				/*
+				 * intercept bzip2 compression and handle it
+				 * outside of libarchive
+				 */
+				
+				// This is where you do your work Mehreen
+
+				
 			} else {
 			
 				// prep stuff for libarchive
@@ -872,8 +884,10 @@ void scan_content2 (
 				assert(a);
 				struct archive_entry *entry;
 				int r;
-		
+
 				archive_read_support_format_all(a);
+				archive_read_support_format_raw(a);
+				
 #if ARCHIVE_VERSION_NUMBER < 3000000
 				archive_read_support_compression_all(a);
 #elsif ARCHIVE_VERSION_NUMBER >= 3000000
