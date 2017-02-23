@@ -42,6 +42,7 @@ extern "C" {
 #include "bayshore_content_scan.h"
 #include "wrapper.h"
 #include "libs/zl.h"
+#include "libs/bzl.h"
 #include "libs/pdf_parser.h"
 
 #include <archive.h>
@@ -813,7 +814,7 @@ void scan_content2 (
 				if (myzl.single_result.data && myzl.single_result.used) {
 					
 					int lf_type = get_content_type (myzl.single_result.data, myzl.single_result.used);
-					
+        
 					std::string tmpfname = std::string(parent_file_name);
 					
 					ssp.buffer = myzl.single_result.data;
@@ -873,9 +874,68 @@ void scan_content2 (
 				 * intercept bzip2 compression and handle it
 				 * outside of libarchive
 				 */
-				
-				// This is where you do your work Mehreen
+                              
+                BZlibInflator_t mybzl;
+                mybzl.bzdecomp((uint8_t*)buf,sz);
+                
+                if (mybzl.bzsingle_result.data && mybzl.bzsingle_result.used) {
+					
+					int lf_type = get_content_type (mybzl.bzsingle_result.data, mybzl.bzsingle_result.used);
+					
+					std::string tmpfname = std::string(parent_file_name);
+					
+					ssp.buffer = mybzl.bzsingle_result.data;
+					ssp.buffer_length = mybzl.bzsingle_result.used;
+					ssp.file_type = lf_type;
+		            
+					/*
+					 * cases like tar.gz, this would be the gunzipped
+					 * tarball
+					 */
+					if (is_type_archive(lf_type)) {
+						
+						scan_content2 (
+								mybzl.bzsingle_result.data,
+								mybzl.bzsingle_result.used,
+								rules,
+								ssr_list,
+								(remove_file_extension(std::string(parent_file_name))).c_str(),
+								cb,
+								in_type_of_scan);
+						
+					// pdf inside gzip
+		            } else if (is_type_pdf(lf_type)) {
 
+						scan_pdf_api(
+								(void *)&ssp,
+								ssr_list,
+								" inside BZIP2 Archive file",
+								(remove_file_extension(tmpfname)).c_str(),
+								cb,
+								in_type_of_scan);
+						
+					// ms-office open xml inside gzip
+					} else if (is_type_officex(lf_type)) {
+						
+						scan_office_open_xml_api(
+								(void *)&ssp,
+								ssr_list,
+								" inside BZIP2 Archive file",
+								(remove_file_extension(tmpfname)).c_str(),
+								false,
+								cb,
+								in_type_of_scan);
+	
+					} else {
+						
+						snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside BZIP2 Archive file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type));
+						
+						cb((void *)&ssp, ssr_list, (remove_file_extension(tmpfname)).c_str());
+		
+					}
+				} // end if (mybzl.bzsingle_result.data && mybzl.bzsingle_result.used)
+				
+                
 				
 			} else {
 			
