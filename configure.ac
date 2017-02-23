@@ -32,6 +32,7 @@ AC_CHECK_LIB([yara], [main])
 AC_CHECK_LIB([z], [main])
 AC_CHECK_LIB([pcrecpp], [main])
 AC_CHECK_LIB([uuid], [main])
+AC_CHECK_LIB([bz2], [main])
 
 # Checks for header files
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h syslog.h unistd.h uuid.h])

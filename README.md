@@ -43,6 +43,7 @@ Requirements to build and run:
 - autoconf 2.69 or above
 - openssl devel lib (sudo yum install openssl-devel or sudo apt-get install libssl-dev)
 - zlib devel lib (sudo yum install zlib-devel or sudo apt-get install zlib1g-dev)
+- bzlib devel lib (sudo yum install libghc-bzlib-devel or sudo apt-get install libghc-bzlib-dev)
 - libarchive (v4) be installed (sudo yum install libarchive-devel or sudo apt-get install libarchive-dev)
 - pcrecpp (sudo yum install pcre-devel or sudo apt-get install libpcre3-dev)
 - uuid (sudo yum install uuid-devel or sudo apt-get install uuid-dev)
