@@ -3,7 +3,7 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2014-2016, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2017, Bayshore Networks, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -889,7 +889,7 @@ void scan_content2 (
 					ssp.file_type = lf_type;
 		            
 					/*
-					 * cases like tar.gz, this would be the gunzipped
+					 * cases like tar.bz, this would be the gunzipped
 					 * tarball
 					 */
 					if (is_type_archive(lf_type)) {
@@ -903,7 +903,7 @@ void scan_content2 (
 								cb,
 								in_type_of_scan);
 						
-					// pdf inside gzip
+					// pdf inside bzip2
 		            } else if (is_type_pdf(lf_type)) {
 
 						scan_pdf_api(
@@ -914,7 +914,7 @@ void scan_content2 (
 								cb,
 								in_type_of_scan);
 						
-					// ms-office open xml inside gzip
+					// ms-office open xml inside bzip2
 					} else if (is_type_officex(lf_type)) {
 						
 						scan_office_open_xml_api(
