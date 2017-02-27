@@ -52,7 +52,7 @@ MSOFFICE_YARA_RULESET = "%smsoffice_rules.yara" % YARA_RULES_ROOT
 MSOFFICE_MACRO_YARA_RULESET = "%smsoffice_macro_rules.yara" % YARA_RULES_ROOT
 MSOFFICEX_YARA_RULESET = "%smsofficex_rules.yara" % YARA_RULES_ROOT
 
-
+BZ2_TEST_FILE = "test.txt.bz2"
 GUANGGAO_FILE = "guanggao.gif"
 GUANGGAO_CONTEXT_PATTERN1 = "guanggao_rule1"
 GUANGGAO_CONTEXT_PATTERN2 = "guanggao_rule2"
@@ -62,6 +62,7 @@ JAVASCRIPT_CLOSE_TAG = "javascript_close_tag"
 IFRAME_OPEN_TAG = "iframe_open_tag"
 IFRAME_CLOSE_TAG = "iframe_close_tag"
 
+BZ2_PATTERN = "0x1b:$text"
 ZAP_PDF_FILE = "ZAPGettingStartedGuide-2.4.pdf"
 ZAP_PDF_FILE_GZIP = "ZAPGettingStartedGuide-2.4.pdf.gz"
 ZAP_PDF_ZIP_FILE = "ZAPGettingStartedGuide-2.4.pdf.zip"
@@ -96,10 +97,6 @@ PACKER_PATTERN_1 = "offsets=0x10ce6:$a0"
 PACKER_PATTERN_2 = "offsets=0x10ce6:$str1"
 
 ZIP_7Z_FILE = "hmm.7z"
-    
-TEST_YARA_RULESET = "test_rules.yara"
-TEST_PATTERN = "is_entropy"
-FILE_SIZE_PATTERN = "file_size"
 
 MZ_EXE = "VirusShare_007f9182c475c9a049020b7307ec6d35"
 MZ_PATTERN = "MZ_PORTABLE_EXE"
@@ -378,6 +375,18 @@ class Test_Yextend_files():
             #print out
             assert(LOREM_BODY_PATTERN in out)
             assert(EXE_PATTERN in out)
+
+    def test_yara_random_bz2(self):
+        f_obj = TARG_DIR + BZ2_TEST_FILE
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, GUANGGAO_YARA_RULESET, f_obj],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            #print out
+            assert(BZ2_PATTERN in out)
             
             
     
