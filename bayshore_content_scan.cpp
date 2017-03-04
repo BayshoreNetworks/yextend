@@ -360,11 +360,13 @@ void scan_office_open_xml_api(
 		final_buff[0] = 0;
 		size_t final_size = 0;
 		bool embedded_doc;
+		bool macro_file;
 		std::string file_type = "";
 		
 		for (;;) {
 			
 			embedded_doc = false;
+			macro_file = false;
 
 			r = archive_read_next_header(a, &entry);
 
@@ -380,6 +382,7 @@ void scan_office_open_xml_api(
 			if (archive_entry_size(entry) > 0) {
 				
 				char *fname = strdup(archive_entry_pathname(entry));
+				//std::cout << fname << std::endl;
 
 				if (fname) {
 					
@@ -412,11 +415,15 @@ void scan_office_open_xml_api(
 						embedded_doc = true;
 					}
 
-
 					// OpenOffice/LibreOffice -- document content
-					if (strncmp(fname, "content.xml", 11)==0) {
+					if (strncmp(fname, "content.xml", 11) == 0) {
 						// The document's content
 						oox_type = "odt";
+					}
+					
+					// macro file present
+					if (strncmp(fname, "word/vbaProject.bin", 19) == 0) {
+						macro_file = true;
 					}
 
 					// Check if this is match for OpenOffice/LibreOffice embeddings
@@ -432,7 +439,8 @@ void scan_office_open_xml_api(
 							oox_type == "pptx" ||
 							oox_type == "xlsx" ||
 							oox_type == "odt" ||
-							embedded_doc
+							embedded_doc ||
+							macro_file
 						)
 					{	
 
@@ -465,7 +473,7 @@ void scan_office_open_xml_api(
 								 * callback function for content scanning
 								 * 
 								 */
-								if (embedded_doc) {
+								if (embedded_doc || macro_file) {
 										
 									ssp_local->buffer = final_buff;
 									ssp_local->buffer_length = final_size;
@@ -487,14 +495,19 @@ void scan_office_open_xml_api(
 
 									} else {
 										
-										snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s (%s) %s", type_of_scan[in_type_of_scan], get_content_type_string (lf_type), "embedded in an Office Open XML file");
+										if (macro_file) {
+											snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s (%s) %s", type_of_scan[in_type_of_scan], "Macro file: \"vbaProject.bin\"", "embedded in an Office Open XML file");
+										} else {
+											snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s (%s) %s", type_of_scan[in_type_of_scan], get_content_type_string (lf_type), "embedded in an Office Open XML file");
+										}
+										
 										snprintf (ssp_local->parent_file_name, sizeof(ssp_local->parent_file_name), "%s", parent_file_name);
 	
 										cb((void *)ssp_local, oxml_ssr_list, fname);
 									
 									}
 									
-								} // end if (embedded_doc)
+								} // end if (embedded_doc || macro_file)
 								////////////////////////////////////////////////////////////////////
 								
 								// non-embedded data ...
@@ -889,7 +902,7 @@ void scan_content2 (
 					ssp.file_type = lf_type;
 		            
 					/*
-					 * cases like tar.bz, this would be the gunzipped
+					 * cases like tar.bz, this would be the bunzipped
 					 * tarball
 					 */
 					if (is_type_archive(lf_type)) {
