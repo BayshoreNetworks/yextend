@@ -84,9 +84,13 @@ Instructions:
 		2. A file name or a directory of target files
 
 	usage:
+        -r or --ruleset             rule_entity
+        -t or --target              target_file_entity
 
-		- ./run_yextend rule_entity target_file_entity
-
+        examples:
+		./run_yextend -r rule_entity -t target_file_entity
+        ./run_yextend --ruleset rule_entity -t target_file_entity
+        
 		***** make sure the executable bit is set on the file system for run_yextend *****
 
 	B. run yextend executable - prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
