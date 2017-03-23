@@ -40,6 +40,10 @@
 #include <iostream>
 using namespace std;
 
+/******************************
+BZlibInflator_t::BZlibInflator_t
+******************************/
+
 BZlibInflator_t::BZlibInflator_t(){
 
     
@@ -61,6 +65,9 @@ BZlibInflator_t::BZlibInflator_t(){
     
 }
 
+/*******************************
+BZlibInflator_t::~BZlibInflator_t
+*******************************/
 
 BZlibInflator_t::~BZlibInflator_t(){
 
@@ -70,6 +77,10 @@ BZlibInflator_t::~BZlibInflator_t(){
         free(bzsingle_result.data);
     
 }
+
+/**********************
+BZlibInflator_t::bzdecomp
+**********************/
 
 void BZlibInflator_t::bzdecomp(uint8_t* buf, size_t sz){
 
