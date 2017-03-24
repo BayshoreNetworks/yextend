@@ -410,6 +410,7 @@ int tokenize_yara_str(char *buf) {
 }
 
 int get_buffer_type(const uint8_t *buf, size_t sz) {
+	
 	int return_type = -1;
 
 	int zip_exception = -1;
@@ -460,7 +461,12 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 	 */
 	if (return_type == 65534) {
 		zip_exception = 65534;
+	} else if (return_type == 28) {
+		zip_exception = 28;
+	} else if (return_type == 50) {
+		zip_exception = 50;
 	} else if (return_type == 31 || return_type == 32) {
+		// 31 = php
 		xml_exception = 31;
 	} else if (return_type != -1) {
 		if ((return_type == 26 || return_type == 27)) {
@@ -483,9 +489,50 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 	 * move on
 	 */
 	if (zip_exception != -1) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_ZIP);
-		return zip_exception;
+		
+		/*
+		 * differentiate between zip / jar by looking
+		 * for - META-INF/MANIFEST.MF
+		 * 
+		 * this isn't perfect but should catch a high
+		 * percentage of jar file detection
+		 */
+		if (memmem (buf, sz, "META-INF/MANIFEST.MF", 20)) {
+			/*
+			skeyshm_increment_u64 (FILES_RECOGNIZED);
+			skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_JAR);
+			*/
+			return 16;
+		} else {
+			/*
+			 * not a jar file so ....
+			 */
+			
+			if (zip_exception == 28) {
+				/*
+				skeyshm_increment_u64 (FILES_RECOGNIZED);
+				skeyshm_increment_u64 (FILES_RECOGNIZED_MSOFFICE_OPENXML);
+				*/
+				return 28;
+			}
+			
+			if (zip_exception == 50) {
+				/*
+				skeyshm_increment_u64 (FILES_RECOGNIZED);
+				skeyshm_increment_u64 (FILES_RECOGNIZED_MSOFFICE_OPENXML);
+				*/
+				return 50;
+			}
+			
+			if (zip_exception == 65534) {
+				/*
+				skeyshm_increment_u64 (FILES_RECOGNIZED);
+				skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_ZIP);
+				*/
+				return 65534;
+			}
+			return zip_exception;
+		}
 	}
 
 	/*
@@ -511,6 +558,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 			//skeyshm_increment_u64 (FILES_RECOGNIZED_XML);
 			return 45;
 		} else {
+			// php
 			return xml_exception;
 		}
 	}
@@ -557,8 +605,10 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 // officex - docx, pptx, xslx
 int is_officex(int ix) {
 	if ((ix == 3) || (ix == 28) || (ix == 50)) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_MSOFFICE_OPENXML);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_MSOFFICE_OPENXML);
+		*/
 		return 1;
 	}
 	return 0;
@@ -582,8 +632,10 @@ int is_unclassified(int ix) {
 // tar
 int is_tar(int ix) {
 	if (ix == 46) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_TAR);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_TAR);
+		*/
 		return 1;
 	}
 	return 0;
@@ -613,8 +665,10 @@ int is_php(int ix) {
 // rar
 int is_rar(int ix) {
 	if (ix >= 6 && ix <= 14 || ix == 30) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_RAR);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_RAR);
+		*/
 		return 1;
 	}
 	return 0;
@@ -644,8 +698,10 @@ int is_executable(int ix) {
 // html
 int is_html(int ix) {
 	if ((ix == 22) || (ix == 23) || (ix == 24) || (ix == 25)) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_HTML);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_HTML);
+		*/
 		return 1;
 	}
 	return 0;
@@ -654,8 +710,10 @@ int is_html(int ix) {
 // gzip
 int is_gzip(int ix) {
 	if ((ix == 17) || (ix == 18)) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_GZIP);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_GZIP);
+		*/
 		return 1;
 	}
 	return 0;
@@ -664,8 +722,10 @@ int is_gzip(int ix) {
 // pdf
 int is_pdf(int ix) {
 	if ((ix == 1) || (ix == 2)) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_PDF);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_PDF);
+		*/
 		return 1;
 	}
 	return 0;
@@ -674,8 +734,10 @@ int is_pdf(int ix) {
 // office - .doc, .ppt, .xsl
 int is_office(int ix) {
 	if ((ix == 4) || (ix == 5)) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_MSOFFICE);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_MSOFFICE);
+		*/
 		return 1;
 	}
 	return 0;
@@ -693,8 +755,10 @@ int is_image(int ix) {
 // zip
 int is_zip(int ix) {
 	if ((ix == 65534) || (ix == 109) || (ix == 110) || (ix == 111) || (ix == 112)) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_ZIP);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_ZIP);
+		*/
 		return 1;
 	}
 	return 0;
@@ -703,8 +767,10 @@ int is_zip(int ix) {
 // matlab
 int is_matlab(int ix) {
 	if (ix == 51 || ix == 52) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_MATLAB);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_MATLAB);
+		*/
 		return 1;
 	}
 	return 0;
@@ -713,8 +779,10 @@ int is_matlab(int ix) {
 // 7-zip
 int is_7zip(int ix) {
 	if (ix == 21) {
-		//skeyshm_increment_u64 (FILES_RECOGNIZED);
-		//skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_7ZIP);
+		/*
+		skeyshm_increment_u64 (FILES_RECOGNIZED);
+		skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_7ZIP);
+		*/
 		return 1;
 	}
 	return 0;
@@ -729,6 +797,7 @@ int is_archive(int ix) {
 	 * 46 = tar
 	 * is_rar() covers all known rar patterns
 	 * 21 = 7-zip
+	 * 157 = bzip2
 	 */
 	if ((is_zip(ix)) ||
 			(is_gzip(ix)) ||
