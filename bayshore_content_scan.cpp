@@ -623,82 +623,76 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 	 * if it exists call the wrapper API with it instead of
 	 * an actual ruleset file name
 	 */
+
+    //used to populate local_api_yara_results if there is a hit
 	if (ssp_local->rules) {
 		
-		if (bayshore_yara_wrapper_yrrules_api(
+		bayshore_yara_wrapper_yrrules_api(
 				(uint8_t*)ssp_local->buffer,
 				ssp_local->buffer_length,
 				ssp_local->rules,
 				local_api_yara_results,
-				&local_api_yara_results_len) > 0) {
+				&local_api_yara_results_len);
 			
-			// hit
-			if (local_api_yara_results_len > 0) {
+	    // populate ssr/ssr_list whether there's a hit or not
+		security_scan_results_t ssr;
+		// populate struct elements
+		ssr.file_scan_type = ssp_local->scan_type;
+		std::string sres(local_api_yara_results, local_api_yara_results_len);
+		ssr.file_scan_result = sres;
 				
-				security_scan_results_t ssr;
-				// populate struct elements
-				ssr.file_scan_type = ssp_local->scan_type;
-				std::string sres(local_api_yara_results, local_api_yara_results_len);
-				ssr.file_scan_result = sres;
-				
-				if (ssp_local->parent_file_name) {
-					std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
-					ssr.parent_file_name = sfname;
-				}
-				
-				if (child_file_name) {
-					std::string schfname(child_file_name);
-					ssr.child_file_name = schfname;
-				}
-	
-				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
-				if (output) {
-					memcpy (ssr.file_signature_md5, output, 33);
-					free(output);
-				}
-	
-				ssr_list->push_back(ssr);
-			}
+		if (ssp_local->parent_file_name) {
+			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+			ssr.parent_file_name = sfname;
 		}
+				
+		if (child_file_name) {
+			std::string schfname(child_file_name);
+			ssr.child_file_name = schfname;
+		}
+	
+		char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
+		if (output) {
+			memcpy (ssr.file_signature_md5, output, 33);
+			free(output);
+		}
+	
+		ssr_list->push_back(ssr);
 		
 	} else {
-
-		if (bayshore_yara_wrapper_api(
+        
+		bayshore_yara_wrapper_api(
 				(uint8_t*)ssp_local->buffer,
 				ssp_local->buffer_length,
 				ssp_local->yara_ruleset_filename,
 				local_api_yara_results,
-				&local_api_yara_results_len) > 0) {
+				&local_api_yara_results_len);
 			
-			// hit
-			if (local_api_yara_results_len > 0) {
+		security_scan_results_t ssr;
+		// populate struct elements
+		ssr.file_scan_type = ssp_local->scan_type;
+		std::string sres(local_api_yara_results, local_api_yara_results_len);
+		ssr.file_scan_result = sres;
 				
-				security_scan_results_t ssr;
-				// populate struct elements
-				ssr.file_scan_type = ssp_local->scan_type;
-				std::string sres(local_api_yara_results, local_api_yara_results_len);
-				ssr.file_scan_result = sres;
-				
-				if (ssp_local->parent_file_name) {
-					std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
-					ssr.parent_file_name = sfname;
-				}
-				
-				if (child_file_name) {
-					std::string schfname(child_file_name);
-					ssr.child_file_name = schfname;
-				}
-	
-				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
-				if (output) {
-					memcpy (ssr.file_signature_md5, output, 33);
-					free(output);
-				}
-	
-				ssr_list->push_back(ssr);
-			}
+		if (ssp_local->parent_file_name) {
+			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+			ssr.parent_file_name = sfname;
 		}
+				
+		if (child_file_name) {
+			std::string schfname(child_file_name);
+			ssr.child_file_name = schfname;
+		}
+	
+		char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
+		if (output) {
+			memcpy (ssr.file_signature_md5, output, 33);
+			free(output);
+		}
+	
+		ssr_list->push_back(ssr);
 	}
+
 }
 
 
@@ -839,7 +833,11 @@ void scan_content2 (
 					 * tarball
 					 */
 					if (is_type_archive(lf_type)) {
+
+						snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside GZIP Archive file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type));
 						
+						cb((void *)&ssp, ssr_list, (remove_file_extension(tmpfname)).c_str());
+
 						scan_content2 (
 								myzl.single_result.data,
 								myzl.single_result.used,
@@ -907,6 +905,10 @@ void scan_content2 (
 					 */
 					if (is_type_archive(lf_type)) {
 						
+                        snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside BZIP2 Archive file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type));
+						
+						cb((void *)&ssp, ssr_list, (remove_file_extension(tmpfname)).c_str());
+
 						scan_content2 (
 								mybzl.bzsingle_result.data,
 								mybzl.bzsingle_result.used,
@@ -938,6 +940,7 @@ void scan_content2 (
 								false,
 								cb,
 								in_type_of_scan);
+                        
 	
 					} else {
 						
@@ -1025,6 +1028,11 @@ void scan_content2 (
 									// archive, make recursive call into scan_content
 									if (is_type_archive(lf_type)) {
 										
+                                        snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside %s file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type), archive_format_name(a));
+										snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
+										
+										cb((void *)&ssp, ssr_list, fname ? fname : "");
+
 										scan_content2 (final_buff, final_size, rules, ssr_list, fname, cb, in_type_of_scan);
 										
 									// pdf
