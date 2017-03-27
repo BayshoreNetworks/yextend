@@ -129,7 +129,10 @@ def print_yextend_output(out=''):
                             else:
                                 print "\t\t%s" % (my_print(thestr=rmeta, thecolor='blue'))
                     else:
-                        print "\tRule ID: %s" % (my_print(thestr=rule_data, thecolor='red'))
+                        if rule_data == "No hit from Yara ruleset":
+                            print "\t%s" % (my_print(thestr=rule_data, thecolor='red'))
+                        else:
+                            print "\tRule ID: %s" % (my_print(thestr=rule_data, thecolor='red'))
                     print
             elif the_out == '\n':
                 print the_out
