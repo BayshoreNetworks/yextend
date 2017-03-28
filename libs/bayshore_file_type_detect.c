@@ -1443,7 +1443,7 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		break;
 	case 26000:
 		strcpy (buf, "Windows Portable Executable");
-		the_len = 18;
+		the_len = 27;
 		break;
 	case 65534:
 		strcpy (buf, "Zip Archive");
