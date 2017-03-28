@@ -472,12 +472,9 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 		if ((return_type == 26 || return_type == 27)) {
 			// is it a Windows PE file?
 			if (memmem (buf, sz, "PE\0\0", 4)) {
-				//skeyshm_increment_u64 (FILES_RECOGNIZED);
-				//skeyshm_increment_u64 (FILES_RECOGNIZED_WIN_EXE_PORTABLE);
 				return 26000;
 			} else {
-				//skeyshm_increment_u64 (FILES_RECOGNIZED);
-				//skeyshm_increment_u64 (FILES_RECOGNIZED_WIN_EXE);
+				return return_type;
 			}
 		}
 		return return_type;
@@ -498,10 +495,6 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 		 * percentage of jar file detection
 		 */
 		if (memmem (buf, sz, "META-INF/MANIFEST.MF", 20)) {
-			/*
-			skeyshm_increment_u64 (FILES_RECOGNIZED);
-			skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_JAR);
-			*/
 			return 16;
 		} else {
 			/*
@@ -509,26 +502,14 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 			 */
 			
 			if (zip_exception == 28) {
-				/*
-				skeyshm_increment_u64 (FILES_RECOGNIZED);
-				skeyshm_increment_u64 (FILES_RECOGNIZED_MSOFFICE_OPENXML);
-				*/
 				return 28;
 			}
 			
 			if (zip_exception == 50) {
-				/*
-				skeyshm_increment_u64 (FILES_RECOGNIZED);
-				skeyshm_increment_u64 (FILES_RECOGNIZED_MSOFFICE_OPENXML);
-				*/
 				return 50;
 			}
 			
 			if (zip_exception == 65534) {
-				/*
-				skeyshm_increment_u64 (FILES_RECOGNIZED);
-				skeyshm_increment_u64 (FILES_RECOGNIZED_ARCHIVE_ZIP);
-				*/
 				return 65534;
 			}
 			return zip_exception;
@@ -554,8 +535,6 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 		bayshoresubstring(0, 11, hex_str, thesubstr, sizeof thesubstr);
 		// it is xml
 		if (strncmp (thesubstr, "3c3f786d6c", 10) == 0) {
-			//skeyshm_increment_u64 (FILES_RECOGNIZED);
-			//skeyshm_increment_u64 (FILES_RECOGNIZED_XML);
 			return 45;
 		} else {
 			// php
@@ -578,8 +557,6 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 		 */
 		if (ci <= text_ioc_threshold) {
 			if (is_buffer_encrypted(buf, threshold) == 1) {
-				//skeyshm_increment_u64 (FILES_RECOGNIZED);
-				//skeyshm_increment_u64 (FILES_RECOGNIZED_ENCRYPTED);
 				return 0;
 			}
 		}
@@ -1465,7 +1442,7 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		the_len = 24;
 		break;
 	case 26000:
-		strcpy (buf, "Windows Executable");
+		strcpy (buf, "Windows Portable Executable");
 		the_len = 18;
 		break;
 	case 65534:
