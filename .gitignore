@@ -1,3 +1,56 @@
+# Compiled Object files
+*.slo
+*.lo
 *.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+
+# Autoconf - probably non-exhaustive
+.deps/
 Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+config.h
+config.h.in
+config.h.in~
+config.log
+config.status
 configure
+depcomp
+install-sh
+.dirstamp
+missing
+stamp-h1
+
+*.swp
+.Po
+*.pyc
+
+yextend
+
