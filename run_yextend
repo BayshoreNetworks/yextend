@@ -13,6 +13,8 @@ import sys
 import os
 import fnmatch
 import time
+import getopt
+from types import *
 
 ########################################################
 def usage():
@@ -127,7 +129,10 @@ def print_yextend_output(out=''):
                             else:
                                 print "\t\t%s" % (my_print(thestr=rmeta, thecolor='blue'))
                     else:
-                        print "\tRule ID: %s" % (my_print(thestr=rule_data, thecolor='red'))
+                        if rule_data == "No hit from Yara ruleset":
+                            print "\t%s" % (my_print(thestr=rule_data, thecolor='red'))
+                        else:
+                            print "\tRule ID: %s" % (my_print(thestr=rule_data, thecolor='red'))
                     print
             elif the_out == '\n':
                 print the_out
@@ -151,15 +156,25 @@ YEXTEND = which(program="yextend")
 LD_LIBRARY_PATH = 'LD_LIBRARY_PATH'
 USRLOCLIB = '/usr/local/lib'
 
-if len(sys.argv) == 3:
-    RULES_ENTITY = sys.argv[1]
-    FILE_ENTITY = sys.argv[2]
-    if os.path.isdir(RULES_ENTITY):
-        RULES_ENTITY_DIR = True
-else:
+
+try:
+    options, rem = getopt.getopt(sys.argv[1:], 'r:t:', ['ruleset=','target='])
+except getopt.GetoptError as err:
+    print str(err)
     usage()
     sys.exit()
-    
+
+for opt, arg in options:
+    if opt in ('-r', '--ruleset'):
+        RULES_ENTITY = arg
+    elif opt in ('-t', '--target'):
+        FILE_ENTITY = arg
+    else:
+        assert False, "unhandled option"
+
+if os.path.isdir(RULES_ENTITY):
+    RULES_ENTITY_DIR = True
+
 
 ''' ruleset = file '''
 if not RULES_ENTITY_DIR:

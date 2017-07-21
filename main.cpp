@@ -3,7 +3,7 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2014-2016, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2017, Bayshore Networks, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -285,8 +285,12 @@ int main(int argc, char* argv[])
 								std::cout << output_labels[2] << v->file_scan_result << std::endl;
 								std::cout << output_labels[3] << v->file_scan_type << std::endl;
 								if (v->parent_file_name.size()) {
-									if (v->child_file_name.size())
-										std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
+									if (v->child_file_name.size()){
+                                                                            if(v->parent_file_name != v->child_file_name)
+								                std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
+                                                                            else
+                                                                                std::cout << output_labels[0] << v->parent_file_name << std::endl;
+                                                                        }
 									else
 										std::cout << output_labels[5] << v->parent_file_name << std::endl;
 								}
@@ -369,8 +373,12 @@ int main(int argc, char* argv[])
 						std::cout << output_labels[2] << v->file_scan_result << std::endl;
 						std::cout << output_labels[3] << v->file_scan_type << std::endl;
 						if (v->parent_file_name.size()) {
-							if (v->child_file_name.size())
-								std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
+							if (v->child_file_name.size()){
+                                                            if ( v->parent_file_name != v->child_file_name)
+						                std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
+                                                            else
+                                                                std::cout << output_labels[0] << v->parent_file_name << std::endl;
+                                                        }
 							else
 								std::cout << output_labels[5] << v->parent_file_name << std::endl;
 						}

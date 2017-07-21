@@ -3,7 +3,7 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2014-2016, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2017, Bayshore Networks, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -98,6 +98,7 @@ bool is_type_7zip (int ix)
 {
 	return is_7zip (ix);
 }
+
 /***************
 is_type_archive
 ***************/
@@ -242,6 +243,13 @@ bool is_type_image (int ix)
 	return is_image (ix);
 }
 
+/*************
+is_type_bzip2
+*************/
 
+bool is_type_bzip2 (int ix)
+{
+	return is_bzip2 (ix);
+}
 
 

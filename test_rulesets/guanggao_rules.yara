@@ -47,3 +47,13 @@ rule iframe_close_tag
     condition:
         $iframebin
 }
+
+rule search_random_text
+{
+    meta:
+        type = "Search random text"
+    strings:
+        $text = "random" nocase
+    condition:
+        $text
+}

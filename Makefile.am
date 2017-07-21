@@ -3,7 +3,7 @@
 # YEXTEND: Help for YARA users.
 # This file is part of yextend.
 #
-# Copyright (c) 2014-2016, Bayshore Networks, Inc.
+# Copyright (c) 2014-2017, Bayshore Networks, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -29,11 +29,11 @@
 
 
 CPPFLAGS=-I.
-include_HEADERS = /usr/local/include libs/bayshore_yara_wrapper.h wrapper.h bayshore_content_scan.h libs/bayshore_file_type_detect.h libs/zl.h libs/pdf_parser.h
+include_HEADERS = /usr/local/include libs/bayshore_yara_wrapper.h wrapper.h bayshore_content_scan.h libs/bayshore_file_type_detect.h libs/zl.h libs/pdf_parser.h libs/bzl.h
 lib_YARA = /usr/local/lib
 
 bin_PROGRAMS = yextend
-yextend_SOURCES = wrapper.cpp bayshore_content_scan.cpp libs/bayshore_file_type_detect.cpp main.cpp libs/zl.cpp libs/bayshore_yara_wrapper.c libs/pdf_parser.cpp
+yextend_SOURCES = wrapper.cpp bayshore_content_scan.cpp libs/bayshore_file_type_detect.cpp main.cpp libs/zl.cpp libs/bayshore_yara_wrapper.c libs/pdf_parser.cpp libs/bzl.cpp
 
 unittests:
 	nosetests -s test/

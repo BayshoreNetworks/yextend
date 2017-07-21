@@ -3,7 +3,7 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2014-2016, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2017, Bayshore Networks, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -42,6 +42,7 @@ extern "C" {
 #include "bayshore_content_scan.h"
 #include "wrapper.h"
 #include "libs/zl.h"
+#include "libs/bzl.h"
 #include "libs/pdf_parser.h"
 
 #include <archive.h>
@@ -295,6 +296,8 @@ void scan_pdf_api(void *cookie,
 		ssp_local->buffer_length = str_buf.length();
 	}
 	
+	//std::cout << "EMBED: " << pdf.has_embedded_files() << std::endl;
+	
 	if (src_len == 0) {
 		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)");
 	} else {
@@ -357,11 +360,13 @@ void scan_office_open_xml_api(
 		final_buff[0] = 0;
 		size_t final_size = 0;
 		bool embedded_doc;
+		bool macro_file;
 		std::string file_type = "";
 		
 		for (;;) {
 			
 			embedded_doc = false;
+			macro_file = false;
 
 			r = archive_read_next_header(a, &entry);
 
@@ -377,6 +382,7 @@ void scan_office_open_xml_api(
 			if (archive_entry_size(entry) > 0) {
 				
 				char *fname = strdup(archive_entry_pathname(entry));
+				//std::cout << fname << std::endl;
 
 				if (fname) {
 					
@@ -409,11 +415,15 @@ void scan_office_open_xml_api(
 						embedded_doc = true;
 					}
 
-
 					// OpenOffice/LibreOffice -- document content
-					if (strncmp(fname, "content.xml", 11)==0) {
+					if (strncmp(fname, "content.xml", 11) == 0) {
 						// The document's content
 						oox_type = "odt";
+					}
+					
+					// macro file present
+					if (strncmp(fname, "word/vbaProject.bin", 19) == 0) {
+						macro_file = true;
 					}
 
 					// Check if this is match for OpenOffice/LibreOffice embeddings
@@ -429,7 +439,8 @@ void scan_office_open_xml_api(
 							oox_type == "pptx" ||
 							oox_type == "xlsx" ||
 							oox_type == "odt" ||
-							embedded_doc
+							embedded_doc ||
+							macro_file
 						)
 					{	
 
@@ -462,7 +473,7 @@ void scan_office_open_xml_api(
 								 * callback function for content scanning
 								 * 
 								 */
-								if (embedded_doc) {
+								if (embedded_doc || macro_file) {
 										
 									ssp_local->buffer = final_buff;
 									ssp_local->buffer_length = final_size;
@@ -484,14 +495,19 @@ void scan_office_open_xml_api(
 
 									} else {
 										
-										snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s (%s) %s", type_of_scan[in_type_of_scan], get_content_type_string (lf_type), "embedded in an Office Open XML file");
+										if (macro_file) {
+											snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s (%s) %s", type_of_scan[in_type_of_scan], "Macro file: \"vbaProject.bin\"", "embedded in an Office Open XML file");
+										} else {
+											snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s (%s) %s", type_of_scan[in_type_of_scan], get_content_type_string (lf_type), "embedded in an Office Open XML file");
+										}
+										
 										snprintf (ssp_local->parent_file_name, sizeof(ssp_local->parent_file_name), "%s", parent_file_name);
 	
 										cb((void *)ssp_local, oxml_ssr_list, fname);
 									
 									}
 									
-								} // end if (embedded_doc)
+								} // end if (embedded_doc || macro_file)
 								////////////////////////////////////////////////////////////////////
 								
 								// non-embedded data ...
@@ -607,82 +623,76 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 	 * if it exists call the wrapper API with it instead of
 	 * an actual ruleset file name
 	 */
+
+    //used to populate local_api_yara_results if there is a hit
 	if (ssp_local->rules) {
 		
-		if (bayshore_yara_wrapper_yrrules_api(
+		bayshore_yara_wrapper_yrrules_api(
 				(uint8_t*)ssp_local->buffer,
 				ssp_local->buffer_length,
 				ssp_local->rules,
 				local_api_yara_results,
-				&local_api_yara_results_len) > 0) {
+				&local_api_yara_results_len);
 			
-			// hit
-			if (local_api_yara_results_len > 0) {
+	    // populate ssr/ssr_list whether there's a hit or not
+		security_scan_results_t ssr;
+		// populate struct elements
+		ssr.file_scan_type = ssp_local->scan_type;
+		std::string sres(local_api_yara_results, local_api_yara_results_len);
+		ssr.file_scan_result = sres;
 				
-				security_scan_results_t ssr;
-				// populate struct elements
-				ssr.file_scan_type = ssp_local->scan_type;
-				std::string sres(local_api_yara_results, local_api_yara_results_len);
-				ssr.file_scan_result = sres;
-				
-				if (ssp_local->parent_file_name) {
-					std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
-					ssr.parent_file_name = sfname;
-				}
-				
-				if (child_file_name) {
-					std::string schfname(child_file_name);
-					ssr.child_file_name = schfname;
-				}
-	
-				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
-				if (output) {
-					memcpy (ssr.file_signature_md5, output, 33);
-					free(output);
-				}
-	
-				ssr_list->push_back(ssr);
-			}
+		if (ssp_local->parent_file_name) {
+			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+			ssr.parent_file_name = sfname;
 		}
+				
+		if (child_file_name) {
+			std::string schfname(child_file_name);
+			ssr.child_file_name = schfname;
+		}
+	
+		char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
+		if (output) {
+			memcpy (ssr.file_signature_md5, output, 33);
+			free(output);
+		}
+	
+		ssr_list->push_back(ssr);
 		
 	} else {
-
-		if (bayshore_yara_wrapper_api(
+        
+		bayshore_yara_wrapper_api(
 				(uint8_t*)ssp_local->buffer,
 				ssp_local->buffer_length,
 				ssp_local->yara_ruleset_filename,
 				local_api_yara_results,
-				&local_api_yara_results_len) > 0) {
+				&local_api_yara_results_len);
 			
-			// hit
-			if (local_api_yara_results_len > 0) {
+		security_scan_results_t ssr;
+		// populate struct elements
+		ssr.file_scan_type = ssp_local->scan_type;
+		std::string sres(local_api_yara_results, local_api_yara_results_len);
+		ssr.file_scan_result = sres;
 				
-				security_scan_results_t ssr;
-				// populate struct elements
-				ssr.file_scan_type = ssp_local->scan_type;
-				std::string sres(local_api_yara_results, local_api_yara_results_len);
-				ssr.file_scan_result = sres;
-				
-				if (ssp_local->parent_file_name) {
-					std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
-					ssr.parent_file_name = sfname;
-				}
-				
-				if (child_file_name) {
-					std::string schfname(child_file_name);
-					ssr.child_file_name = schfname;
-				}
-	
-				char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
-				if (output) {
-					memcpy (ssr.file_signature_md5, output, 33);
-					free(output);
-				}
-	
-				ssr_list->push_back(ssr);
-			}
+		if (ssp_local->parent_file_name) {
+			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+			ssr.parent_file_name = sfname;
 		}
+				
+		if (child_file_name) {
+			std::string schfname(child_file_name);
+			ssr.child_file_name = schfname;
+		}
+	
+		char *output = str2md5((const char *)ssp_local->buffer, ssp_local->buffer_length);
+		if (output) {
+			memcpy (ssr.file_signature_md5, output, 33);
+			free(output);
+		}
+	
+		ssr_list->push_back(ssr);
 	}
+
 }
 
 
@@ -800,7 +810,7 @@ void scan_content2 (
 			
 			increment_recur_counter();
 			/*
-			 * intercept gzip archives and handle them
+			 * intercept gzip compression and handle it
 			 * outside of libarchive
 			 */
 			if (is_type_gzip(buffer_type)) {
@@ -811,7 +821,7 @@ void scan_content2 (
 				if (myzl.single_result.data && myzl.single_result.used) {
 					
 					int lf_type = get_content_type (myzl.single_result.data, myzl.single_result.used);
-					
+        
 					std::string tmpfname = std::string(parent_file_name);
 					
 					ssp.buffer = myzl.single_result.data;
@@ -823,7 +833,11 @@ void scan_content2 (
 					 * tarball
 					 */
 					if (is_type_archive(lf_type)) {
+
+						snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside GZIP Archive file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type));
 						
+						cb((void *)&ssp, ssr_list, (remove_file_extension(tmpfname)).c_str());
+
 						scan_content2 (
 								myzl.single_result.data,
 								myzl.single_result.used,
@@ -865,6 +879,80 @@ void scan_content2 (
 					}
 				} // end if (myzl.single_result.data && myzl.single_result.used)
 				
+			} else if (is_type_bzip2(buffer_type)) {
+				
+				/*
+				 * intercept bzip2 compression and handle it
+				 * outside of libarchive
+				 */
+                              
+                BZlibInflator_t mybzl;
+                mybzl.bzdecomp((uint8_t*)buf,sz);
+                
+                if (mybzl.bzsingle_result.data && mybzl.bzsingle_result.used) {
+					
+					int lf_type = get_content_type (mybzl.bzsingle_result.data, mybzl.bzsingle_result.used);
+					
+					std::string tmpfname = std::string(parent_file_name);
+					
+					ssp.buffer = mybzl.bzsingle_result.data;
+					ssp.buffer_length = mybzl.bzsingle_result.used;
+					ssp.file_type = lf_type;
+		            
+					/*
+					 * cases like tar.bz, this would be the bunzipped
+					 * tarball
+					 */
+					if (is_type_archive(lf_type)) {
+						
+                        snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside BZIP2 Archive file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type));
+						
+						cb((void *)&ssp, ssr_list, (remove_file_extension(tmpfname)).c_str());
+
+						scan_content2 (
+								mybzl.bzsingle_result.data,
+								mybzl.bzsingle_result.used,
+								rules,
+								ssr_list,
+								(remove_file_extension(std::string(parent_file_name))).c_str(),
+								cb,
+								in_type_of_scan);
+						
+					// pdf inside bzip2
+		            } else if (is_type_pdf(lf_type)) {
+
+						scan_pdf_api(
+								(void *)&ssp,
+								ssr_list,
+								" inside BZIP2 Archive file",
+								(remove_file_extension(tmpfname)).c_str(),
+								cb,
+								in_type_of_scan);
+						
+					// ms-office open xml inside bzip2
+					} else if (is_type_officex(lf_type)) {
+						
+						scan_office_open_xml_api(
+								(void *)&ssp,
+								ssr_list,
+								" inside BZIP2 Archive file",
+								(remove_file_extension(tmpfname)).c_str(),
+								false,
+								cb,
+								in_type_of_scan);
+                        
+	
+					} else {
+						
+						snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside BZIP2 Archive file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type));
+						
+						cb((void *)&ssp, ssr_list, (remove_file_extension(tmpfname)).c_str());
+		
+					}
+				} // end if (mybzl.bzsingle_result.data && mybzl.bzsingle_result.used)
+				
+                
+				
 			} else {
 			
 				// prep stuff for libarchive
@@ -872,8 +960,10 @@ void scan_content2 (
 				assert(a);
 				struct archive_entry *entry;
 				int r;
-		
+
 				archive_read_support_format_all(a);
+				archive_read_support_format_raw(a);
+				
 #if ARCHIVE_VERSION_NUMBER < 3000000
 				archive_read_support_compression_all(a);
 #elsif ARCHIVE_VERSION_NUMBER >= 3000000
@@ -938,6 +1028,11 @@ void scan_content2 (
 									// archive, make recursive call into scan_content
 									if (is_type_archive(lf_type)) {
 										
+                                        snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s) inside %s file", type_of_scan[in_type_of_scan], get_content_type_string (lf_type), archive_format_name(a));
+										snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
+										
+										cb((void *)&ssp, ssr_list, fname ? fname : "");
+
 										scan_content2 (final_buff, final_size, rules, ssr_list, fname, cb, in_type_of_scan);
 										
 									// pdf

@@ -28,42 +28,40 @@
  *****************************************************************************/
 
 
-#ifndef __ContentInspection__H_
-#define __ContentInspection__H_
-
-#include <stdint.h>
-#include <stdio.h>
-
-#include <string>
-
-extern "C" {
-	// Pass in a data buffer and size. Returns the content type.
-	int get_content_type (const uint8_t*, size_t);
-
-	char *get_content_type_string (int);
 
 
-	bool is_type_officex (int);
-    bool is_type_pcap(int);
-    bool is_type_unclassified(int);
-    bool is_type_tar(int);
-    bool is_type_xml(int);
-    bool is_type_open_document_format(int);
-    bool is_type_php(int);
-    bool is_type_rar(int);
-    bool is_type_win_exe(int);
-    bool is_type_html(int);
-    bool is_type_gzip(int);
-    bool is_type_pdf(int);
-    bool is_type_office(int);
-    bool is_type_image(int);
-    bool is_type_archive(int);
-    bool is_type_matlab(int);
-    bool is_type_7zip(int);
-    bool is_type_executable(int);
-    bool is_type_bzip2(int);
-    
-    int get_file_object_type(const uint8_t *);
-}
+#ifndef __BZLIB_SUPPORT__H_
+#define __BZLIB_SUPPORT__H_
 
-#endif // __ContentInspection__H_
+#include <bzlib.h>
+
+/********************
+class BZlibInflator_t
+********************/
+
+class BZlibInflator_t
+{
+    public:
+        BZlibInflator_t();
+        virtual ~BZlibInflator_t();        
+        void bzdecomp(uint8_t *buf, size_t sz);
+
+        struct grain_t {
+            size_t size;
+            size_t used;
+            uint8_t *data;
+        };
+
+    private:
+        bz_stream bz;
+        bool bzStreamEnd;
+        int bzError;
+        size_t total;
+
+	public:
+		grain_t bzsingle_result;
+};
+
+
+#endif // __BZLIB_SUPPORT__H__
+        

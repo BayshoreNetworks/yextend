@@ -2,11 +2,12 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT(yextend, 1.5, support@bayshorenetworks.com)
+AC_INIT(yextend, 1.6, support@bayshorenetworks.com)
 AC_CONFIG_SRCDIR([main.cpp])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_HEADERS([config.h])
 
+PKG_CHECK_MODULES([libuuid],[uuid])
 # Checks for programs
 AC_PROG_CXX
 AC_PROG_CC
@@ -31,6 +32,7 @@ AC_CHECK_LIB([yara], [main])
 AC_CHECK_LIB([z], [main])
 AC_CHECK_LIB([pcrecpp], [main])
 AC_CHECK_LIB([uuid], [main])
+AC_CHECK_LIB([bz2], [main])
 
 # Checks for header files
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h syslog.h unistd.h uuid.h])
