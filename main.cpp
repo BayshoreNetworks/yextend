@@ -113,35 +113,21 @@ bool does_this_file_exist(const char *fn)
 double get_yara_version()
 {
     FILE *fp;
-    int tok_cnt = 0;
     double yara_version = 0.0;
     char yver[10];
-    const char t[2] = " ";
-    char *token;
 
     fp = popen("yara -v", "r");
-    /*
-    if (fp == NULL) {
-        printf("Failed to run command\n" );
-        exit;
-    }
-	*/
     if (fp != NULL) {
+    	
 		fgets(yver, sizeof(yver)-1, fp);
 		if (yver != NULL) {
-			token = strtok(yver, t);
-			while( token != NULL )
-			{
-				if (tok_cnt == 1) {
-					yara_version = strtod(token, NULL);
-				}
-				token = strtok(NULL, t);
-				tok_cnt++;
-			}
+			
+			yara_version = strtod(yver, NULL);
+
 		}
     }
     pclose(fp);
-
+    
     return yara_version;
 }
 
@@ -185,6 +171,7 @@ int main(int argc, char* argv[])
 		std::cout << std::endl << std::endl;
 		exit(0);
 	}
+	
 	const char *yara_ruleset_file_name = argv[1];
 	const char *target_resource = argv[2];
 	char fs[300];
@@ -401,5 +388,6 @@ int main(int argc, char* argv[])
 	
 	if (rules != NULL)
 		yr_rules_destroy(rules);
+
 	return 0;
 }
