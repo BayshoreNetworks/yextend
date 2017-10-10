@@ -53,4 +53,7 @@ stamp-h1
 *.pyc
 
 yextend
+*BKUP
+Makefile_*
+cov-int/*
 
