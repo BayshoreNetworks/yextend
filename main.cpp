@@ -234,7 +234,7 @@ static const char *json_output_labels[] = {
 		"non_archive_file_name",
 		"parent_file_name",
 		"child_file_name",
-		"ruleset_file_name",
+		"yara_ruleset_file_name",
 		"yara_scan_results"
 };
 
@@ -343,7 +343,6 @@ int main(int argc, char* argv[])
 	}
 
 	json j;
-
 	if (is_directory(target_resource.c_str())) {
 
 		DIR *dpdf;
@@ -351,8 +350,10 @@ int main(int argc, char* argv[])
 
 		dpdf = opendir(target_resource.c_str());
 		if (dpdf != NULL) {
-			while (epdf = readdir(dpdf)){
+			
+			while (epdf = readdir(dpdf)) {
 
+				json jj;
 				uint8_t *c;
 				FILE *file = NULL;
 
@@ -378,14 +379,30 @@ int main(int argc, char* argv[])
 						// Read the file in to the buffer
 						fread(c, file_size, 1, file);
 
-						std::cout << std::endl << alpha << std::endl;
-						std::cout << output_labels[8] << yara_ruleset_file_name << std::endl;
-						std::cout << output_labels[0] << fs << std::endl;
-						std::cout << output_labels[1] << file_size << std::endl;
+						if (!out_json) {
+							
+							std::cout << std::endl << alpha << std::endl;
+							std::cout << output_labels[8] << yara_ruleset_file_name << std::endl;
+							std::cout << output_labels[0] << fs << std::endl;
+							std::cout << output_labels[1] << file_size << std::endl;
+						
+						} else {
+
+							jj[json_output_labels[8]] = yara_ruleset_file_name;
+							jj[json_output_labels[0]] = fs;
+							jj[json_output_labels[1]] = file_size;
+							
+						}
 
 						char *output = str_to_md5((const char *)c, file_size);
 						if (output) {
-							std::cout << output_labels[4] << output << std::endl;
+							
+							//std::cout << output_labels[4] << output << std::endl;
+							if (!out_json) {
+								std::cout << output_labels[4] << output << std::endl;
+							} else {
+								jj[json_output_labels[4]] = output;
+							}
 							free(output);
 						}
 
@@ -415,40 +432,159 @@ int main(int argc, char* argv[])
 
 						if (!ssr_list.empty()) {
 
-							std::cout << std::endl << midline << std::endl;
+							if (!out_json) {
+								std::cout << std::endl << midline << std::endl;
+							}
+							
+							size_t y_cnt = 1;
 							for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
 									v != ssr_list.end();
 									v++)
 							{
-								std::cout << std::endl;
-								std::cout << output_labels[2] << v->file_scan_result << std::endl;
-								std::cout << output_labels[3] << v->file_scan_type << std::endl;
-								if (v->parent_file_name.size()) {
-									if (v->child_file_name.size()) {
-										if(v->parent_file_name != v->child_file_name)
-											std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
-										else
-											std::cout << output_labels[0] << v->parent_file_name << std::endl;
-									} else { 
-										std::cout << output_labels[5] << v->parent_file_name << std::endl;
-									}
-								}
-								std::cout << output_labels[4] << v->file_signature_md5 << std::endl;
-								std::cout << std::endl;
-							}
-							std::cout << std::endl << omega << std::endl;
-						} else {
-							std::cout << std::endl << omega << std::endl;
-						}
+								
+								if (!out_json) {
 
+									std::cout << std::endl;
+									std::cout << output_labels[2] << v->file_scan_result << std::endl;
+									std::cout << output_labels[3] << v->file_scan_type << std::endl;
+									if (v->parent_file_name.size()) {
+										if (v->child_file_name.size()) {
+											if(v->parent_file_name != v->child_file_name)
+												std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
+											else
+												std::cout << output_labels[0] << v->parent_file_name << std::endl;
+										} else { 
+											std::cout << output_labels[5] << v->parent_file_name << std::endl;
+										}
+									}
+									std::cout << output_labels[4] << v->file_signature_md5 << std::endl;
+									std::cout << std::endl;
+								
+								} else {
+								
+									std::stringstream ss;
+									ss << json_output_labels[9] << "_" << y_cnt;
+									
+									//std::cout << fs << " --- " << v->file_scan_result << std::endl;
+
+									//jj[ss.str()][json_output_labels[2]] = v->file_scan_result;
+									/*
+									 * tokenize and slice/dice up the results
+									 * from Yara hit
+									 * 
+									 */
+									std::vector<std::string> tokens;
+									std::string sss = v->file_scan_result;
+									tokenize_string (sss, tokens, ", ");
+									for (auto& it : tokens) {
+
+										bool b = regex_search(it, mtch, yara_meta);							    
+										if (b) {
+
+											std::string yara_rule_hit_name = mtch[1];
+											//j[ss.str()][json_output_labels[2]][json_output_labels[10]] = yara_rule_hit_name;
+											std::string yara_rule_hit_meta = mtch[2];
+											jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
+
+											std::vector<std::string> tokens_2;
+											tokenize_string (yara_rule_hit_meta, tokens_2, ",");
+
+											json j_meta;
+											for (auto& it2 : tokens_2) {
+
+												//std::cout << it2 << std::endl;
+												std::vector<std::string> tokens_3;
+												tokenize_string (it2, tokens_3, "=");
+
+												//std::cout << tokens_3[0] << " --- " << tokens_3[1] << " --- " << fs << std::endl;
+
+												//std::string k = tokens_3[0];
+												//std::string v = tokens_3[1];
+												//j[ss.str()][json_output_labels[2]][yara_rule_hit_name][k] = v;
+												if (tokens_3[0] == "detected offsets") {
+													
+													json j_meta_do;
+													std::vector<std::string> tokens_4;
+													tokenize_string (tokens_3[1], tokens_4, "-");
+													
+													if (tokens_4.size() == 0) {
+														
+														j_meta_do.push_back(tokens_3[1]);
+														
+													} else {
+													
+														for (auto& it4 : tokens_4) {
+															j_meta_do.push_back(it4);
+														}
+													
+													}
+													
+													j_meta[tokens_3[0]] = j_meta_do;
+													
+												} else {
+													j_meta[tokens_3[0]] = tokens_3[1];
+												}
+
+											}
+
+											jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
+
+										}
+										/*
+										// for each loop
+										for (auto x : mtch) {
+											std::cout << "HERE: " << x << std::endl;
+										}
+										 */
+									}
+
+									jj[ss.str()][json_output_labels[3]] = v->file_scan_type;
+
+									if (v->parent_file_name.size()) {
+										if (v->child_file_name.size()) {
+											if ( v->parent_file_name != v->child_file_name) {
+												jj[ss.str()][json_output_labels[6]] = v->parent_file_name;
+												jj[ss.str()][json_output_labels[7]] = v->child_file_name;
+											} else  {
+												jj[ss.str()][json_output_labels[0]] = v->parent_file_name;
+											}
+										} else {
+											jj[ss.str()][json_output_labels[5]] = v->parent_file_name;
+										}
+									}
+
+									jj[ss.str()][json_output_labels[4]] = v->file_signature_md5;
+									
+								}
+								
+							}
+							
+							if (!out_json) {
+								std::cout << std::endl << omega << std::endl;
+							}
+							
+						} else {
+							
+							if (!out_json) {
+								std::cout << std::endl << omega << std::endl;
+							}
+							
+						}
 
 						delete[] c;
 						fclose(file);
 					}
+				
 				}
+
+				j.push_back(jj);
+
 			}
+
 			closedir(dpdf);
+
 		}
+		
 	} else if (does_this_file_exist(target_resource.c_str())) {
 
 		uint8_t *c;
@@ -458,6 +594,7 @@ int main(int argc, char* argv[])
 
 		if (fs[0] != '.') {
 
+			json jj;
 			if ((file = fopen(fs, "rb")) != NULL) {
 				// Get the size of the file in bytes
 				long file_size = get_file_size(file);
@@ -476,9 +613,9 @@ int main(int argc, char* argv[])
 
 				} else {
 
-					//j.push_back("file_name");
-					j[json_output_labels[0]] = fs;
-					j[json_output_labels[1]] = file_size;
+					jj[json_output_labels[8]] = yara_ruleset_file_name;
+					jj[json_output_labels[0]] = fs;
+					jj[json_output_labels[1]] = file_size;
 
 				}
 
@@ -488,7 +625,7 @@ int main(int argc, char* argv[])
 					if (!out_json) {
 						std::cout << output_labels[4] << output << std::endl;
 					} else {
-						j[json_output_labels[4]] = output;
+						jj[json_output_labels[4]] = output;
 					}
 					free(output);
 
@@ -552,7 +689,7 @@ int main(int argc, char* argv[])
 							std::stringstream ss;
 							ss << json_output_labels[9] << "_" << y_cnt;
 
-							//j[ss.str()][json_output_labels[2]] = v->file_scan_result;
+							//jj[ss.str()][json_output_labels[2]] = v->file_scan_result;
 							/*
 							 * tokenize and slice/dice up the results
 							 * from Yara hit
@@ -569,7 +706,7 @@ int main(int argc, char* argv[])
 									std::string yara_rule_hit_name = mtch[1];
 									//j[ss.str()][json_output_labels[2]][json_output_labels[10]] = yara_rule_hit_name;
 									std::string yara_rule_hit_meta = mtch[2];
-									j[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
+									jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
 
 									std::vector<std::string> tokens_2;
 									tokenize_string (yara_rule_hit_meta, tokens_2, ",");
@@ -612,7 +749,7 @@ int main(int argc, char* argv[])
 
 									}
 
-									j[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
+									jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
 
 								}
 								/*
@@ -623,22 +760,22 @@ int main(int argc, char* argv[])
 								 */
 							}
 
-							j[ss.str()][json_output_labels[3]] = v->file_scan_type;
+							jj[ss.str()][json_output_labels[3]] = v->file_scan_type;
 
 							if (v->parent_file_name.size()) {
 								if (v->child_file_name.size()) {
 									if ( v->parent_file_name != v->child_file_name) {
-										j[ss.str()][json_output_labels[6]] = v->parent_file_name;
-										j[ss.str()][json_output_labels[7]] = v->child_file_name;
+										jj[ss.str()][json_output_labels[6]] = v->parent_file_name;
+										jj[ss.str()][json_output_labels[7]] = v->child_file_name;
 									} else  {
-										j[ss.str()][json_output_labels[0]] = v->parent_file_name;
+										jj[ss.str()][json_output_labels[0]] = v->parent_file_name;
 									}
 								} else {
-									j[ss.str()][json_output_labels[5]] = v->parent_file_name;
+									jj[ss.str()][json_output_labels[5]] = v->parent_file_name;
 								}
 							}
 
-							j[ss.str()][json_output_labels[4]] = v->file_signature_md5;
+							jj[ss.str()][json_output_labels[4]] = v->file_signature_md5;
 
 						}
 
@@ -661,20 +798,26 @@ int main(int argc, char* argv[])
 				delete[] c;
 				fclose(file);
 			}
-
-			if (out_json) {
-				//std::cout << j.dump();
-				// pretty print
-				std::cout << j.dump(4);
-			}
+			
+			j.push_back(jj);
+			
 		}
 
 	} else {
 		std::cout << std::endl << "Could not read resource: \"" << target_resource << "\", exiting ..." << std::endl << std::endl;
 	}
+	
+	if (out_json) {
+		
+		//std::cout << j.dump();
+		// pretty print
+		std::cout << j.dump(4);
+	
+	}
 
-	if (rules != NULL)
+	if (rules != NULL) {
 		yr_rules_destroy(rules);
+	}
 
 	return 0;
 }
