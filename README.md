@@ -5,12 +5,21 @@ Yara integrated software to handle archive file data.
 
 yextend was written for the sake of augmenting yara. yara by itself is great but we realized that it could not natively handle archived content in the granular way that we needed it to. For instance, if we were hunting for malware and it happened to be buried a few levels into archived content, yara in its native form could not help us. So what we have done is natively handle the inflation of archived content. And we pass the inflated content of each discovered resource to yara so that it can work its magic natively on one file's payload. Then yara does what it does quite well in terms of pattern matching and such based on a given set of rules.
 
+
 Credits
-- Yara is authored by Victor M. Alvarez (https://github.com/VirusTotal/yara)
-- json.hpp is authored by Niels Lohmann (https://github.com/nlohmann/json) - Note that for Yextend to compile I had to make a change to the original json.hpp - function "get_string" was causing name conflicts with function "get_string" from Yara. So I renamed json.hpp's function to "j_get_string"
+- Yara is authored by Victor M. Alvarez (https://github.com/VirusTotal/yara) - License: https://raw.githubusercontent.com/VirusTotal/yara/master/COPYING
+- json.hpp is authored by Niels Lohmann (https://github.com/nlohmann/json) - License: https://raw.githubusercontent.com/nlohmann/json/develop/LICENSE.MIT
+** Note that for Yextend to compile I had to make a change to the original json.hpp - function "get_string" was causing name conflicts with function "get_string" from Yara. So I renamed json.hpp's function to "j_get_string"
 
 
 Notes:
+
+- (11/30/2017) yextend version 1.6
+
+	- added support for bzip2
+	- added numerous new file type detection patterns
+	- added macro file detection inside of .docm files
+	- added support for JSON output
 
 - (08/30/2016) yextend version 1.5
 
@@ -43,7 +52,7 @@ Notes:
 
 Requirements to build and run:
 
-- g++ (GNU c++ compiler)
+- g++ (GNU c++ compiler - c++11)
 - autoconf 2.69 or above
 - openssl devel lib (sudo dnf install openssl-devel or sudo apt-get install libssl-dev)
 - zlib devel lib (sudo dnf install zlib-devel or sudo apt-get install zlib1g-dev)
