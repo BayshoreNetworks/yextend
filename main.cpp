@@ -141,75 +141,22 @@ void tokenize_string (
 		std::vector<std::string> &tokens,
 		const std::string &delimiters) {
 
-
-	//std::string token, mystring(str);
 	std::string token;
 	auto start = 0;
 	auto end = str.find(delimiters);
 	while(end != std::string::npos){
 
-		//token = mystring.substr(0,mystring.find_first_of(delimiters));
 		token = str.substr(start, end - start);
-		//std::cout << "WTF: " << token << std::endl;
-		//mystring = mystring.substr(mystring.find_first_of(delimiters) + 1);
 		tokens.push_back(token);
 		start = end + delimiters.length();
 		end = str.find(delimiters, start);
 		if (end == std::string::npos) {
 
-			//std::cout << "PINGA" << std::endl;
 			token = str.substr(start, end);
 			tokens.push_back(token);
 		}
 	}
-
-	/*
-    // Skip delimiters at beginning.
-    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    // Find first "non-delimiter".
-    std::string::size_type pos = str.find_first_of(delimiters, lastPos);
-
-    while (std::string::npos != pos || std::string::npos != lastPos) {
-
-        // Found a token, add it to the vector.
-        tokens.push_back(str.substr(lastPos, pos - lastPos));
-        // Skip delimiters.  Note the "not_of"
-        lastPos = str.find_first_not_of(delimiters, pos);
-        // Find next "non-delimiter"
-        pos = str.find_first_of(delimiters, lastPos);
-
-    }
-	 */
-
-	/*
-	auto start = 0U;
-	auto end = str.find(delimiters);
-	while (end != std::string::npos)
-	{
-	    //std::cout << str.substr(start, end - start) << std::endl;
-		std::string s = str.substr(start, end - start);
-	    tokens.push_back(s);
-	    start = end + delimiters.length();
-	    std::cout << "START: " << start << std::endl;
-	    end = str.find(delimiters, start);
-	    std::cout << "END: " << end << std::endl;
-	}
-	 */
-
-	/*
-    size_t pos = 0;
-    std::string token;
-    while ((pos = str.find(delimiters)) != std::string::npos) {
-        token = str.substr(0, pos);
-        //std::cout << token << std::endl;
-        tokens.push_back(token);
-        str.erase(0, pos + delimiters.length());
-    }
-	 */
-
-
-
-
+	
 }
 ///////////////////////////////////////////////////////////////
 
@@ -285,27 +232,12 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-	/*
-	std::cout << std::endl;
-	std::cout << "R: " << yara_ruleset_file_name << std::endl;
-	std::cout << "T: " << target_resource << std::endl;
-	std::cout << "JSON: " << out_json << std::endl;
-	std::cout << std::endl;
-	 */
-
 	if (yara_ruleset_file_name.size() == 0 || target_resource.size() == 0) {
 
 		usage();
 		return 1;
 
 	}
-
-	/*
-	if (argc != 3) {
-		std::cout << std::endl << "usage: ./yextend RULES_FILE [FILE|DIR]" << std::endl << std::endl;
-		exit(0);
-	}
-	 */
 
 	// get yara runtime version
 	double yara_version = get_yara_version();
@@ -320,12 +252,7 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	/*
-	const char *yara_ruleset_file_name = argv[1];
-	const char *target_resource = argv[2];
-	 */
 	char fs[300];
-
 	/*
 	 * pre-process yara rules and then we can use the
 	 * pointer to "rules" as an optimized entity.
@@ -464,8 +391,6 @@ int main(int argc, char* argv[])
 								
 									std::stringstream ss;
 									ss << json_output_labels[9] << "_" << y_cnt;
-									
-									//std::cout << fs << " --- " << v->file_scan_result << std::endl;
 
 									//jj[ss.str()][json_output_labels[2]] = v->file_scan_result;
 									/*
