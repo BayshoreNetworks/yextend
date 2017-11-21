@@ -11,6 +11,7 @@ PKG_CHECK_MODULES([libuuid],[uuid])
 # Checks for programs
 AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
@@ -54,6 +55,8 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([getcwd memset strchr strdup strstr])
+
+AC_SUBST([AM_CXXFLAGS], [-std=c++11])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
