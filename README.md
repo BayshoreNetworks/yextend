@@ -6,7 +6,7 @@ Yara integrated software to handle archive file data.
 yextend was written for the sake of augmenting yara. yara by itself is great but we realized that it could not natively handle archived content in the granular way that we needed it to. For instance, if we were hunting for malware and it happened to be buried a few levels into archived content, yara in its native form could not help us. So what we have done is natively handle the inflation of archived content. And we pass the inflated content of each discovered resource to yara so that it can work its magic natively on one file's payload. Then yara does what it does quite well in terms of pattern matching and such based on a given set of rules.
 
 
-Credits
+Software Credits
 	
 	- Yara is authored by Victor M. Alvarez (https://github.com/VirusTotal/yara) - License: https://raw.githubusercontent.com/VirusTotal/yara/master/COPYING
 	- json.hpp is authored by Niels Lohmann (https://github.com/nlohmann/json) - License: https://raw.githubusercontent.com/nlohmann/json/develop/LICENSE.MIT  *** Note that for Yextend to compile I had to make a change to the original json.hpp - function "get_string" was causing name conflicts with function "get_string" from Yara. So I renamed json.hpp's function to "j_get_string"
@@ -91,32 +91,42 @@ Instructions:
 
 	A. use executable run_yextend - it wraps the native yextend executable. To run:
 
-	- the program 'run_yextend' takes in 2 arguments:
+	- the program 'run_yextend' takes in 2 mandatory arguments, 1 optional:
 
 		1. A yara ruleset file or directory of ruleset files
 		2. A file name or a directory of target files
+		3. '-j' for json output [optional]
 
 	usage:
         -r or --ruleset             rule_entity
         -t or --target              target_file_entity
+        -j
 
         examples:
-		./run_yextend -r rule_entity -t target_file_entity
+		 ./run_yextend -r rule_entity -t target_file_entity
         ./run_yextend --ruleset rule_entity -t target_file_entity
+        ./run_yextend -r rule_entity -t target_file_entity -j
         
 		***** make sure the executable bit is set on the file system for run_yextend *****
 
 	B. run yextend executable - prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
 
-	- the program 'yextend' takes in 2 arguments:
+	- the program 'yextend' takes in 2 mandatory arguments, 1 optional:
 
 		1. A yara ruleset file
 		2. A file name or a directory name where the target files exist
+		3. '-j' for json output [optional]
+		
+	usage:
+        -r rule_entity
+        -t target_file_entity
+        -j
 	
 	example:
 	
-		- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
-		- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/
+		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex
+		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/
+		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex -j
 		
 		***** 
 			if you don't want to set LD_LIBRARY_PATH on each prog run then you can set it in your .bashrc (or equivalent on your system) as such:
@@ -125,8 +135,8 @@ Instructions:
 			
 			then the program runs would be as such:
 	
-				- ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
-				- ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/			
+				- ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex
+				- ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/			
 		*****
 
 6 - Analyze output. The output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
