@@ -476,9 +476,74 @@ int main(int argc, char* argv[])
 									std::vector<std::string> tokens;
 									std::string sss = v->file_scan_result;
 									tokenize_string (sss, tokens, ", ");
-									for (auto& it : tokens) {
+									
+									if (tokens.size() > 0) {
+									
+										for (auto& it : tokens) {
+	
+											bool b = regex_search(it, mtch, yara_meta);							    
+											if (b) {
+	
+												std::string yara_rule_hit_name = mtch[1];
+												//j[ss.str()][json_output_labels[2]][json_output_labels[10]] = yara_rule_hit_name;
+												std::string yara_rule_hit_meta = mtch[2];
+												jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
+	
+												std::vector<std::string> tokens_2;
+												tokenize_string (yara_rule_hit_meta, tokens_2, ",");
+	
+												json j_meta;
+												for (auto& it2 : tokens_2) {
+	
+													//std::cout << it2 << std::endl;
+													std::vector<std::string> tokens_3;
+													tokenize_string (it2, tokens_3, "=");
+	
+													//std::cout << tokens_3[0] << " --- " << tokens_3[1] << " --- " << fs << std::endl;
+	
+													//std::string k = tokens_3[0];
+													//std::string v = tokens_3[1];
+													//j[ss.str()][json_output_labels[2]][yara_rule_hit_name][k] = v;
+													if (tokens_3[0] == "detected offsets") {
+														
+														json j_meta_do;
+														std::vector<std::string> tokens_4;
+														tokenize_string (tokens_3[1], tokens_4, "-");
+														
+														if (tokens_4.size() == 0) {
+															
+															j_meta_do.push_back(tokens_3[1]);
+															
+														} else {
+														
+															for (auto& it4 : tokens_4) {
+																j_meta_do.push_back(it4);
+															}
+														
+														}
+														
+														j_meta[tokens_3[0]] = j_meta_do;
+														
+													} else {
+														j_meta[tokens_3[0]] = tokens_3[1];
+													}
+	
+												}
+	
+												jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
+	
+											}
+											/*
+											// for each loop
+											for (auto x : mtch) {
+												std::cout << "HERE: " << x << std::endl;
+											}
+											 */
+										}
 
-										bool b = regex_search(it, mtch, yara_meta);							    
+									} else {
+										
+										bool b = regex_search(sss, mtch, yara_meta);
 										if (b) {
 
 											std::string yara_rule_hit_name = mtch[1];
@@ -496,7 +561,7 @@ int main(int argc, char* argv[])
 												std::vector<std::string> tokens_3;
 												tokenize_string (it2, tokens_3, "=");
 
-												//std::cout << tokens_3[0] << " --- " << tokens_3[1] << " --- " << fs << std::endl;
+												//std::cout << tokens_3[0] << " --- " << tokens_3[1] << std::endl;
 
 												//std::string k = tokens_3[0];
 												//std::string v = tokens_3[1];
@@ -530,12 +595,7 @@ int main(int argc, char* argv[])
 											jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
 
 										}
-										/*
-										// for each loop
-										for (auto x : mtch) {
-											std::cout << "HERE: " << x << std::endl;
-										}
-										 */
+	
 									}
 
 									jj[ss.str()][json_output_labels[3]] = v->file_scan_type;
@@ -665,6 +725,8 @@ int main(int argc, char* argv[])
 							v != ssr_list.end();
 							v++)
 					{
+						
+						//std::cout << "HERE: " << v->file_scan_result << std::endl;
 
 						if (!out_json) {
 
@@ -698,9 +760,75 @@ int main(int argc, char* argv[])
 							std::vector<std::string> tokens;
 							std::string sss = v->file_scan_result;
 							tokenize_string (sss, tokens, ", ");
-							for (auto& it : tokens) {
+							
+							if (tokens.size() > 0) {
+							
+								for (auto& it : tokens) {
+	
+									bool b = regex_search(it, mtch, yara_meta);							    
+									if (b) {
+	
+										std::string yara_rule_hit_name = mtch[1];
+										//j[ss.str()][json_output_labels[2]][json_output_labels[10]] = yara_rule_hit_name;
+										std::string yara_rule_hit_meta = mtch[2];
+										jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
+	
+										std::vector<std::string> tokens_2;
+										tokenize_string (yara_rule_hit_meta, tokens_2, ",");
+	
+										json j_meta;
+										for (auto& it2 : tokens_2) {
+	
+											//std::cout << it2 << std::endl;
+											std::vector<std::string> tokens_3;
+											tokenize_string (it2, tokens_3, "=");
+	
+											//std::cout << tokens_3[0] << " --- " << tokens_3[1] << std::endl;
+	
+											//std::string k = tokens_3[0];
+											//std::string v = tokens_3[1];
+											//j[ss.str()][json_output_labels[2]][yara_rule_hit_name][k] = v;
+											if (tokens_3[0] == "detected offsets") {
+												
+												json j_meta_do;
+												std::vector<std::string> tokens_4;
+												tokenize_string (tokens_3[1], tokens_4, "-");
+												
+												if (tokens_4.size() == 0) {
+													
+													j_meta_do.push_back(tokens_3[1]);
+													
+												} else {
+												
+													for (auto& it4 : tokens_4) {
+														j_meta_do.push_back(it4);
+													}
+												
+												}
+												
+												j_meta[tokens_3[0]] = j_meta_do;
+												
+											} else {
+												j_meta[tokens_3[0]] = tokens_3[1];
+											}
+	
+										}
+	
+										jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
+	
+									}
+									/*
+									// for each loop
+									for (auto x : mtch) {
+										std::cout << "HERE: " << x << std::endl;
+									}
+									 */
+								}
 
-								bool b = regex_search(it, mtch, yara_meta);							    
+							} else {
+								
+								// maldoc_suspicious_strings:[description=suspicious marco action,detected offsets=0x12231:CreateFile,hit_count=1]
+								bool b = regex_search(sss, mtch, yara_meta);
 								if (b) {
 
 									std::string yara_rule_hit_name = mtch[1];
@@ -752,12 +880,7 @@ int main(int argc, char* argv[])
 									jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
 
 								}
-								/*
-								// for each loop
-								for (auto x : mtch) {
-									std::cout << "HERE: " << x << std::endl;
-								}
-								 */
+								
 							}
 
 							jj[ss.str()][json_output_labels[3]] = v->file_scan_type;
