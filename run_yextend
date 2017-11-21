@@ -3,7 +3,7 @@
 """
     run statement:
     
-    ./run_yextend -r rule_entity -t target_file_entity
+    ./run_yextend -r rule_entity -t target_file_entity [-j]
     
     I label them as 'entity' because they can each be
     either a directory or a file
@@ -18,7 +18,15 @@ from types import *
 
 ########################################################
 def usage():
-    print "\nUsage:\n\n./run_yextend -r rule_entity -t target_file_entity\n\n"
+    print "\n{}\n".format("Usage:")
+    
+    print "{} {} {} {}\n".format("./run_yextend", "-r rule_entity", "-t target_file_entity", "[-j]")
+    
+    print "    {}".format("-r RULES_FILE = Yara ruleset file [*required]")
+    print "    {}".format("-t TARGET_ENTITY = file or directory [*required]")
+    print "    {}".format("-j output in JSON format and nothing more [optional]")
+	
+    print "".format("\n\n")
     
 
 def get_file_list(thedir='', thepattern='*'):
@@ -155,10 +163,10 @@ RULES_ENTITY_DIR = False
 YEXTEND = which(program="yextend")
 LD_LIBRARY_PATH = 'LD_LIBRARY_PATH'
 USRLOCLIB = '/usr/local/lib'
-
+JSON_OUT = False
 
 try:
-    options, rem = getopt.getopt(sys.argv[1:], 'r:t:', ['ruleset=','target='])
+    options, rem = getopt.getopt(sys.argv[1:], 'r:t:j', ['ruleset=','target='])
 except getopt.GetoptError as err:
     print str(err)
     usage()
@@ -166,9 +174,11 @@ except getopt.GetoptError as err:
 
 for opt, arg in options:
     if opt in ('-r', '--ruleset'):
-        RULES_ENTITY = arg
+        RULES_ENTITY = "{}".format(arg)
     elif opt in ('-t', '--target'):
-        FILE_ENTITY = arg
+        FILE_ENTITY = "{}".format(arg)
+    elif opt in ('-j'):
+        JSON_OUT = True
     else:
         assert False, "unhandled option"
 
@@ -179,30 +189,45 @@ if not RULES_ENTITY or not FILE_ENTITY:
     usage()
     sys.exit()
 
+if JSON_OUT:
+    JSON_OUT = "-j"
+else:
+    JSON_OUT = ""
 
 ''' ruleset = file '''
 if not RULES_ENTITY_DIR:
-    proc = subprocess.Popen([YEXTEND, RULES_ENTITY, FILE_ENTITY],
+    proc = subprocess.Popen([YEXTEND, "-r", RULES_ENTITY, "-t", FILE_ENTITY, JSON_OUT],
                             env={LD_LIBRARY_PATH:USRLOCLIB},
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
                             )
     out, err = proc.communicate()
     if out:
-        print_yextend_output(out=out)
+        if JSON_OUT:
+            print out
+        else:
+            print_yextend_output(out=out)
+    '''
     if err:
         print "ERR: %s" % err
+    '''
     
 ''' ruleset = dir '''
 if RULES_ENTITY_DIR:
     for lpol in get_file_list(thedir=RULES_ENTITY):
-        proc = subprocess.Popen([YEXTEND, lpol, FILE_ENTITY],
+        proc = subprocess.Popen([YEXTEND, "-r", lpol, "-t", FILE_ENTITY, JSON_OUT],
                                 env={LD_LIBRARY_PATH:USRLOCLIB},
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 )
         out, err = proc.communicate()
         if out:
-            print_yextend_output(out=out)
+            if JSON_OUT:
+                print out
+            else:
+                print_yextend_output(out=out)
+        '''
         if err:
             print "ERR: %s" % err
+        '''
+ 
