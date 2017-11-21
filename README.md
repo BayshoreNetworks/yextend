@@ -7,9 +7,8 @@ yextend was written for the sake of augmenting yara. yara by itself is great but
 
 
 Credits
-- Yara is authored by Victor M. Alvarez (https://github.com/VirusTotal/yara) - License: https://raw.githubusercontent.com/VirusTotal/yara/master/COPYING
-- json.hpp is authored by Niels Lohmann (https://github.com/nlohmann/json) - License: https://raw.githubusercontent.com/nlohmann/json/develop/LICENSE.MIT
-** Note that for Yextend to compile I had to make a change to the original json.hpp - function "get_string" was causing name conflicts with function "get_string" from Yara. So I renamed json.hpp's function to "j_get_string"
+	- Yara is authored by Victor M. Alvarez (https://github.com/VirusTotal/yara) - License: https://raw.githubusercontent.com/VirusTotal/yara/master/COPYING
+	- json.hpp is authored by Niels Lohmann (https://github.com/nlohmann/json) - License: https://raw.githubusercontent.com/nlohmann/json/develop/LICENSE.MIT  *** Note that for Yextend to compile I had to make a change to the original json.hpp - function "get_string" was causing name conflicts with function "get_string" from Yara. So I renamed json.hpp's function to "j_get_string"
 
 
 Notes:
