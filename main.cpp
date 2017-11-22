@@ -502,50 +502,83 @@ int main(int argc, char* argv[])
 								
 								} else {
 									
+									std::string file_scan_result = v->file_scan_result;
+									if (file_scan_result.size() > 1) {
+										jj[json_output_labels[10]] = true;
+									}
 									
 									std::vector<std::string> tokens;
-									std::string sss = v->file_scan_result;
-									tokenize_string (sss, tokens, ", ");
+									tokenize_string (file_scan_result, tokens, ", ");
 									
-									if (tokens.size() > 0) {
-										
-										for (auto& it : tokens) {
+									// we have hits
+									if (file_scan_result.size()) {
+									
+										if (tokens.size() > 0) {
 											
-											//std::cout << "SENDING: " << it << std::endl;
+											for (auto& it : tokens) {
+												
+												//std::cout << "SENDING: " << it << std::endl;
+												
+												std::string pshs_resp = process_scan_hit_str(it,
+														v->file_scan_type, 
+														v->file_signature_md5,
+														v->parent_file_name,
+														v->child_file_name);
+												//std::cout << "PSHS RESP A: " << pshs_resp << std::endl;
+												
+												if (pshs_resp.size()) {
+													
+													auto jresp = json::parse(pshs_resp);
+													jresp[json_output_labels[10]] = true;
+													j_children.push_back(jresp);
+													
+												}
+												
+											}
 											
-											std::string pshs_resp = process_scan_hit_str(it,
+										} else {
+											
+											//std::cout << "SENDING: " << sss << std::endl;
+											
+											std::string pshs_resp = process_scan_hit_str(file_scan_result,
 													v->file_scan_type, 
 													v->file_signature_md5,
 													v->parent_file_name,
 													v->child_file_name);
-											//std::cout << "PSHS RESP A: " << pshs_resp << std::endl;
+											//std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
 											
 											if (pshs_resp.size()) {
 												
 												auto jresp = json::parse(pshs_resp);
+												jresp[json_output_labels[10]] = true;
 												j_children.push_back(jresp);
 												
 											}
 											
 										}
+									
+									} else { // no hits just display meta data
 										
-									} else {
+										json j_no_hit;
+										j_no_hit[json_output_labels[10]] = false;
 										
-										//std::cout << "SENDING: " << sss << std::endl;
+										j_no_hit[json_output_labels[3]] = v->file_scan_type;
+										j_no_hit[json_output_labels[4]] = v->file_signature_md5;
 										
-										std::string pshs_resp = process_scan_hit_str(sss,
-												v->file_scan_type, 
-												v->file_signature_md5,
-												v->parent_file_name,
-												v->child_file_name);
-										//std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
-										
-										if (pshs_resp.size()) {
-											
-											auto jresp = json::parse(pshs_resp);
-											j_children.push_back(jresp);
-											
+										if (v->parent_file_name.size()) {
+											if (v->child_file_name.size()) {
+												if (v->parent_file_name != v->child_file_name) {
+													j_no_hit[json_output_labels[6]] = v->parent_file_name;
+													j_no_hit[json_output_labels[7]] = v->child_file_name;
+												} else  {
+													j_no_hit[json_output_labels[0]] = v->parent_file_name;
+												}
+											} else {
+												j_no_hit[json_output_labels[5]] = v->parent_file_name;
+											}
 										}
+										
+										j_children.push_back(j_no_hit);
 										
 									}
 									
@@ -669,7 +702,6 @@ int main(int argc, char* argv[])
 							v++)
 					{
 						
-
 						//std::cout << "HERE: " << v->file_scan_result << std::endl;
 
 						if (!out_json) {
@@ -697,49 +729,80 @@ int main(int argc, char* argv[])
 								jj[json_output_labels[10]] = true;
 							}
 							
-							std::vector<std::string> tokens;
-							std::string sss = v->file_scan_result;
-							tokenize_string (sss, tokens, ", ");
+							std::cout << file_scan_result.size() << std::endl;
 							
-							if (tokens.size() > 0) {
+							// we have hits
+							if (file_scan_result.size()) {
 								
-								for (auto& it : tokens) {
+								std::vector<std::string> tokens;
+								tokenize_string (file_scan_result, tokens, ", ");
+								
+								if (tokens.size() > 0) {
 									
-									//std::cout << "SENDING: " << it << std::endl;
+									for (auto& it : tokens) {
+										
+										//std::cout << "SENDING A: " << it << std::endl;
+										
+										std::string pshs_resp = process_scan_hit_str(it,
+												v->file_scan_type, 
+												v->file_signature_md5,
+												v->parent_file_name,
+												v->child_file_name);
+										//std::cout << "PSHS RESP A: " << pshs_resp << std::endl;
+										
+										if (pshs_resp.size()) {
+											
+											auto jresp = json::parse(pshs_resp);
+											jresp[json_output_labels[10]] = true;
+											j_children.push_back(jresp);
+											
+										}
+										
+									}
 									
-									std::string pshs_resp = process_scan_hit_str(it,
+								} else {
+									
+									std::cout << "SENDING B: " << file_scan_result << std::endl;
+									
+									std::string pshs_resp = process_scan_hit_str(file_scan_result,
 											v->file_scan_type, 
 											v->file_signature_md5,
 											v->parent_file_name,
 											v->child_file_name);
-									//std::cout << "PSHS RESP A: " << pshs_resp << std::endl;
+									std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
 									
 									if (pshs_resp.size()) {
 										
 										auto jresp = json::parse(pshs_resp);
+										jresp[json_output_labels[10]] = true;
 										j_children.push_back(jresp);
 										
 									}
 									
 								}
+							
+							} else { // no hits just display meta data
 								
-							} else {
+								json j_no_hit;
+								j_no_hit[json_output_labels[10]] = false;
 								
-								//std::cout << "SENDING: " << sss << std::endl;
+								j_no_hit[json_output_labels[3]] = v->file_scan_type;
+								j_no_hit[json_output_labels[4]] = v->file_signature_md5;
 								
-								std::string pshs_resp = process_scan_hit_str(sss,
-										v->file_scan_type, 
-										v->file_signature_md5,
-										v->parent_file_name,
-										v->child_file_name);
-								//std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
-								
-								if (pshs_resp.size()) {
-									
-									auto jresp = json::parse(pshs_resp);
-									j_children.push_back(jresp);
-									
+								if (v->parent_file_name.size()) {
+									if (v->child_file_name.size()) {
+										if (v->parent_file_name != v->child_file_name) {
+											j_no_hit[json_output_labels[6]] = v->parent_file_name;
+											j_no_hit[json_output_labels[7]] = v->child_file_name;
+										} else  {
+											j_no_hit[json_output_labels[0]] = v->parent_file_name;
+										}
+									} else {
+										j_no_hit[json_output_labels[5]] = v->parent_file_name;
+									}
 								}
+								
+								j_children.push_back(j_no_hit);
 								
 							}
 
