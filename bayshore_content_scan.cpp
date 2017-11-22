@@ -190,8 +190,8 @@ std::string strip_office_open_xml(std::string content, std::string file_type)
 	pcrecpp::RE("<(.*?)>").GlobalReplace("", &cnt);
 
 	// strip line ending
-	string::size_type pos = 0;
-	while ( ( pos = cnt.find ("\r\n",pos) ) != string::npos )
+	std::string::size_type pos = 0;
+	while ( ( pos = cnt.find ("\r\n",pos) ) != std::string::npos )
 	{
 		cnt.erase ( pos, 2 );
 	}
