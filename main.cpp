@@ -116,10 +116,23 @@ bool does_this_file_exist(const char *fn) {
 }
 
 double get_yara_version() {
+	
+	/*
+	 * older versions of yara seem to output version like this:
+	 * 
+	 * yara 3.4.0
+	 * 
+	 * while the later ones just do:
+	 * 
+	 * 3.6.0
+	 * 
+	 */
 
 	FILE *fp;
 	double yara_version = 0.0;
 	char yver[10];
+	std::string y = "yara";
+	std::string yver_str;
 
 	fp = popen("yara -v", "r");
 	if (fp != NULL) {
@@ -127,7 +140,14 @@ double get_yara_version() {
 		fgets(yver, sizeof(yver)-1, fp);
 		if (yver != NULL) {
 
-			yara_version = strtod(yver, NULL);
+			yver_str = yver;
+			std::size_t found = yver_str.find(y);
+			if (found != std::string::npos) {
+				yver_str = yver_str.substr(found + 5);
+			}
+			
+			//yara_version = strtod(yver, NULL);
+			yara_version = strtod(yver_str.c_str(), NULL);
 
 		}
 	}
