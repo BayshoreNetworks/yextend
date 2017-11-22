@@ -61,6 +61,7 @@ Requirements to build and run:
 - pcrecpp (sudo dnf install pcre-devel or sudo apt-get install libpcre3-dev)
 - uuid (sudo dnf install uuid-devel or sudo apt-get install uuid-dev)
 - pdf2text (sudo dnf install poppler-utils or sudo apt-get install poppler-utils)
+- nose (sudo dnf install python2-nose or sudo apt-get install python-nose)
 - yara v3.X be fully installed
 - if you are running yara pre-version 3.1.X then yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
 	A. cd into the dir where you extracted yara (for this example I will use "/tmp/yara")

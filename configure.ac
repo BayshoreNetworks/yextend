@@ -7,7 +7,6 @@ AC_CONFIG_SRCDIR([main.cpp])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_HEADERS([config.h])
 
-PKG_CHECK_MODULES([libuuid],[uuid])
 # Checks for programs
 AC_PROG_CXX
 AC_PROG_CC
