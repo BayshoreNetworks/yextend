@@ -63,6 +63,52 @@ std::regex yara_meta("(.*):\\[(.*)\\]+");
 std::smatch mtch;
 
 ///////////////////////////////////////////////////////////////
+
+static const char *output_labels[] = {
+		"File Name: ",
+		"File Size: ",
+		"Yara Result(s): ",
+		"Scan Type: ",
+		"File Signature (MD5): ",
+		"Non-Archive File Name: ",
+		"Parent File Name: ",
+		"Child File Name: ",
+		"Ruleset File Name: "
+};
+
+static const char *json_output_labels[] = {
+		"file_name",
+		"file_size",
+		"yara_results",
+		"scan_type",
+		"file_signature_MD5",
+		"non_archive_file_name",
+		"parent_file_name",
+		"child_file_name",
+		"yara_ruleset_file_name",
+		"scan_meta_data",
+		"yara_matches_found",
+		"children",
+		"yara_rule_id"
+};
+
+static const char *alpha = "===============================ALPHA===================================";
+static const char *midline = "=======================================================================";
+static const char *omega = "===============================OMEGA===================================";
+
+void usage() {
+
+	std::cout << std::endl << std::endl << "usage:  ./yextend -r RULES_FILE -t TARGET_ENTITY [-j]" << std::endl;
+	std::cout << std::endl;
+	std::cout << "    -r RULES_FILE = Yara ruleset file [*required]" << std::endl;
+	std::cout << "    -t TARGET_ENTITY = file or directory [*required]" << std::endl;
+	std::cout << "    -j output in JSON format and nothing more [optional]" << std::endl;
+
+	std::cout << std::endl << std::endl;
+
+}
+///////////////////////////////////////////////////////////////
+
 // Get the size of a file
 long get_file_size(FILE *file) {
 
@@ -127,7 +173,6 @@ double get_yara_version() {
 	 * 3.6.0
 	 * 
 	 */
-
 	FILE *fp;
 	double yara_version = 0.0;
 	char yver[10];
@@ -178,49 +223,94 @@ void tokenize_string (
 	}
 	
 }
-///////////////////////////////////////////////////////////////
 
-static const char *output_labels[] = {
-		"File Name: ",
-		"File Size: ",
-		"Yara Result(s): ",
-		"Scan Type: ",
-		"File Signature (MD5): ",
-		"Non-Archive File Name: ",
-		"Parent File Name: ",
-		"Child File Name: ",
-		"Ruleset File Name: "
-};
+std::string process_scan_hit_str(const std::string &hit_str,
+		const std::string &file_scan_type, 
+		const std::string &file_signature_md5,
+		const std::string &parent_file_name,
+		const std::string &child_file_name
+		) {
+	
+	//std::cout << "PSHR: " << hit_str << std::endl;
+	
+	std::string resp = "";
+	
+	bool b = regex_search(hit_str, mtch, yara_meta);							    
+	if (b) {
 
-static const char *json_output_labels[] = {
-		"file_name",
-		"file_size",
-		"yara_results",
-		"scan_type",
-		"file_signature_MD5",
-		"non_archive_file_name",
-		"parent_file_name",
-		"child_file_name",
-		"yara_ruleset_file_name",
-		"yara_scan_results"
-};
+		std::string yara_rule_hit_name = mtch[1];
+		std::string yara_rule_hit_meta = mtch[2];
 
-static const char *alpha = "===============================ALPHA===================================";
-static const char *midline = "=======================================================================";
-static const char *omega = "===============================OMEGA===================================";
+		std::vector<std::string> tokens_2;
+		tokenize_string (yara_rule_hit_meta, tokens_2, ",");
 
-void usage() {
+		json j_meta;
+		for (auto& it2 : tokens_2) {
 
-	std::cout << std::endl << std::endl << "usage:  ./yextend -r RULES_FILE -t TARGET_ENTITY [-j]" << std::endl;
-	std::cout << std::endl;
-	std::cout << "    -r RULES_FILE = Yara ruleset file [*required]" << std::endl;
-	std::cout << "    -t TARGET_ENTITY = file or directory [*required]" << std::endl;
-	std::cout << "    -j output in JSON format and nothing more [optional]" << std::endl;
+			//std::cout << it2 << std::endl;
+			std::vector<std::string> tokens_3;
+			tokenize_string (it2, tokens_3, "=");
 
-	std::cout << std::endl << std::endl;
+			//std::cout << tokens_3[0] << " --- " << tokens_3[1] << " --- " << fs << std::endl;
 
+			//std::string k = tokens_3[0];
+			//std::string v = tokens_3[1];
+			if (tokens_3[0] == "detected offsets") {
+				
+				json j_meta_do;
+				std::vector<std::string> tokens_4;
+				tokenize_string (tokens_3[1], tokens_4, "-");
+				
+				if (tokens_4.size() == 0) {
+					
+					j_meta_do.push_back(tokens_3[1]);
+					
+				} else {
+				
+					for (auto& it4 : tokens_4) {
+						j_meta_do.push_back(it4);
+					}
+				
+				}
+				
+				j_meta[tokens_3[0]] = j_meta_do;
+				
+			} else {
+				j_meta[tokens_3[0]] = tokens_3[1];
+			}
+
+		}
+		
+		j_meta[json_output_labels[3]] = file_scan_type;
+		j_meta[json_output_labels[4]] = file_signature_md5;
+		j_meta[json_output_labels[12]] = yara_rule_hit_name;
+		
+		if (parent_file_name.size()) {
+			if (child_file_name.size()) {
+				if (parent_file_name != child_file_name) {
+					j_meta[json_output_labels[6]] = parent_file_name;
+					j_meta[json_output_labels[7]] = child_file_name;
+				} else  {
+					j_meta[json_output_labels[0]] = parent_file_name;
+				}
+			} else {
+				j_meta[json_output_labels[5]] = parent_file_name;
+			}
+		}
+
+		if (!j_meta.is_null()) {
+			//j_children.push_back(j_meta);
+			resp = j_meta.dump();
+		}
+
+	}
+	
+	return resp;
+	
 }
+
 ///////////////////////////////////////////////////////////////
+
 
 
 /****
@@ -289,9 +379,12 @@ int main(int argc, char* argv[])
 		std::cout << std::endl << "Problem compiling Yara Ruleset file: \"" << yara_ruleset_file_name << "\", continuing with regular ruleset file ..." << std::endl << std::endl;
 	}
 
-	json j;
+	json j_main;
+	
 	if (is_directory(target_resource.c_str())) {
 
+		json j_children;
+		
 		DIR *dpdf;
 		struct dirent *epdf;
 
@@ -408,157 +501,53 @@ int main(int argc, char* argv[])
 									std::cout << std::endl;
 								
 								} else {
-								
-									std::stringstream ss;
-									ss << json_output_labels[9] << "_" << y_cnt;
-
-									//jj[ss.str()][json_output_labels[2]] = v->file_scan_result;
-									/*
-									 * tokenize and slice/dice up the results
-									 * from Yara hit
-									 * 
-									 */
+									
+									
 									std::vector<std::string> tokens;
 									std::string sss = v->file_scan_result;
 									tokenize_string (sss, tokens, ", ");
 									
 									if (tokens.size() > 0) {
-									
+										
 										for (auto& it : tokens) {
-	
-											bool b = regex_search(it, mtch, yara_meta);							    
-											if (b) {
-	
-												std::string yara_rule_hit_name = mtch[1];
-												//j[ss.str()][json_output_labels[2]][json_output_labels[10]] = yara_rule_hit_name;
-												std::string yara_rule_hit_meta = mtch[2];
-												jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
-	
-												std::vector<std::string> tokens_2;
-												tokenize_string (yara_rule_hit_meta, tokens_2, ",");
-	
-												json j_meta;
-												for (auto& it2 : tokens_2) {
-	
-													//std::cout << it2 << std::endl;
-													std::vector<std::string> tokens_3;
-													tokenize_string (it2, tokens_3, "=");
-	
-													//std::cout << tokens_3[0] << " --- " << tokens_3[1] << " --- " << fs << std::endl;
-	
-													//std::string k = tokens_3[0];
-													//std::string v = tokens_3[1];
-													//j[ss.str()][json_output_labels[2]][yara_rule_hit_name][k] = v;
-													if (tokens_3[0] == "detected offsets") {
-														
-														json j_meta_do;
-														std::vector<std::string> tokens_4;
-														tokenize_string (tokens_3[1], tokens_4, "-");
-														
-														if (tokens_4.size() == 0) {
-															
-															j_meta_do.push_back(tokens_3[1]);
-															
-														} else {
-														
-															for (auto& it4 : tokens_4) {
-																j_meta_do.push_back(it4);
-															}
-														
-														}
-														
-														j_meta[tokens_3[0]] = j_meta_do;
-														
-													} else {
-														j_meta[tokens_3[0]] = tokens_3[1];
-													}
-	
-												}
-	
-												jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
-	
+											
+											//std::cout << "SENDING: " << it << std::endl;
+											
+											std::string pshs_resp = process_scan_hit_str(it,
+													v->file_scan_type, 
+													v->file_signature_md5,
+													v->parent_file_name,
+													v->child_file_name);
+											//std::cout << "PSHS RESP A: " << pshs_resp << std::endl;
+											
+											if (pshs_resp.size()) {
+												
+												auto jresp = json::parse(pshs_resp);
+												j_children.push_back(jresp);
+												
 											}
-											/*
-											// for each loop
-											for (auto x : mtch) {
-												std::cout << "HERE: " << x << std::endl;
-											}
-											 */
+											
 										}
-
+										
 									} else {
 										
-										bool b = regex_search(sss, mtch, yara_meta);
-										if (b) {
-
-											std::string yara_rule_hit_name = mtch[1];
-											//j[ss.str()][json_output_labels[2]][json_output_labels[10]] = yara_rule_hit_name;
-											std::string yara_rule_hit_meta = mtch[2];
-											jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
-
-											std::vector<std::string> tokens_2;
-											tokenize_string (yara_rule_hit_meta, tokens_2, ",");
-
-											json j_meta;
-											for (auto& it2 : tokens_2) {
-
-												//std::cout << it2 << std::endl;
-												std::vector<std::string> tokens_3;
-												tokenize_string (it2, tokens_3, "=");
-
-												//std::cout << tokens_3[0] << " --- " << tokens_3[1] << std::endl;
-
-												//std::string k = tokens_3[0];
-												//std::string v = tokens_3[1];
-												//j[ss.str()][json_output_labels[2]][yara_rule_hit_name][k] = v;
-												if (tokens_3[0] == "detected offsets") {
-													
-													json j_meta_do;
-													std::vector<std::string> tokens_4;
-													tokenize_string (tokens_3[1], tokens_4, "-");
-													
-													if (tokens_4.size() == 0) {
-														
-														j_meta_do.push_back(tokens_3[1]);
-														
-													} else {
-													
-														for (auto& it4 : tokens_4) {
-															j_meta_do.push_back(it4);
-														}
-													
-													}
-													
-													j_meta[tokens_3[0]] = j_meta_do;
-													
-												} else {
-													j_meta[tokens_3[0]] = tokens_3[1];
-												}
-
-											}
-
-											jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
-
+										//std::cout << "SENDING: " << sss << std::endl;
+										
+										std::string pshs_resp = process_scan_hit_str(sss,
+												v->file_scan_type, 
+												v->file_signature_md5,
+												v->parent_file_name,
+												v->child_file_name);
+										//std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
+										
+										if (pshs_resp.size()) {
+											
+											auto jresp = json::parse(pshs_resp);
+											j_children.push_back(jresp);
+											
 										}
-	
+										
 									}
-
-									jj[ss.str()][json_output_labels[3]] = v->file_scan_type;
-
-									if (v->parent_file_name.size()) {
-										if (v->child_file_name.size()) {
-											if ( v->parent_file_name != v->child_file_name) {
-												jj[ss.str()][json_output_labels[6]] = v->parent_file_name;
-												jj[ss.str()][json_output_labels[7]] = v->child_file_name;
-											} else  {
-												jj[ss.str()][json_output_labels[0]] = v->parent_file_name;
-											}
-										} else {
-											jj[ss.str()][json_output_labels[5]] = v->parent_file_name;
-										}
-									}
-
-									jj[ss.str()][json_output_labels[4]] = v->file_signature_md5;
 									
 								}
 								
@@ -579,10 +568,15 @@ int main(int argc, char* argv[])
 						delete[] c;
 						fclose(file);
 					}
+					
+					//j_main.push_back(j_children);
+					if (!j_children.is_null()) {
+						j_main.push_back(j_children);
+					}
 				
 				}
 
-				j.push_back(jj);
+				j_main.push_back(jj);
 
 			}
 
@@ -596,10 +590,13 @@ int main(int argc, char* argv[])
 		FILE *file = NULL;
 		strncpy (fs, target_resource.c_str(), strlen(target_resource.c_str()));
 		fs[strlen(target_resource.c_str())] = '\0';
+		
+		json j_children;
 
 		if (fs[0] != '.') {
 
 			json jj;
+			
 			if ((file = fopen(fs, "rb")) != NULL) {
 				// Get the size of the file in bytes
 				long file_size = get_file_size(file);
@@ -666,11 +663,13 @@ int main(int argc, char* argv[])
 					}
 
 					size_t y_cnt = 1;
+					
 					for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
 							v != ssr_list.end();
 							v++)
 					{
 						
+
 						//std::cout << "HERE: " << v->file_scan_result << std::endl;
 
 						if (!out_json) {
@@ -693,157 +692,56 @@ int main(int argc, char* argv[])
 
 						} else {
 
-							std::stringstream ss;
-							ss << json_output_labels[9] << "_" << y_cnt;
-
-							//jj[ss.str()][json_output_labels[2]] = v->file_scan_result;
-							/*
-							 * tokenize and slice/dice up the results
-							 * from Yara hit
-							 * 
-							 */
+							std::string file_scan_result = v->file_scan_result;
+							if (file_scan_result.size() > 1) {
+								jj[json_output_labels[10]] = true;
+							}
+							
 							std::vector<std::string> tokens;
 							std::string sss = v->file_scan_result;
 							tokenize_string (sss, tokens, ", ");
 							
 							if (tokens.size() > 0) {
-							
+								
 								for (auto& it : tokens) {
-	
-									bool b = regex_search(it, mtch, yara_meta);							    
-									if (b) {
-	
-										std::string yara_rule_hit_name = mtch[1];
-										//j[ss.str()][json_output_labels[2]][json_output_labels[10]] = yara_rule_hit_name;
-										std::string yara_rule_hit_meta = mtch[2];
-										jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
-	
-										std::vector<std::string> tokens_2;
-										tokenize_string (yara_rule_hit_meta, tokens_2, ",");
-	
-										json j_meta;
-										for (auto& it2 : tokens_2) {
-	
-											//std::cout << it2 << std::endl;
-											std::vector<std::string> tokens_3;
-											tokenize_string (it2, tokens_3, "=");
-	
-											//std::cout << tokens_3[0] << " --- " << tokens_3[1] << std::endl;
-	
-											//std::string k = tokens_3[0];
-											//std::string v = tokens_3[1];
-											//j[ss.str()][json_output_labels[2]][yara_rule_hit_name][k] = v;
-											if (tokens_3[0] == "detected offsets") {
-												
-												json j_meta_do;
-												std::vector<std::string> tokens_4;
-												tokenize_string (tokens_3[1], tokens_4, "-");
-												
-												if (tokens_4.size() == 0) {
-													
-													j_meta_do.push_back(tokens_3[1]);
-													
-												} else {
-												
-													for (auto& it4 : tokens_4) {
-														j_meta_do.push_back(it4);
-													}
-												
-												}
-												
-												j_meta[tokens_3[0]] = j_meta_do;
-												
-											} else {
-												j_meta[tokens_3[0]] = tokens_3[1];
-											}
-	
-										}
-	
-										jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
-	
+									
+									//std::cout << "SENDING: " << it << std::endl;
+									
+									std::string pshs_resp = process_scan_hit_str(it,
+											v->file_scan_type, 
+											v->file_signature_md5,
+											v->parent_file_name,
+											v->child_file_name);
+									//std::cout << "PSHS RESP A: " << pshs_resp << std::endl;
+									
+									if (pshs_resp.size()) {
+										
+										auto jresp = json::parse(pshs_resp);
+										j_children.push_back(jresp);
+										
 									}
-									/*
-									// for each loop
-									for (auto x : mtch) {
-										std::cout << "HERE: " << x << std::endl;
-									}
-									 */
+									
 								}
-
+								
 							} else {
 								
-								// maldoc_suspicious_strings:[description=suspicious marco action,detected offsets=0x12231:CreateFile,hit_count=1]
-								bool b = regex_search(sss, mtch, yara_meta);
-								if (b) {
-
-									std::string yara_rule_hit_name = mtch[1];
-									//j[ss.str()][json_output_labels[2]][json_output_labels[10]] = yara_rule_hit_name;
-									std::string yara_rule_hit_meta = mtch[2];
-									jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = mtch[2];
-
-									std::vector<std::string> tokens_2;
-									tokenize_string (yara_rule_hit_meta, tokens_2, ",");
-
-									json j_meta;
-									for (auto& it2 : tokens_2) {
-
-										//std::cout << it2 << std::endl;
-										std::vector<std::string> tokens_3;
-										tokenize_string (it2, tokens_3, "=");
-
-										//std::cout << tokens_3[0] << " --- " << tokens_3[1] << std::endl;
-
-										//std::string k = tokens_3[0];
-										//std::string v = tokens_3[1];
-										//j[ss.str()][json_output_labels[2]][yara_rule_hit_name][k] = v;
-										if (tokens_3[0] == "detected offsets") {
-											
-											json j_meta_do;
-											std::vector<std::string> tokens_4;
-											tokenize_string (tokens_3[1], tokens_4, "-");
-											
-											if (tokens_4.size() == 0) {
-												
-												j_meta_do.push_back(tokens_3[1]);
-												
-											} else {
-											
-												for (auto& it4 : tokens_4) {
-													j_meta_do.push_back(it4);
-												}
-											
-											}
-											
-											j_meta[tokens_3[0]] = j_meta_do;
-											
-										} else {
-											j_meta[tokens_3[0]] = tokens_3[1];
-										}
-
-									}
-
-									jj[ss.str()][json_output_labels[2]][yara_rule_hit_name] = j_meta;
-
+								//std::cout << "SENDING: " << sss << std::endl;
+								
+								std::string pshs_resp = process_scan_hit_str(sss,
+										v->file_scan_type, 
+										v->file_signature_md5,
+										v->parent_file_name,
+										v->child_file_name);
+								//std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
+								
+								if (pshs_resp.size()) {
+									
+									auto jresp = json::parse(pshs_resp);
+									j_children.push_back(jresp);
+									
 								}
 								
 							}
-
-							jj[ss.str()][json_output_labels[3]] = v->file_scan_type;
-
-							if (v->parent_file_name.size()) {
-								if (v->child_file_name.size()) {
-									if ( v->parent_file_name != v->child_file_name) {
-										jj[ss.str()][json_output_labels[6]] = v->parent_file_name;
-										jj[ss.str()][json_output_labels[7]] = v->child_file_name;
-									} else  {
-										jj[ss.str()][json_output_labels[0]] = v->parent_file_name;
-									}
-								} else {
-									jj[ss.str()][json_output_labels[5]] = v->parent_file_name;
-								}
-							}
-
-							jj[ss.str()][json_output_labels[4]] = v->file_signature_md5;
 
 						}
 
@@ -867,7 +765,10 @@ int main(int argc, char* argv[])
 				fclose(file);
 			}
 			
-			j.push_back(jj);
+			j_main.push_back(jj);
+			if (!j_children.is_null()) {
+				j_main.push_back(j_children);
+			}
 			
 		}
 
@@ -879,7 +780,7 @@ int main(int argc, char* argv[])
 		
 		//std::cout << j.dump();
 		// pretty print
-		std::cout << j.dump(4);
+		std::cout << j_main.dump(4);
 	
 	}
 
@@ -889,3 +790,4 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+
