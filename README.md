@@ -59,7 +59,7 @@ Requirements to build and run:
 - bzlib devel lib (sudo dnf install bzip2-devel or sudo apt-get install libbz2-dev)
 - libarchive (v4) be installed (sudo dnf install libarchive-devel or sudo apt-get install libarchive-dev)
 - pcrecpp (sudo dnf install pcre-devel or sudo apt-get install libpcre3-dev)
-- uuid (sudo dnf install uuid-devel or sudo apt-get install uuid-dev)
+- uuid (sudo dnf install uuid-devel / libuuid-devel or sudo apt-get install uuid-dev)
 - pdf2text (sudo dnf install poppler-utils or sudo apt-get install poppler-utils)
 - nose (sudo dnf install python2-nose or sudo apt-get install python-nose)
 - yara v3.X be fully installed
