@@ -729,7 +729,7 @@ int main(int argc, char* argv[])
 								jj[json_output_labels[10]] = true;
 							}
 							
-							std::cout << file_scan_result.size() << std::endl;
+							//std::cout << file_scan_result.size() << std::endl;
 							
 							// we have hits
 							if (file_scan_result.size()) {
@@ -762,14 +762,14 @@ int main(int argc, char* argv[])
 									
 								} else {
 									
-									std::cout << "SENDING B: " << file_scan_result << std::endl;
+									//std::cout << "SENDING B: " << file_scan_result << std::endl;
 									
 									std::string pshs_resp = process_scan_hit_str(file_scan_result,
 											v->file_scan_type, 
 											v->file_signature_md5,
 											v->parent_file_name,
 											v->child_file_name);
-									std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
+									//std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
 									
 									if (pshs_resp.size()) {
 										
