@@ -384,8 +384,6 @@ int main(int argc, char* argv[])
 	
 	if (is_directory(target_resource.c_str())) {
 
-		
-		
 		DIR *dpdf;
 		struct dirent *epdf;
 
@@ -394,7 +392,6 @@ int main(int argc, char* argv[])
 			
 			while (epdf = readdir(dpdf)) {
 
-				json jj;
 				json j_level1;
 				
 				uint8_t *c;
@@ -433,20 +430,19 @@ int main(int argc, char* argv[])
 						
 						} else {
 
-							jj[json_output_labels[8]] = yara_ruleset_file_name;
-							jj[json_output_labels[0]] = fs;
-							jj[json_output_labels[1]] = file_size;
+							j_level1[json_output_labels[8]] = yara_ruleset_file_name;
+							j_level1[json_output_labels[0]] = fs;
+							j_level1[json_output_labels[1]] = file_size;							
 							
 						}
 
 						char *output = str_to_md5((const char *)c, file_size);
 						if (output) {
-							
-							//std::cout << output_labels[4] << output << std::endl;
+
 							if (!out_json) {
 								std::cout << output_labels[4] << output << std::endl;
 							} else {
-								jj[json_output_labels[4]] = output;
+								j_level1[json_output_labels[4]] = output;
 							}
 							free(output);
 						}
@@ -508,7 +504,9 @@ int main(int argc, char* argv[])
 									
 									std::string file_scan_result = v->file_scan_result;
 									if (file_scan_result.size() > 1) {
-										jj[json_output_labels[10]] = true;
+
+										j_level1[json_output_labels[10]] = true;
+										
 									}
 									
 									std::vector<std::string> tokens;
@@ -608,11 +606,8 @@ int main(int argc, char* argv[])
 					
 					//j_main.push_back(j_children);
 					if (!j_children.is_null()) {
-						j_level1.push_back(j_children);
-					}
-					
-					if (!jj.is_null()) {
-						j_level1.push_back(jj);
+						//j_level1.push_back(j_children);
+						j_level1[json_output_labels[13]] = j_children;
 					}
 				
 				} else {
@@ -620,8 +615,7 @@ int main(int argc, char* argv[])
 					continue;
 					
 				}
-				
-				//j_main.push_back(jj);
+
 				j_main.push_back(j_level1);
 
 			}
@@ -636,17 +630,14 @@ int main(int argc, char* argv[])
 		FILE *file = NULL;
 		strncpy (fs, target_resource.c_str(), strlen(target_resource.c_str()));
 		fs[strlen(target_resource.c_str())] = '\0';
-		
-		//json j_children;
+
 		
 		if (fs[0] != '.') {
 
-			json jj;
+			json j_level1;
 			json j_children;
 			
 			if ((file = fopen(fs, "rb")) != NULL) {
-				
-				
 				
 				// Get the size of the file in bytes
 				long file_size = get_file_size(file);
@@ -665,9 +656,9 @@ int main(int argc, char* argv[])
 
 				} else {
 
-					jj[json_output_labels[8]] = yara_ruleset_file_name;
-					jj[json_output_labels[0]] = fs;
-					jj[json_output_labels[1]] = file_size;
+					j_level1[json_output_labels[8]] = yara_ruleset_file_name;
+					j_level1[json_output_labels[0]] = fs;
+					j_level1[json_output_labels[1]] = file_size;
 
 				}
 
@@ -677,7 +668,7 @@ int main(int argc, char* argv[])
 					if (!out_json) {
 						std::cout << output_labels[4] << output << std::endl;
 					} else {
-						jj[json_output_labels[4]] = output;
+						j_level1[json_output_labels[4]] = output;
 					}
 					free(output);
 
@@ -743,7 +734,7 @@ int main(int argc, char* argv[])
 
 							std::string file_scan_result = v->file_scan_result;
 							if (file_scan_result.size() > 1) {
-								jj[json_output_labels[10]] = true;
+								j_level1[json_output_labels[10]] = true;
 							}
 							
 							//std::cout << file_scan_result.size() << std::endl;
@@ -850,10 +841,10 @@ int main(int argc, char* argv[])
 				fclose(file);
 			}
 
-			jj[json_output_labels[13]] = j_children;
+			j_level1[json_output_labels[13]] = j_children;
 			
-			if (!jj.is_null()) {
-				j_main.push_back(jj);
+			if (!j_level1.is_null()) {
+				j_main.push_back(j_level1);
 			}
 			
 		}
