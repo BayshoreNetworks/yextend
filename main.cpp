@@ -383,7 +383,7 @@ int main(int argc, char* argv[])
 	
 	if (is_directory(target_resource.c_str())) {
 
-		json j_children;
+		
 		
 		DIR *dpdf;
 		struct dirent *epdf;
@@ -394,6 +394,8 @@ int main(int argc, char* argv[])
 			while (epdf = readdir(dpdf)) {
 
 				json jj;
+				json j_level1;
+				
 				uint8_t *c;
 				FILE *file = NULL;
 
@@ -401,6 +403,8 @@ int main(int argc, char* argv[])
 				fs[strlen(target_resource.c_str())] = '\0';
 
 				if (epdf->d_name[0] != '.') {
+					
+					json j_children;
 
 					strncat (fs, epdf->d_name, strlen(epdf->d_name));
 					fs[strlen(fs)] = '\0';
@@ -604,12 +608,15 @@ int main(int argc, char* argv[])
 					
 					//j_main.push_back(j_children);
 					if (!j_children.is_null()) {
-						j_main.push_back(j_children);
+						j_level1.push_back(j_children);
 					}
 				
 				}
 
-				j_main.push_back(jj);
+				j_level1.push_back(jj);
+				//j_main.push_back(jj);
+				
+				j_main.push_back(j_level1);
 
 			}
 
@@ -629,6 +636,7 @@ int main(int argc, char* argv[])
 		if (fs[0] != '.') {
 
 			json jj;
+			json j_level1;
 			
 			if ((file = fopen(fs, "rb")) != NULL) {
 				// Get the size of the file in bytes
@@ -802,7 +810,8 @@ int main(int argc, char* argv[])
 									}
 								}
 								
-								j_children.push_back(j_no_hit);
+								//j_children.push_back(j_no_hit);
+								j_main.push_back(j_no_hit);
 								
 							}
 
@@ -828,10 +837,14 @@ int main(int argc, char* argv[])
 				fclose(file);
 			}
 			
-			j_main.push_back(jj);
+			j_level1.push_back(jj);
+			//j_main.push_back(jj);
 			if (!j_children.is_null()) {
-				j_main.push_back(j_children);
+				//j_main.push_back(j_children);
+				j_level1.push_back(j_children);
 			}
+			
+			j_main.push_back(j_level1);
 			
 		}
 
