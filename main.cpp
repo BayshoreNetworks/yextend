@@ -401,7 +401,7 @@ int main(int argc, char* argv[])
 
 				strncpy (fs, target_resource.c_str(), strlen(target_resource.c_str()));
 				fs[strlen(target_resource.c_str())] = '\0';
-
+				
 				if (epdf->d_name[0] != '.') {
 					
 					json j_children;
@@ -610,12 +610,18 @@ int main(int argc, char* argv[])
 					if (!j_children.is_null()) {
 						j_level1.push_back(j_children);
 					}
+					
+					if (!jj.is_null()) {
+						j_level1.push_back(jj);
+					}
 				
+				} else {
+					
+					continue;
+					
 				}
-
-				j_level1.push_back(jj);
-				//j_main.push_back(jj);
 				
+				//j_main.push_back(jj);
 				j_main.push_back(j_level1);
 
 			}
@@ -632,7 +638,7 @@ int main(int argc, char* argv[])
 		fs[strlen(target_resource.c_str())] = '\0';
 		
 		json j_children;
-
+		
 		if (fs[0] != '.') {
 
 			json jj;
