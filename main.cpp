@@ -89,7 +89,8 @@ static const char *json_output_labels[] = {
 		"scan_meta_data",
 		"yara_matches_found",
 		"children",
-		"yara_rule_id"
+		"yara_rule_id",
+		"scan_results"
 };
 
 static const char *alpha = "===============================ALPHA===================================";
@@ -480,7 +481,6 @@ int main(int argc, char* argv[])
 								std::cout << std::endl << midline << std::endl;
 							}
 							
-							size_t y_cnt = 1;
 							for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
 									v != ssr_list.end();
 									v++)
@@ -637,14 +637,17 @@ int main(int argc, char* argv[])
 		strncpy (fs, target_resource.c_str(), strlen(target_resource.c_str()));
 		fs[strlen(target_resource.c_str())] = '\0';
 		
-		json j_children;
+		//json j_children;
 		
 		if (fs[0] != '.') {
 
 			json jj;
-			json j_level1;
+			json j_children;
 			
 			if ((file = fopen(fs, "rb")) != NULL) {
+				
+				
+				
 				// Get the size of the file in bytes
 				long file_size = get_file_size(file);
 
@@ -709,7 +712,7 @@ int main(int argc, char* argv[])
 						std::cout << std::endl << midline << std::endl;
 					}
 
-					size_t y_cnt = 1;
+					//json some;
 					
 					for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
 							v != ssr_list.end();
@@ -768,6 +771,7 @@ int main(int argc, char* argv[])
 											
 											auto jresp = json::parse(pshs_resp);
 											jresp[json_output_labels[10]] = true;
+											//j_children.push_back(jresp);
 											j_children.push_back(jresp);
 											
 										}
@@ -789,6 +793,7 @@ int main(int argc, char* argv[])
 										
 										auto jresp = json::parse(pshs_resp);
 										jresp[json_output_labels[10]] = true;
+										//j_children.push_back(jresp);
 										j_children.push_back(jresp);
 										
 									}
@@ -816,14 +821,16 @@ int main(int argc, char* argv[])
 									}
 								}
 								
-								//j_children.push_back(j_no_hit);
-								j_main.push_back(j_no_hit);
+								//j_main.push_back(j_no_hit);
+								
+								//some["some"] = j_no_hit;
+								
+								//some["some"].push_back(j_no_hit);
+								j_children.push_back(j_no_hit);
 								
 							}
 
 						}
-
-						y_cnt++;
 
 					}
 
@@ -842,15 +849,12 @@ int main(int argc, char* argv[])
 				delete[] c;
 				fclose(file);
 			}
+
+			jj[json_output_labels[13]] = j_children;
 			
-			j_level1.push_back(jj);
-			//j_main.push_back(jj);
-			if (!j_children.is_null()) {
-				//j_main.push_back(j_children);
-				j_level1.push_back(j_children);
+			if (!jj.is_null()) {
+				j_main.push_back(jj);
 			}
-			
-			j_main.push_back(j_level1);
 			
 		}
 
