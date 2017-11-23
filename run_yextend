@@ -219,7 +219,6 @@ if not RULES_ENTITY_DIR:
 ''' ruleset = dir '''
 if RULES_ENTITY_DIR:
     for lpol in get_file_list(thedir=RULES_ENTITY):
-        print lpol
         proc = subprocess.Popen([YEXTEND, "-r", lpol, "-t", FILE_ENTITY, JSON_OUT],
                                 env={LD_LIBRARY_PATH:USRLOCLIB},
                                 stdout=subprocess.PIPE,
