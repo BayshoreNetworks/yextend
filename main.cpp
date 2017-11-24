@@ -232,8 +232,6 @@ std::string process_scan_hit_str(const std::string &hit_str,
 		const std::string &child_file_name
 		) {
 	
-	//std::cout << "PSHR: " << hit_str << std::endl;
-	
 	std::string resp = "";
 	
 	bool b = regex_search(hit_str, mtch, yara_meta);							    
@@ -300,7 +298,6 @@ std::string process_scan_hit_str(const std::string &hit_str,
 		}
 
 		if (!j_meta.is_null()) {
-			//j_children.push_back(j_meta);
 			resp = j_meta.dump();
 		}
 
@@ -519,14 +516,11 @@ int main(int argc, char* argv[])
 											
 											for (auto& it : tokens) {
 												
-												//std::cout << "SENDING: " << it << std::endl;
-												
 												std::string pshs_resp = process_scan_hit_str(it,
 														v->file_scan_type, 
 														v->file_signature_md5,
 														v->parent_file_name,
 														v->child_file_name);
-												//std::cout << "PSHS RESP A: " << pshs_resp << std::endl;
 												
 												if (pshs_resp.size()) {
 													
@@ -540,14 +534,11 @@ int main(int argc, char* argv[])
 											
 										} else {
 											
-											//std::cout << "SENDING: " << sss << std::endl;
-											
 											std::string pshs_resp = process_scan_hit_str(file_scan_result,
 													v->file_scan_type, 
 													v->file_signature_md5,
 													v->parent_file_name,
 													v->child_file_name);
-											//std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
 											
 											if (pshs_resp.size()) {
 												
@@ -604,9 +595,7 @@ int main(int argc, char* argv[])
 						fclose(file);
 					}
 					
-					//j_main.push_back(j_children);
 					if (!j_children.is_null()) {
-						//j_level1.push_back(j_children);
 						j_level1[json_output_labels[13]] = j_children;
 					}
 				
@@ -702,15 +691,10 @@ int main(int argc, char* argv[])
 					if (!out_json) {
 						std::cout << std::endl << midline << std::endl;
 					}
-
-					//json some;
 					
 					for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
 							v != ssr_list.end();
-							v++)
-					{
-						
-						//std::cout << "HERE: " << v->file_scan_result << std::endl;
+							v++) {
 
 						if (!out_json) {
 
@@ -737,8 +721,6 @@ int main(int argc, char* argv[])
 								j_level1[json_output_labels[10]] = true;
 							}
 							
-							//std::cout << file_scan_result.size() << std::endl;
-							
 							// we have hits
 							if (file_scan_result.size()) {
 								
@@ -749,20 +731,16 @@ int main(int argc, char* argv[])
 									
 									for (auto& it : tokens) {
 										
-										//std::cout << "SENDING A: " << it << std::endl;
-										
 										std::string pshs_resp = process_scan_hit_str(it,
 												v->file_scan_type, 
 												v->file_signature_md5,
 												v->parent_file_name,
 												v->child_file_name);
-										//std::cout << "PSHS RESP A: " << pshs_resp << std::endl;
 										
 										if (pshs_resp.size()) {
 											
 											auto jresp = json::parse(pshs_resp);
 											jresp[json_output_labels[10]] = true;
-											//j_children.push_back(jresp);
 											j_children.push_back(jresp);
 											
 										}
@@ -771,20 +749,16 @@ int main(int argc, char* argv[])
 									
 								} else {
 									
-									//std::cout << "SENDING B: " << file_scan_result << std::endl;
-									
 									std::string pshs_resp = process_scan_hit_str(file_scan_result,
 											v->file_scan_type, 
 											v->file_signature_md5,
 											v->parent_file_name,
 											v->child_file_name);
-									//std::cout << "PSHS RESP B: " << pshs_resp << std::endl;
 									
 									if (pshs_resp.size()) {
 										
 										auto jresp = json::parse(pshs_resp);
 										jresp[json_output_labels[10]] = true;
-										//j_children.push_back(jresp);
 										j_children.push_back(jresp);
 										
 									}
@@ -812,11 +786,6 @@ int main(int argc, char* argv[])
 									}
 								}
 								
-								//j_main.push_back(j_no_hit);
-								
-								//some["some"] = j_no_hit;
-								
-								//some["some"].push_back(j_no_hit);
 								j_children.push_back(j_no_hit);
 								
 							}
