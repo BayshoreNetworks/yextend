@@ -7,6 +7,12 @@ language: cpp
 compiler:
   - gcc
 
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "VHfYzTAUo4xAn6pef5G+ml142xGKNUkXYn+LLaaWaZnkfJueCfJEmPHIdSKm8Eh645ytr2TJ3TXRdUvioeaK1jfjUZKqFsICFJxxoWO6VuKv7DEr8OsIioHKNU9fv2IkXHC+vI6J9NjJrI1UH0XmmqkulzUvePFPIvBRm3AAg/zrnG/vyrROu+ZUxJpEV7bPbJZnUFHNeqwV9WQwWKZ5cB0KNgStLbYmfUWf27FOKB2nqq/m6FHvPYO49eDE4QRV9SgiFZasJnltHnNyxlok5Nrf2A0Uhvpw5Ad8I77eP8tf2Ur385+NUm8PpQiwHwWCRfa7wDowDp9EPMjjelNfbuvEKDqT145v41+hPULOo9oK2UPQxiShAHUKdZ4IUWlo89MB8xpM8T+cjpcal8ALCXpC8f/4+8PwuYJ4JTsNzY/ZZhr2WJA1tVWU5k7868nvjLcMOR7YisK6Duz2SzsAvbPWz46krZQOGDYmGKBLBHSW2UlFDuwjzOpx+bMcYC6pv1Xz43fFKzwLI9qVUC27WslabXCI0fGU1jTy185ccF78MCNe+mCYoeCW+nWtLgjIsPXXcCMzZWiiuXw8uwgXFo0Ul0axO5WcfLFojepYsPfa/A9OXv9Pq7UrKiTvIjW6td1zPY30wpdAO4bn64K2eZzDPrMa+xYvMNWPqopzt3I="
+
 matrix:
   include:
     # works on Precise and Trusty
@@ -30,6 +36,7 @@ before_install:
   - sudo apt-get install uuid-dev
   - sudo apt-get install poppler-utils
   - sudo apt-get install python-nose
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 install:
   - wget https://github.com/VirusTotal/yara/archive/v3.7.0.tar.gz
@@ -40,6 +47,16 @@ install:
   - make
   - sudo make install
   - cd ../
+
+addons:
+  coverity_scan:
+    project:
+      name: "BayshoreNetworks/yextend"
+      description: "Build submitted via Travis CI"
+    notification_email: andres@neurofuzzsecurity.com
+    build_command_prepend: "./configure; make clean"
+    build_command:   "make"
+    branch_pattern: coverity_scan
 
 # Build steps
 script:
