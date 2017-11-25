@@ -1,13 +1,4 @@
 sudo: required
-before_install:
-  - sudo apt-get install libssl-dev
-  - sudo apt-get install zlib1g-dev
-  - sudo apt-get install libbz2-dev
-  - sudo apt-get install libarchive-dev
-  - sudo apt-get install libpcre3-dev
-  - sudo apt-get install uuid-dev
-  - sudo apt-get install poppler-utils
-  - sudo apt-get install python-nose
   
 # Enable C++ support
 language: cpp
@@ -30,7 +21,15 @@ matrix:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
 before_install:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
+  - sudo apt-get install libssl-dev
+  - sudo apt-get install zlib1g-dev
+  - sudo apt-get install libbz2-dev
+  - sudo apt-get install libarchive-dev
+  - sudo apt-get install libpcre3-dev
+  - sudo apt-get install uuid-dev
+  - sudo apt-get install poppler-utils
+  - sudo apt-get install python-nose
 
 install:
   - wget https://github.com/VirusTotal/yara/archive/v3.7.0.tar.gz
