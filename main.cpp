@@ -528,6 +528,26 @@ int main(int argc, char* argv[])
 													jresp[json_output_labels[10]] = true;
 													j_children.push_back(jresp);
 													
+												} else {
+													
+													/*
+													 * here we have rule hits with not much
+													 * in the way of meta-data, an example
+													 * of a rule like this:
+													 * 
+													 *     rule is_entropy
+													 *     {
+													 *         condition:
+													 *             math.entropy(0,filesize)>5
+													 *     }
+													 * 
+													 * 
+													 */
+													json jnohit;
+													jnohit[json_output_labels[10]] = true;
+													jnohit[json_output_labels[12]] = it;
+													j_children.push_back(jnohit);
+													
 												}
 												
 											}
@@ -545,6 +565,13 @@ int main(int argc, char* argv[])
 												auto jresp = json::parse(pshs_resp);
 												jresp[json_output_labels[10]] = true;
 												j_children.push_back(jresp);
+												
+											} else {
+												
+												json jnohit;
+												jnohit[json_output_labels[10]] = true;
+												jnohit[json_output_labels[12]] = file_scan_result;
+												j_children.push_back(jnohit);
 												
 											}
 											
@@ -717,6 +744,7 @@ int main(int argc, char* argv[])
 						} else {
 
 							std::string file_scan_result = v->file_scan_result;
+							
 							if (file_scan_result.size() > 1) {
 								j_level1[json_output_labels[10]] = true;
 							}
@@ -743,6 +771,13 @@ int main(int argc, char* argv[])
 											jresp[json_output_labels[10]] = true;
 											j_children.push_back(jresp);
 											
+										} else {
+
+											json jnohit;
+											jnohit[json_output_labels[10]] = true;
+											jnohit[json_output_labels[12]] = it;
+											j_children.push_back(jnohit);
+											
 										}
 										
 									}
@@ -760,6 +795,13 @@ int main(int argc, char* argv[])
 										auto jresp = json::parse(pshs_resp);
 										jresp[json_output_labels[10]] = true;
 										j_children.push_back(jresp);
+										
+									} else {
+										
+										json jnohit;
+										jnohit[json_output_labels[10]] = true;
+										jnohit[json_output_labels[12]] = file_scan_result;
+										j_children.push_back(jnohit);
 										
 									}
 									
