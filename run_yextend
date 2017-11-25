@@ -243,6 +243,7 @@ def print_yextend_json_output(out=''):
 
                 print '{}\n'.format(my_print(thestr='===============================OMEGA===================================', thecolor='white'))
         except:
+            #When file cant be read
             t_o = out.split(': ')
             print '{}: {}'.format(my_print(thestr=t_o[0], thecolor='white'), my_print(thestr=t_o[1].strip("null"), thecolor='green'))
 ########################################################
