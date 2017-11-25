@@ -527,6 +527,7 @@ int main(int argc, char* argv[])
 													
 													auto jresp = json::parse(pshs_resp);
 													jresp[json_output_labels[10]] = true;
+													jresp[json_output_labels[1]] = v->file_size;
 													j_children.push_back(jresp);
 													
 												} else {
@@ -547,6 +548,23 @@ int main(int argc, char* argv[])
 													json jnohit;
 													jnohit[json_output_labels[10]] = true;
 													jnohit[json_output_labels[12]] = it;
+													jnohit[json_output_labels[3]] = v->file_scan_type;
+													jnohit[json_output_labels[4]] = v->file_signature_md5;
+													
+													if (v->parent_file_name.size()) {
+														if (v->child_file_name.size()) {
+															if (v->parent_file_name != v->child_file_name) {
+																jnohit[json_output_labels[6]] = v->parent_file_name;
+																jnohit[json_output_labels[7]] = v->child_file_name;
+															} else  {
+																jnohit[json_output_labels[0]] = v->parent_file_name;
+															}
+														} else {
+															jnohit[json_output_labels[5]] = v->parent_file_name;
+														}
+													}
+													
+													jnohit[json_output_labels[1]] = v->file_size;
 													j_children.push_back(jnohit);
 													
 												}
@@ -565,6 +583,7 @@ int main(int argc, char* argv[])
 												
 												auto jresp = json::parse(pshs_resp);
 												jresp[json_output_labels[10]] = true;
+												jresp[json_output_labels[1]] = v->file_size;
 												j_children.push_back(jresp);
 												
 											} else {
@@ -572,6 +591,23 @@ int main(int argc, char* argv[])
 												json jnohit;
 												jnohit[json_output_labels[10]] = true;
 												jnohit[json_output_labels[12]] = file_scan_result;
+												jnohit[json_output_labels[3]] = v->file_scan_type;
+												jnohit[json_output_labels[4]] = v->file_signature_md5;
+												
+												if (v->parent_file_name.size()) {
+													if (v->child_file_name.size()) {
+														if (v->parent_file_name != v->child_file_name) {
+															jnohit[json_output_labels[6]] = v->parent_file_name;
+															jnohit[json_output_labels[7]] = v->child_file_name;
+														} else  {
+															jnohit[json_output_labels[0]] = v->parent_file_name;
+														}
+													} else {
+														jnohit[json_output_labels[5]] = v->parent_file_name;
+													}
+												}
+												
+												jnohit[json_output_labels[1]] = v->file_size;
 												j_children.push_back(jnohit);
 												
 											}
@@ -599,6 +635,7 @@ int main(int argc, char* argv[])
 											}
 										}
 										
+										j_no_hit[json_output_labels[1]] = v->file_size;
 										j_children.push_back(j_no_hit);
 										
 									}
@@ -770,6 +807,7 @@ int main(int argc, char* argv[])
 											
 											auto jresp = json::parse(pshs_resp);
 											jresp[json_output_labels[10]] = true;
+											jresp[json_output_labels[1]] = v->file_size;
 											j_children.push_back(jresp);
 											
 										} else {
@@ -777,6 +815,23 @@ int main(int argc, char* argv[])
 											json jnohit;
 											jnohit[json_output_labels[10]] = true;
 											jnohit[json_output_labels[12]] = it;
+											jnohit[json_output_labels[3]] = v->file_scan_type;
+											jnohit[json_output_labels[4]] = v->file_signature_md5;
+											
+											if (v->parent_file_name.size()) {
+												if (v->child_file_name.size()) {
+													if (v->parent_file_name != v->child_file_name) {
+														jnohit[json_output_labels[6]] = v->parent_file_name;
+														jnohit[json_output_labels[7]] = v->child_file_name;
+													} else  {
+														jnohit[json_output_labels[0]] = v->parent_file_name;
+													}
+												} else {
+													jnohit[json_output_labels[5]] = v->parent_file_name;
+												}
+											}
+											
+											jnohit[json_output_labels[1]] = v->file_size;
 											j_children.push_back(jnohit);
 											
 										}
@@ -795,6 +850,7 @@ int main(int argc, char* argv[])
 										
 										auto jresp = json::parse(pshs_resp);
 										jresp[json_output_labels[10]] = true;
+										jresp[json_output_labels[1]] = v->file_size;
 										j_children.push_back(jresp);
 										
 									} else {
@@ -802,6 +858,23 @@ int main(int argc, char* argv[])
 										json jnohit;
 										jnohit[json_output_labels[10]] = true;
 										jnohit[json_output_labels[12]] = file_scan_result;
+										jnohit[json_output_labels[3]] = v->file_scan_type;
+										jnohit[json_output_labels[4]] = v->file_signature_md5;
+										
+										if (v->parent_file_name.size()) {
+											if (v->child_file_name.size()) {
+												if (v->parent_file_name != v->child_file_name) {
+													jnohit[json_output_labels[6]] = v->parent_file_name;
+													jnohit[json_output_labels[7]] = v->child_file_name;
+												} else  {
+													jnohit[json_output_labels[0]] = v->parent_file_name;
+												}
+											} else {
+												jnohit[json_output_labels[5]] = v->parent_file_name;
+											}
+										}
+										
+										jnohit[json_output_labels[1]] = v->file_size;
 										j_children.push_back(jnohit);
 										
 									}
@@ -812,7 +885,6 @@ int main(int argc, char* argv[])
 								
 								json j_no_hit;
 								j_no_hit[json_output_labels[10]] = false;
-								
 								j_no_hit[json_output_labels[3]] = v->file_scan_type;
 								j_no_hit[json_output_labels[4]] = v->file_signature_md5;
 								
@@ -829,6 +901,7 @@ int main(int argc, char* argv[])
 									}
 								}
 								
+								j_no_hit[json_output_labels[1]] = v->file_size;
 								j_children.push_back(j_no_hit);
 								
 							}

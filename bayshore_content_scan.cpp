@@ -640,6 +640,7 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 		ssr.file_scan_type = ssp_local->scan_type;
 		std::string sres(local_api_yara_results, local_api_yara_results_len);
 		ssr.file_scan_result = sres;
+		ssr.file_size = ssp_local->buffer_length;
 				
 		if (ssp_local->parent_file_name) {
 			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
@@ -673,6 +674,7 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 		ssr.file_scan_type = ssp_local->scan_type;
 		std::string sres(local_api_yara_results, local_api_yara_results_len);
 		ssr.file_scan_result = sres;
+		ssr.file_size = ssp_local->buffer_length;
 				
 		if (ssp_local->parent_file_name) {
 			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
