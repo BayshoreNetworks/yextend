@@ -158,29 +158,31 @@ def print_yextend_output(out=''):
 
 
 def print_yextend_json_output(out=''):
+
     if out:
+    
         try:
             string_to_json = json.loads(out)
 
             for rule_file in string_to_json:
+            
                 print '\n{}'.format(my_print(thestr='===============================ALPHA===================================', thecolor='white'))
-
                 print '{} : {}'.format(my_print(thestr="File Name", thecolor='white'), my_print(thestr=rule_file['file_name'], thecolor='green'))
-
                 print '{} : {}'.format(my_print(thestr="File Size", thecolor='white'), my_print(thestr=rule_file['file_size'], thecolor='green'))
-
                 print '{} : {}'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=rule_file['file_signature_MD5'], thecolor='green'))
 
                 if 'yara_ruleset_file_name' in rule_file:
                     print '{} : {}'.format(my_print(thestr="Yara Ruleset File Name", thecolor='white'), my_print(thestr=rule_file['yara_ruleset_file_name'], thecolor='green'))
 
                 print '\n{}\n'.format(my_print(thestr='=======================================================================', thecolor='white'))
-
                 print my_print(thestr='Yara Result(s):', thecolor='white')
 
                 if ('scan_results' in rule_file) and (rule_file['scan_results'] is not None):
+                
                     for result in rule_file['scan_results']:
+                    
                         if result['yara_matches_found']:
+                        
                             print '\tRule ID: {}'.format(my_print(thestr=result['yara_rule_id'], thecolor='red'))
                             print '\tRule META:'
 
@@ -219,8 +221,8 @@ def print_yextend_json_output(out=''):
                             if 'file_signature_MD5' in result:
                                 print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
 
-
                         else:
+                        
                             print '\tRule ID: {}\n'.format('None')
 
                             if 'scan_type' in result:
@@ -242,10 +244,13 @@ def print_yextend_json_output(out=''):
                                 print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
 
                 print '{}\n'.format(my_print(thestr='===============================OMEGA===================================', thecolor='white'))
+                
         except:
-            #When file cant be read
+        
+            # when file can't be read
             t_o = out.split(': ')
             print '{}: {}'.format(my_print(thestr=t_o[0], thecolor='white'), my_print(thestr=t_o[1].strip("null"), thecolor='green'))
+            
 ########################################################
 
 RULES_ENTITY = ''
@@ -281,6 +286,17 @@ if not RULES_ENTITY or not FILE_ENTITY:
     usage()
     sys.exit()
 
+'''
+	we will force the JSON option to yextend
+	as the default run mode going forward
+	
+	function 'print_yextend_json_output' presents
+	the results of a run to stdout the same way
+	we always have except that under the hood it
+	is transforming the JSON output from yextend
+	instead of transforming the legacy output
+	format (i.e. non-JSON)
+'''
 JSON_OUT_FORCE = "-j"
 if JSON_OUT:
     JSON_OUT = "-j"
