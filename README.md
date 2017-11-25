@@ -318,10 +318,7 @@ Instructions:
 		===============================OMEGA===================================
 
 
-
-
-
-		This is based on file "test_files/step1-zips.tar.gz" that has the following structure:
+		This last example is based on file "test_files/step1-zips.tar.gz" that has the following structure:
 		
 		step1-zips.tar.gz
 		|_ docx-embedded-step3.xlsx.zip
@@ -338,3 +335,53 @@ Instructions:
 		|_ spoolsy.exe
 
 
+	C. An example of standard JSON output:
+
+		./run_yextend -r test_rulesets/BAYSHORE_Officex1.yar -t test_files/Lorem-winlogon.docx.bz2 -j
+		[
+    		{
+        		"file_name": "test_files/Lorem-winlogon.docx.bz2",
+        		"file_signature_MD5": "26b485701d6a47618a7f915aa7a38045",
+        		"file_size": 208940,
+        		"scan_results": [
+            		{
+                		"child_file_name": "word/document.xml",
+                		"file_signature_MD5": "9d58972d9a528da89c971597e4aa1844",
+                		"parent_file_name": "test_files/Lorem-winlogon.docx",
+                		"scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file",
+                		"yara_matches_found": false
+            		},
+            		{
+                		"child_file_name": "word/embeddings/oleObject1.bin",
+                		"description": "suspicious marco action",
+                		"detected offsets": [
+                    		"0x12231:$a02",
+                    		"0x135c5:$a03",
+                    		"0x55dc7:$a03",
+                    		"0x5f1e2:$a03",
+                    		"0x55db9:$a09",
+                    		"0x5f1d5:$a09",
+                    		"0x55e31:$a12",
+                    		"0x1037d:$a15"
+                		],
+                		"file_signature_MD5": "27250593fccbfb679320a74be9459d17",
+                		"hit_count": "8",
+                		"parent_file_name": "test_files/Lorem-winlogon.docx",
+                		"scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file",
+                		"yara_matches_found": true,
+                		"yara_rule_id": "maldoc_suspicious_strings"
+            		},
+            		{
+                		"child_file_name": "word/embeddings/oleObject1.bin",
+                		"file_signature_MD5": "6674f1535a94304e58f26d06f348190d",
+                		"parent_file_name": "test_files/Lorem-winlogon.docx",
+                		"scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file",
+                		"yara_matches_found": false
+            		}
+        		],
+        		"yara_matches_found": true,
+        		"yara_ruleset_file_name": "test_rulesets/BAYSHORE_Officex1.yar"
+    		}
+		]
+		
+		
