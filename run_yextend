@@ -2,9 +2,9 @@
 
 """
     run statement:
-    
+
     ./run_yextend -r rule_entity -t target_file_entity [-j]
-    
+
     I label them as 'entity' because they can each be
     either a directory or a file
 """
@@ -14,26 +14,23 @@ import os
 import fnmatch
 import time
 import getopt
+import json
 from types import *
 
 ########################################################
 def usage():
     print "\n{}\n".format("Usage:")
-    
+
     print "{} {} {} {}\n".format("./run_yextend", "-r rule_entity", "-t target_file_entity", "[-j]")
-    
+
     print "    {}".format("-r RULES_FILE = Yara ruleset file [*required]")
     print "    {}".format("-t TARGET_ENTITY = file or directory [*required]")
     print "    {}".format("-j output in JSON format and nothing more [optional]")
-	
+
     print "".format("\n\n")
-    
+
 
 def get_file_list(thedir='', thepattern='*'):
-    
-    if not thedir.endswith('/'):
-        thedir = thedir + '/'
-        
     f_list = []
     if thedir:
         for root, dirnames, filenames in os.walk(thedir):
@@ -81,7 +78,7 @@ def my_print(thestr='', thecolor=''):
         elif thecolor == 'highlighted_gray':
             return format_str % ('47', thestr)
         elif thecolor == 'highlighted_crimson':
-            return format_str % ('48', thestr)        
+            return format_str % ('48', thestr)
 
 
 def which(program=""):
@@ -130,7 +127,7 @@ def print_yextend_output(out=''):
                                 rm_label, rm_dat = rmeta.split(' = ')
                                 print "\t\t%s" % (my_print(thestr=rm_label + ':', thecolor='blue'))
                                 rm_dat_spl = rm_dat.split('-')
-                               
+
                                 for rmdspl in rm_dat_spl:
                                     try:
                                         rmdspl_offset, rmdspl_label = rmdspl.strip().split(':')
@@ -158,6 +155,96 @@ def print_yextend_output(out=''):
                         print my_print(thestr=the_out, thecolor='white')
                     else:
                         print the_out
+
+
+def print_yextend_json_output(out=''):
+    if out:
+        try:
+            string_to_json = json.loads(out)
+
+            for rule_file in string_to_json:
+                print '\n{}'.format(my_print(thestr='===============================ALPHA===================================', thecolor='white'))
+
+                print '{} : {}'.format(my_print(thestr="File Name", thecolor='white'), my_print(thestr=rule_file['file_name'], thecolor='green'))
+
+                print '{} : {}'.format(my_print(thestr="File Size", thecolor='white'), my_print(thestr=rule_file['file_size'], thecolor='green'))
+
+                print '{} : {}'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=rule_file['file_signature_MD5'], thecolor='green'))
+
+                if 'yara_ruleset_file_name' in rule_file:
+                    print '{} : {}'.format(my_print(thestr="Yara Ruleset File Name", thecolor='white'), my_print(thestr=rule_file['yara_ruleset_file_name'], thecolor='green'))
+
+                print '\n{}\n'.format(my_print(thestr='=======================================================================', thecolor='white'))
+
+                print my_print(thestr='Yara Result(s):', thecolor='white')
+
+                if ('scan_results' in rule_file) and (rule_file['scan_results'] is not None):
+                    for result in rule_file['scan_results']:
+                        if result['yara_matches_found']:
+                            print '\tRule ID: {}'.format(my_print(thestr=result['yara_rule_id'], thecolor='red'))
+                            print '\tRule META:'
+
+                            for key, value in result.iteritems():
+                                if key == 'detected offsets':
+                                    constructed_out = key + ':'
+                                    print '\t\t{}'.format(my_print(thestr=constructed_out, thecolor='blue'))
+                                    for detect in value:
+                                        if (":") in detect:
+                                            offset,label = detect.split(':')
+                                        else:
+                                            offset = detect
+                                            label = "UNK"
+                                        constructed_out = '{} at {}'.format(my_print(thestr=label, thecolor='red'), my_print(offset, thecolor='red'))
+                                        print '\t\t\t{}'.format(my_print(thestr=constructed_out, thecolor='blue'))
+                                else:
+                                    if key not in ['scan_type', 'file_name', 'file_signature_MD5', 'yara_rule_id', 'yara_matches_found']:
+                                        constructed_pair = key + ' = ' + str(value)
+                                        print '\t\t{}'.format(my_print(thestr=constructed_pair, thecolor='blue'))
+
+                            if len(result) <= 2:
+                                print '\t\t{}\n'.format('None')
+
+                            if 'scan_type' in result:
+                                print '\n{} : {}'.format(my_print(thestr="Scan Type", thecolor='white'), my_print(thestr=result['scan_type'], thecolor='green'))
+
+                            if 'file_name' in result:
+                                print '{} : {}'.format(my_print(thestr="File Name", thecolor='white'), my_print(thestr=result['file_name'], thecolor='green'))
+
+                            if 'child_file_name' in result:
+                                print '{} : {}'.format(my_print(thestr="Child File Name", thecolor='white'), my_print(thestr=result['child_file_name'], thecolor='green'))
+
+                            if 'parent_file_name' in result:
+                                print '{} : {}'.format(my_print(thestr="Parent File Name", thecolor='white'), my_print(thestr=result['parent_file_name'], thecolor='green'))
+
+                            if 'file_signature_MD5' in result:
+                                print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
+
+
+                        else:
+                            print '\tRule ID: {}\n'.format('None')
+
+                            if 'scan_type' in result:
+                                print '{} : {}'.format(my_print(thestr="Scan Type", thecolor='white'), my_print(thestr=result['scan_type'], thecolor='green'))
+
+                            if 'non_archive_file_name' in result:
+                                print '{} : {}'.format(my_print(thestr="Non-Archive File Name", thecolor='white'), my_print(thestr=result['non_archive_file_name'], thecolor='green'))
+
+                            if 'file_name' in result:
+                                print '{} : {}'.format(my_print(thestr="File Name", thecolor='white'), my_print(thestr=result['file_name'], thecolor='green'))
+
+                            if 'parent_file_name' in result:
+                                print '{} : {}'.format(my_print(thestr="Parent File Name", thecolor='white'), my_print(thestr=result['parent_file_name'], thecolor='green'))
+
+                            if 'child_file_name' in result:
+                                print '{} : {}'.format(my_print(thestr="Child File Name", thecolor='white'), my_print(thestr=result['child_file_name'], thecolor='green'))
+
+                            if 'file_signature_MD5' in result:
+                                print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
+
+                print '{}\n'.format(my_print(thestr='===============================OMEGA===================================', thecolor='white'))
+        except:
+            t_o = out.split(': ')
+            print '{}: {}'.format(my_print(thestr=t_o[0], thecolor='white'), my_print(thestr=t_o[1].strip("null"), thecolor='green'))
 ########################################################
 
 RULES_ENTITY = ''
@@ -188,7 +275,7 @@ for opt, arg in options:
 
 if os.path.isdir(RULES_ENTITY):
     RULES_ENTITY_DIR = True
-    
+
 if not RULES_ENTITY or not FILE_ENTITY:
     usage()
     sys.exit()
@@ -208,14 +295,14 @@ if not RULES_ENTITY_DIR:
     out, err = proc.communicate()
     if out:
         if JSON_OUT:
-            print out
+            print_yextend_json_output(out=out)
         else:
             print_yextend_output(out=out)
     '''
     if err:
         print "ERR: %s" % err
     '''
-    
+
 ''' ruleset = dir '''
 if RULES_ENTITY_DIR:
     for lpol in get_file_list(thedir=RULES_ENTITY):
@@ -227,11 +314,10 @@ if RULES_ENTITY_DIR:
         out, err = proc.communicate()
         if out:
             if JSON_OUT:
-                print out
+                print_yextend_json_output(out=out)
             else:
                 print_yextend_output(out=out)
         '''
         if err:
             print "ERR: %s" % err
         '''
- 
