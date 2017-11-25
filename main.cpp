@@ -320,6 +320,7 @@ int main(int argc, char* argv[])
 
 	int c;
 	bool out_json = false;
+	bool out_json_pretty_print = true;
 
 	std::string yara_ruleset_file_name = "";
 	std::string target_resource = "";
@@ -865,10 +866,11 @@ int main(int argc, char* argv[])
 	}
 	
 	if (out_json) {
-		
-		//std::cout << j.dump();
-		// pretty print
-		std::cout << j_main.dump(4);
+
+		if (out_json_pretty_print)
+			std::cout << j_main.dump(4);
+		else
+			std::cout << j_main.dump();
 	
 	}
 
