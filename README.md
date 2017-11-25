@@ -1,6 +1,12 @@
 yextend
 =======
 
+<a href="https://scan.coverity.com/projects/bayshorenetworks-yextend">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/13906/badge.svg"/>
+</a>
+
+
 Yara integrated software to handle archive file data.
 
 yextend was written for the sake of augmenting yara. yara by itself is great but we realized that it could not natively handle archived content in the granular way that we needed it to. For instance, if we were hunting for malware and it happened to be buried a few levels into archived content, yara in its native form could not help us. So what we have done is natively handle the inflation of archived content. And we pass the inflated content of each discovered resource to yara so that it can work its magic natively on one file's payload. Then yara does what it does quite well in terms of pattern matching and such based on a given set of rules.
