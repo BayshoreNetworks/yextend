@@ -42,6 +42,5 @@ install:
   - cd ../
 
 # Build steps
-script:
-  - ./build.sh
+script: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./build.sh ; fi
 
