@@ -35,7 +35,7 @@ def get_file_list(thedir='', thepattern='*'):
     if thedir:
         for root, dirnames, filenames in os.walk(thedir):
             for name in fnmatch.filter(filenames, thepattern):
-                complete_fname = "%s%s" % (root, name)
+                complete_fname = "{}{}".format(root, name)
                 if os.path.isfile(complete_fname):
                     if complete_fname not in f_list:
                         f_list.append(complete_fname)
@@ -44,41 +44,41 @@ def get_file_list(thedir='', thepattern='*'):
 
 def my_print(thestr='', thecolor=''):
     if thestr:
-        format_str = '\033[1;%sm%s\033[1;m'
+        format_str = '\033[1;{}m{}\033[1;m'
         if thecolor == 'gray':
-            return format_str % ('30', thestr)
+            return format_str.format('30', thestr)
         elif thecolor == 'red':
-            return format_str % ('31', thestr)
+            return format_str.format('31', thestr)
         elif thecolor == 'green':
-            return format_str % ('32', thestr)
+            return format_str.format('32', thestr)
         elif thecolor == 'yellow':
-            return format_str % ('33', thestr)
+            return format_str.format('33', thestr)
         elif thecolor == 'blue':
-            return format_str % ('34', thestr)
+            return format_str.format('34', thestr)
         elif thecolor == 'magenta':
-            return format_str % ('35', thestr)
+            return format_str.format('35', thestr)
         elif thecolor == 'cyan':
-            return format_str % ('36', thestr)
+            return format_str.format('36', thestr)
         elif thecolor == 'white':
-            return format_str % ('37', thestr)
+            return format_str.format('37', thestr)
         elif thecolor == 'crimson':
-            return format_str % ('38', thestr)
+            return format_str.format('38', thestr)
         elif thecolor == 'highlighted_red':
-            return format_str % ('41', thestr)
+            return format_str.format('41', thestr)
         elif thecolor == 'highlighted_red':
-            return format_str % ('42', thestr)
+            return format_str.format('42', thestr)
         elif thecolor == 'highlighted_brown':
-            return format_str % ('43', thestr)
+            return format_str.format('43', thestr)
         elif thecolor == 'highlighted_blue':
-            return format_str % ('44', thestr)
+            return format_str.format('44', thestr)
         elif thecolor == 'highlighted_magenta':
-            return format_str % ('45', thestr)
+            return format_str.format('45', thestr)
         elif thecolor == 'highlighted_cyan':
-            return format_str % ('46', thestr)
+            return format_str.format('46', thestr)
         elif thecolor == 'highlighted_gray':
-            return format_str % ('47', thestr)
+            return format_str.format('47', thestr)
         elif thecolor == 'highlighted_crimson':
-            return format_str % ('48', thestr)
+            return format_str.format('48', thestr)
 
 
 def which(program=""):
@@ -114,18 +114,18 @@ def print_yextend_output(out=''):
             elif the_out.startswith("Yara "):
                 # print the_out
                 t_o = the_out.split(': ')
-                print "%s: " % (my_print(thestr=t_o[0], thecolor='white'))
+                print "{}: ".format(my_print(thestr=t_o[0], thecolor='white'))
                 for rule_data in t_o[1].split(', '):
                     if ':[' in rule_data:
                         rule_id, rule_meta = rule_data.split(':[')
                         rule_meta = rule_meta[:-1]
-                        print "\tRule ID: %s" % (my_print(thestr=rule_id, thecolor='red'))
+                        print "\tRule ID: {}".format(my_print(thestr=rule_id, thecolor='red'))
                         print "\tRule META:"
                         for rmeta in rule_meta.split(','):
                             rmeta = rmeta.replace('=', ' = ')
                             if rmeta.startswith('detected'):
                                 rm_label, rm_dat = rmeta.split(' = ')
-                                print "\t\t%s" % (my_print(thestr=rm_label + ':', thecolor='blue'))
+                                print "\t\t{}".format(my_print(thestr=rm_label + ':', thecolor='blue'))
                                 rm_dat_spl = rm_dat.split('-')
 
                                 for rmdspl in rm_dat_spl:
@@ -133,22 +133,22 @@ def print_yextend_output(out=''):
                                         rmdspl_offset, rmdspl_label = rmdspl.strip().split(':')
                                     except ValueError:
                                         pass
-                                    rmdspl_out = "%s at %s" % (my_print(thestr=rmdspl_label, thecolor='red'), my_print(rmdspl_offset, thecolor='red'))
-                                    print "\t\t\t%s" % (my_print(thestr=rmdspl_out, thecolor='blue'))
+                                    rmdspl_out = "{} at {}".format(my_print(thestr=rmdspl_label, thecolor='red'), my_print(rmdspl_offset, thecolor='red'))
+                                    print "\t\t\t{}".format(my_print(thestr=rmdspl_out, thecolor='blue'))
                             else:
-                                print "\t\t%s" % (my_print(thestr=rmeta, thecolor='blue'))
+                                print "\t\t{}".format(my_print(thestr=rmeta, thecolor='blue'))
                     else:
                         if rule_data == "No hit from Yara ruleset":
-                            print "\t%s" % (my_print(thestr=rule_data, thecolor='red'))
+                            print "\t{}".format(my_print(thestr=rule_data, thecolor='red'))
                         else:
-                            print "\tRule ID: %s" % (my_print(thestr=rule_data, thecolor='red'))
+                            print "\tRule ID: {}".format(my_print(thestr=rule_data, thecolor='red'))
                     print
             elif the_out == '\n':
                 print the_out
             else:
                 try:
                     t_o = the_out.split(': ')
-                    print "%s: %s" % (my_print(thestr=t_o[0], thecolor='white'), my_print(thestr=t_o[1], thecolor='green'))
+                    print "{}: {}".format(my_print(thestr=t_o[0], thecolor='white'), my_print(thestr=t_o[1], thecolor='green'))
                 except:
                     def_out = my_print(thestr=the_out, thecolor='white')
                     if def_out:
@@ -160,12 +160,12 @@ def print_yextend_output(out=''):
 def print_yextend_json_output(out=''):
 
     if out:
-    
+
         try:
             string_to_json = json.loads(out)
 
             for rule_file in string_to_json:
-            
+
                 print '\n{}'.format(my_print(thestr='===============================ALPHA===================================', thecolor='white'))
                 print '{} : {}'.format(my_print(thestr="File Name", thecolor='white'), my_print(thestr=rule_file['file_name'], thecolor='green'))
                 print '{} : {}'.format(my_print(thestr="File Size", thecolor='white'), my_print(thestr=rule_file['file_size'], thecolor='green'))
@@ -178,11 +178,11 @@ def print_yextend_json_output(out=''):
                 print my_print(thestr='Yara Result(s):', thecolor='white')
 
                 if ('scan_results' in rule_file) and (rule_file['scan_results'] is not None):
-                
+
                     for result in rule_file['scan_results']:
-                    
+
                         if result['yara_matches_found']:
-                        
+
                             print '\tRule ID: {}'.format(my_print(thestr=result['yara_rule_id'], thecolor='red'))
                             print '\tRule META:'
 
@@ -222,7 +222,7 @@ def print_yextend_json_output(out=''):
                                 print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
 
                         else:
-                        
+
                             print '\tRule ID: {}\n'.format('None')
 
                             if 'scan_type' in result:
@@ -244,13 +244,13 @@ def print_yextend_json_output(out=''):
                                 print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
 
                 print '{}\n'.format(my_print(thestr='===============================OMEGA===================================', thecolor='white'))
-                
+
         except:
-        
+
             # when file can't be read
             t_o = out.split(': ')
             print '{}: {}'.format(my_print(thestr=t_o[0], thecolor='white'), my_print(thestr=t_o[1].strip("null"), thecolor='green'))
-            
+
 ########################################################
 
 RULES_ENTITY = ''
@@ -290,7 +290,7 @@ if not RULES_ENTITY or not FILE_ENTITY:
 '''
 	we will force the JSON option to yextend
 	as the default run mode going forward
-	
+
 	function 'print_yextend_json_output' presents
 	the results of a run to stdout the same way
 	we always have except that under the hood it
