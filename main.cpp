@@ -354,6 +354,33 @@ std::string process_scan_no_hit(bool hit,
 	
 }
 
+
+void legacy_output(const std::string &file_scan_result,
+		const std::string &file_scan_type,
+		const std::string &file_signature_md5,
+		const std::string &parent_file_name,
+		const std::string &child_file_name,
+		size_t file_size
+		) {
+	
+	std::cout << std::endl;
+	std::cout << output_labels[2] << file_scan_result << std::endl;
+	std::cout << output_labels[3] << file_scan_type << std::endl;
+	if (parent_file_name.size()) {
+		if (child_file_name.size()) {
+			if (parent_file_name != child_file_name)
+				std::cout << output_labels[6] << parent_file_name << std::endl << output_labels[7] << child_file_name << std::endl;
+			else
+				std::cout << output_labels[0] << parent_file_name << std::endl;
+		} else {
+			std::cout << output_labels[5] << parent_file_name << std::endl;
+		}
+	}
+	std::cout << output_labels[4] << file_signature_md5 << std::endl;
+	std::cout << output_labels[1] << file_size << std::endl;
+	std::cout << std::endl;
+
+}
 ///////////////////////////////////////////////////////////////
 
 
@@ -362,8 +389,7 @@ std::string process_scan_no_hit(bool hit,
 main
  ****/
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 
 	int c;
 	bool out_json = false;
@@ -506,6 +532,7 @@ int main(int argc, char* argv[])
 									1);
 
 						} else {
+							
 							scan_content (
 									c,
 									file_size,
@@ -514,6 +541,7 @@ int main(int argc, char* argv[])
 									fs,
 									yara_cb,
 									1);
+							
 						}
 
 						if (!ssr_list.empty()) {
@@ -527,22 +555,14 @@ int main(int argc, char* argv[])
 									v++) {
 								
 								if (!out_json) {
-
-									std::cout << std::endl;
-									std::cout << output_labels[2] << v->file_scan_result << std::endl;
-									std::cout << output_labels[3] << v->file_scan_type << std::endl;
-									if (v->parent_file_name.size()) {
-										if (v->child_file_name.size()) {
-											if(v->parent_file_name != v->child_file_name)
-												std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
-											else
-												std::cout << output_labels[0] << v->parent_file_name << std::endl;
-										} else { 
-											std::cout << output_labels[5] << v->parent_file_name << std::endl;
-										}
-									}
-									std::cout << output_labels[4] << v->file_signature_md5 << std::endl;
-									std::cout << std::endl;
+									
+									legacy_output(v->file_scan_result,
+											v->file_scan_type,
+											v->file_signature_md5,
+											v->parent_file_name,
+											v->child_file_name,
+											v->file_size
+											);
 								
 								} else {
 									
@@ -757,7 +777,9 @@ int main(int argc, char* argv[])
 							fs,
 							yara_cb,
 							1);
+					
 				} else {
+					
 					scan_content (
 							c,
 							file_size,
@@ -766,6 +788,7 @@ int main(int argc, char* argv[])
 							fs,
 							yara_cb,
 							1);
+					
 				}
 
 				if (!ssr_list.empty()) {
@@ -780,21 +803,13 @@ int main(int argc, char* argv[])
 
 						if (!out_json) {
 
-							std::cout << std::endl;
-							std::cout << output_labels[2] << v->file_scan_result << std::endl;
-							std::cout << output_labels[3] << v->file_scan_type << std::endl;
-							if (v->parent_file_name.size()) {
-								if (v->child_file_name.size()) {
-									if ( v->parent_file_name != v->child_file_name)
-										std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
-									else
-										std::cout << output_labels[0] << v->parent_file_name << std::endl;
-								} else {
-									std::cout << output_labels[5] << v->parent_file_name << std::endl;
-								}
-							}
-							std::cout << output_labels[4] << v->file_signature_md5 << std::endl;
-							std::cout << std::endl;
+							legacy_output(v->file_scan_result,
+									v->file_scan_type,
+									v->file_signature_md5,
+									v->parent_file_name,
+									v->child_file_name,
+									v->file_size
+									);
 
 						} else {
 
@@ -874,8 +889,7 @@ int main(int argc, char* argv[])
 										if (j_no_hit.size() > 0) {
 											j_children.push_back(json::parse(j_no_hit));
 										}
-										
-										
+
 									}
 									
 								}
@@ -916,7 +930,10 @@ int main(int argc, char* argv[])
 				fclose(file);
 			}
 
-			j_level1[json_output_labels[13]] = j_children;
+			//j_level1[json_output_labels[13]] = j_children;
+			if (!j_children.is_null()) {
+				j_level1[json_output_labels[13]] = j_children;
+			}
 			
 			if (!j_level1.is_null()) {
 				j_main.push_back(j_level1);
