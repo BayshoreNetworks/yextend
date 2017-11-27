@@ -256,10 +256,9 @@ def print_yextend_json_output(out=''):
 RULES_ENTITY = ''
 FILE_ENTITY = ''
 RULES_ENTITY_DIR = False
-# YEXTEND = './yextend'
 YEXTEND = which(program="yextend")
-LD_LIBRARY_PATH = 'LD_LIBRARY_PATH'
-USRLOCLIB = '/usr/local/lib'
+LD_LIBRARY_PATH = "{}".format("LD_LIBRARY_PATH")
+USRLOCLIB = "{}".format("\/usr\/local\/lib")
 JSON_OUT = False
 
 try:
