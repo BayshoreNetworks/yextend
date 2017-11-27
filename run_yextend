@@ -317,10 +317,10 @@ if not RULES_ENTITY_DIR:
         else:
             #print_yextend_output(out=out)
             print_yextend_json_output(out=out)
-    
+    '''
     if err:
         print "ERR: %s" % err
-    
+    '''
 
 ''' ruleset = dir '''
 if RULES_ENTITY_DIR:
