@@ -532,6 +532,7 @@ int main(int argc, char* argv[]) {
 									1);
 
 						} else {
+							
 							scan_content (
 									c,
 									file_size,
@@ -540,6 +541,7 @@ int main(int argc, char* argv[]) {
 									fs,
 									yara_cb,
 									1);
+							
 						}
 
 						if (!ssr_list.empty()) {
@@ -775,7 +777,9 @@ int main(int argc, char* argv[]) {
 							fs,
 							yara_cb,
 							1);
+					
 				} else {
+					
 					scan_content (
 							c,
 							file_size,
@@ -784,6 +788,7 @@ int main(int argc, char* argv[]) {
 							fs,
 							yara_cb,
 							1);
+					
 				}
 
 				if (!ssr_list.empty()) {
@@ -925,7 +930,10 @@ int main(int argc, char* argv[]) {
 				fclose(file);
 			}
 
-			j_level1[json_output_labels[13]] = j_children;
+			//j_level1[json_output_labels[13]] = j_children;
+			if (!j_children.is_null()) {
+				j_level1[json_output_labels[13]] = j_children;
+			}
 			
 			if (!j_level1.is_null()) {
 				j_main.push_back(j_level1);
