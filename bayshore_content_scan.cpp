@@ -330,7 +330,9 @@ void scan_office_open_xml_api(
 {
 	if (DEBUG)
 		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
-	
+
+	cb(cookie, oxml_ssr_list, parent_file_name ? parent_file_name : "");
+
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	size_t src_len = strlen(src);
 	
@@ -486,7 +488,7 @@ void scan_office_open_xml_api(
 									
 									// ms-office open xml inside open xml
 									if (is_type_officex(lf_type)) {
-										
+
 										scan_office_open_xml_api(
 												(void *)ssp_local,
 												oxml_ssr_list,
@@ -866,7 +868,7 @@ void scan_content2 (
 						
 					// ms-office open xml inside gzip
 					} else if (is_type_officex(lf_type)) {
-						
+
 						scan_office_open_xml_api(
 								(void *)&ssp,
 								ssr_list,
@@ -937,7 +939,7 @@ void scan_content2 (
 						
 					// ms-office open xml inside bzip2
 					} else if (is_type_officex(lf_type)) {
-						
+
 						scan_office_open_xml_api(
 								(void *)&ssp,
 								ssr_list,
@@ -1062,7 +1064,7 @@ void scan_content2 (
 										char scan_src [100];
 										snprintf (scan_src, sizeof(scan_src), "inside %s file", archive_format_name(a));
 										snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
-									
+
 										scan_office_open_xml_api((void *)&ssp, ssr_list, scan_src, fname ? fname : "", false, cb, in_type_of_scan);
 										
 									} else {
