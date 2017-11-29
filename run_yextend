@@ -348,9 +348,10 @@ def advanced_print(out):
     def add_results(all_files,new_dict,name,file_sig):
 
         if "yara_results" in new_dict:
-            all_files[(name,file_sig)]["yara_results"].update(new_dict["yara_results"])
-
-
+            if "yara_results" in all_files[(name,file_sig)]:
+                all_files[(name,file_sig)]["yara_results"].update(new_dict["yara_results"])
+            else:
+                all_files[(name,file_sig)]["yara_results"] = new_dict["yara_results"]
     for file_dict in out:
         #dictionary of all files name:metadata
         all_files = {}
@@ -360,11 +361,6 @@ def advanced_print(out):
         name=file_dict["file_name"]
         file_sig=file_dict["file_signature_MD5"]
         new_dict = format_dict(dict(file_dict))
-
-        try:
-            new_dict["yara_results"]
-        except:
-            new_dict["yara_results"] = {}
 
         try:
             all_files[(name,file_sig)]
@@ -421,6 +417,7 @@ def advanced_print(out):
                             for key in keyorder:
                                 if key in all_files[child]:
                                     new_child[key] = all_files[child][key]
+
                             obj["children"].append(new_child)
 
                     final.append(obj)
