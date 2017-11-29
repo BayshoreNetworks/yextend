@@ -66,11 +66,13 @@
 
 // structs
 struct security_scan_results_t {
+	
 	std::string file_scan_type;
 	std::string file_scan_result;
 	char file_signature_md5[33];
 	std::string parent_file_name;
 	std::string child_file_name;
+	size_t file_size;
 	
 	security_scan_results_t()
 	{
@@ -79,6 +81,7 @@ struct security_scan_results_t {
 		memset(file_signature_md5, 0, 33);
 		parent_file_name = "";
 		child_file_name = "";
+		file_size = 0;
 	};
 
 	bool is_empty() {

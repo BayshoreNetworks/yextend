@@ -1,12 +1,31 @@
 yextend
 =======
 
+<a href="https://scan.coverity.com/projects/bayshorenetworks-yextend">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/13906/badge.svg"/>
+</a>
+
+
 Yara integrated software to handle archive file data.
 
 yextend was written for the sake of augmenting yara. yara by itself is great but we realized that it could not natively handle archived content in the granular way that we needed it to. For instance, if we were hunting for malware and it happened to be buried a few levels into archived content, yara in its native form could not help us. So what we have done is natively handle the inflation of archived content. And we pass the inflated content of each discovered resource to yara so that it can work its magic natively on one file's payload. Then yara does what it does quite well in terms of pattern matching and such based on a given set of rules.
 
 
+Software Credits
+	
+	- Yara is originally authored by Victor M. Alvarez (https://github.com/VirusTotal/yara) - License: https://raw.githubusercontent.com/VirusTotal/yara/master/COPYING
+	- json.hpp is authored by Niels Lohmann (https://github.com/nlohmann/json) - License: https://raw.githubusercontent.com/nlohmann/json/develop/LICENSE.MIT  *** Note that for Yextend to compile I had to make a change to the original json.hpp - function "get_string" was causing name conflicts with function "get_string" from Yara. So I renamed json.hpp's function to "j_get_string"
+
+
 Notes:
+
+- (11/30/2017) yextend version 1.6
+
+	- added support for bzip2
+	- added numerous new file type detection patterns
+	- added macro file detection inside of .docm files
+	- added support for JSON output
 
 - (08/30/2016) yextend version 1.5
 
@@ -39,15 +58,16 @@ Notes:
 
 Requirements to build and run:
 
-- g++ (GNU c++ compiler)
+- g++ (GNU c++ compiler - c++11)
 - autoconf 2.69 or above
 - openssl devel lib (sudo dnf install openssl-devel or sudo apt-get install libssl-dev)
 - zlib devel lib (sudo dnf install zlib-devel or sudo apt-get install zlib1g-dev)
 - bzlib devel lib (sudo dnf install bzip2-devel or sudo apt-get install libbz2-dev)
 - libarchive (v4) be installed (sudo dnf install libarchive-devel or sudo apt-get install libarchive-dev)
 - pcrecpp (sudo dnf install pcre-devel or sudo apt-get install libpcre3-dev)
-- uuid (sudo dnf install uuid-devel or sudo apt-get install uuid-dev)
+- uuid (sudo dnf install uuid-devel / libuuid-devel or sudo apt-get install uuid-dev)
 - pdf2text (sudo dnf install poppler-utils or sudo apt-get install poppler-utils)
+- nose (sudo dnf install python2-nose or sudo apt-get install python-nose)
 - yara v3.X be fully installed
 - if you are running yara pre-version 3.1.X then yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
 	A. cd into the dir where you extracted yara (for this example I will use "/tmp/yara")
@@ -78,32 +98,42 @@ Instructions:
 
 	A. use executable run_yextend - it wraps the native yextend executable. To run:
 
-	- the program 'run_yextend' takes in 2 arguments:
+	- the program 'run_yextend' takes in 2 mandatory arguments, 1 optional:
 
 		1. A yara ruleset file or directory of ruleset files
 		2. A file name or a directory of target files
+		3. '-j' for json output [optional]
 
 	usage:
         -r or --ruleset             rule_entity
         -t or --target              target_file_entity
+        -j
 
         examples:
-		./run_yextend -r rule_entity -t target_file_entity
+		 ./run_yextend -r rule_entity -t target_file_entity
         ./run_yextend --ruleset rule_entity -t target_file_entity
+        ./run_yextend -r rule_entity -t target_file_entity -j
         
 		***** make sure the executable bit is set on the file system for run_yextend *****
 
 	B. run yextend executable - prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
 
-	- the program 'yextend' takes in 2 arguments:
+	- the program 'yextend' takes in 2 mandatory arguments, 1 optional:
 
 		1. A yara ruleset file
 		2. A file name or a directory name where the target files exist
+		3. '-j' for json output [optional]
+		
+	usage:
+        -r rule_entity
+        -t target_file_entity
+        -j
 	
 	example:
 	
-		- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
-		- LD_LIBRARY_PATH=/usr/local/lib ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/
+		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex
+		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/
+		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex -j
 		
 		***** 
 			if you don't want to set LD_LIBRARY_PATH on each prog run then you can set it in your .bashrc (or equivalent on your system) as such:
@@ -112,8 +142,8 @@ Instructions:
 			
 			then the program runs would be as such:
 	
-				- ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/filex
-				- ./yextend ~/Desktop/bayshore.yara.rules /tmp/targetfiles/			
+				- ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex
+				- ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/			
 		*****
 
 6 - Analyze output. The output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
@@ -288,10 +318,7 @@ Instructions:
 		===============================OMEGA===================================
 
 
-
-
-
-		This is based on file "test_files/step1-zips.tar.gz" that has the following structure:
+		This last example is based on file "test_files/step1-zips.tar.gz" that has the following structure:
 		
 		step1-zips.tar.gz
 		|_ docx-embedded-step3.xlsx.zip
@@ -308,3 +335,53 @@ Instructions:
 		|_ spoolsy.exe
 
 
+	C. An example of standard JSON output:
+
+		./run_yextend -r test_rulesets/BAYSHORE_Officex1.yar -t test_files/Lorem-winlogon.docx.bz2 -j
+		[
+    		{
+        		"file_name": "test_files/Lorem-winlogon.docx.bz2",
+        		"file_signature_MD5": "26b485701d6a47618a7f915aa7a38045",
+        		"file_size": 208940,
+        		"scan_results": [
+            		{
+                		"child_file_name": "word/document.xml",
+                		"file_signature_MD5": "9d58972d9a528da89c971597e4aa1844",
+                		"parent_file_name": "test_files/Lorem-winlogon.docx",
+                		"scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file",
+                		"yara_matches_found": false
+            		},
+            		{
+                		"child_file_name": "word/embeddings/oleObject1.bin",
+                		"description": "suspicious marco action",
+                		"detected offsets": [
+                    		"0x12231:$a02",
+                    		"0x135c5:$a03",
+                    		"0x55dc7:$a03",
+                    		"0x5f1e2:$a03",
+                    		"0x55db9:$a09",
+                    		"0x5f1d5:$a09",
+                    		"0x55e31:$a12",
+                    		"0x1037d:$a15"
+                		],
+                		"file_signature_MD5": "27250593fccbfb679320a74be9459d17",
+                		"hit_count": "8",
+                		"parent_file_name": "test_files/Lorem-winlogon.docx",
+                		"scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file",
+                		"yara_matches_found": true,
+                		"yara_rule_id": "maldoc_suspicious_strings"
+            		},
+            		{
+                		"child_file_name": "word/embeddings/oleObject1.bin",
+                		"file_signature_MD5": "6674f1535a94304e58f26d06f348190d",
+                		"parent_file_name": "test_files/Lorem-winlogon.docx",
+                		"scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file",
+                		"yara_matches_found": false
+            		}
+        		],
+        		"yara_matches_found": true,
+        		"yara_ruleset_file_name": "test_rulesets/BAYSHORE_Officex1.yar"
+    		}
+		]
+		
+		

@@ -190,8 +190,8 @@ std::string strip_office_open_xml(std::string content, std::string file_type)
 	pcrecpp::RE("<(.*?)>").GlobalReplace("", &cnt);
 
 	// strip line ending
-	string::size_type pos = 0;
-	while ( ( pos = cnt.find ("\r\n",pos) ) != string::npos )
+	std::string::size_type pos = 0;
+	while ( ( pos = cnt.find ("\r\n",pos) ) != std::string::npos )
 	{
 		cnt.erase ( pos, 2 );
 	}
@@ -330,7 +330,9 @@ void scan_office_open_xml_api(
 {
 	if (DEBUG)
 		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
-	
+
+	cb(cookie, oxml_ssr_list, parent_file_name ? parent_file_name : "");
+
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	size_t src_len = strlen(src);
 	
@@ -454,8 +456,11 @@ void scan_office_open_xml_api(
 
 							if (x == ARCHIVE_EOF) {
 								
-								if (recurs_threshold_passed(iteration_counter))
-									return;
+								if (recurs_threshold_passed(iteration_counter)) {
+									free(fname);
+									if (final_buff) free(final_buff);
+									goto cleanup_archive;
+								}
 
 								final_buff[final_size] = 0;
 								int elf_type = get_content_type (final_buff, final_size);
@@ -483,7 +488,7 @@ void scan_office_open_xml_api(
 									
 									// ms-office open xml inside open xml
 									if (is_type_officex(lf_type)) {
-										
+
 										scan_office_open_xml_api(
 												(void *)ssp_local,
 												oxml_ssr_list,
@@ -583,6 +588,7 @@ void scan_office_open_xml_api(
 		if (final_buff)
 			free(final_buff);
 	} // end if r >= 0 
+cleanup_archive:
 	// clean up libarchive resources
 	archive_read_close(a);
 	archive_read_free(a);
@@ -640,6 +646,7 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 		ssr.file_scan_type = ssp_local->scan_type;
 		std::string sres(local_api_yara_results, local_api_yara_results_len);
 		ssr.file_scan_result = sres;
+		ssr.file_size = ssp_local->buffer_length;
 				
 		if (ssp_local->parent_file_name) {
 			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
@@ -673,6 +680,7 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 		ssr.file_scan_type = ssp_local->scan_type;
 		std::string sres(local_api_yara_results, local_api_yara_results_len);
 		ssr.file_scan_result = sres;
+		ssr.file_size = ssp_local->buffer_length;
 				
 		if (ssp_local->parent_file_name) {
 			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
@@ -860,7 +868,7 @@ void scan_content2 (
 						
 					// ms-office open xml inside gzip
 					} else if (is_type_officex(lf_type)) {
-						
+
 						scan_office_open_xml_api(
 								(void *)&ssp,
 								ssr_list,
@@ -931,7 +939,7 @@ void scan_content2 (
 						
 					// ms-office open xml inside bzip2
 					} else if (is_type_officex(lf_type)) {
-						
+
 						scan_office_open_xml_api(
 								(void *)&ssp,
 								ssr_list,
@@ -1056,7 +1064,7 @@ void scan_content2 (
 										char scan_src [100];
 										snprintf (scan_src, sizeof(scan_src), "inside %s file", archive_format_name(a));
 										snprintf (ssp.parent_file_name, sizeof(ssp.parent_file_name), "%s", parent_file_name);
-									
+
 										scan_office_open_xml_api((void *)&ssp, ssr_list, scan_src, fname ? fname : "", false, cb, in_type_of_scan);
 										
 									} else {

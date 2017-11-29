@@ -113,7 +113,7 @@ class Test_Yextend_files():
     def test_yara_guanggao_gif(self):
         f_obj = TARG_DIR + GUANGGAO_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, GUANGGAO_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", GUANGGAO_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -128,7 +128,7 @@ class Test_Yextend_files():
     def test_lipsum_pdf(self):
         f_obj = TARG_DIR + LIPSUM_PDF_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, LIPSUMPDF_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", LIPSUMPDF_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -142,7 +142,7 @@ class Test_Yextend_files():
     def test_content_yara_zap_pdf(self):
         f_obj = TARG_DIR + ZAP_PDF_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, ZAP_PDF_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -155,7 +155,7 @@ class Test_Yextend_files():
     def test_content_yara_zap_pdf_gzip(self):
         f_obj = TARG_DIR + ZAP_PDF_FILE_GZIP
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, ZAP_PDF_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -167,7 +167,7 @@ class Test_Yextend_files():
     def test_content_yara_zap_pdf_zip(self):
         f_obj = TARG_DIR + ZAP_PDF_ZIP_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, ZAP_PDF_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -180,7 +180,7 @@ class Test_Yextend_files():
     def test_content_yara_zap_pdf_zip_targz(self):
         f_obj = TARG_DIR + ZAP_PDF_ZIP_TARGZ_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, ZAP_PDF_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -192,7 +192,7 @@ class Test_Yextend_files():
     def test_content_yara_msoffice_doc_macro(self):
         f_obj = TARG_DIR + MSOFFICE_DOC
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICE_MACRO_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICE_MACRO_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -205,7 +205,7 @@ class Test_Yextend_files():
     def test_content_yara_msoffice_doc_gzip_macro(self):
         f_obj = TARG_DIR + MSOFFICE_DOC_GZIP
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICE_MACRO_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICE_MACRO_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -219,7 +219,7 @@ class Test_Yextend_files():
     def test_content_yara_msoffice_doc_gzip_zip_macro(self):
         f_obj = TARG_DIR + MSOFFICE_DOC_GZIP_ZIP
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICE_MACRO_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICE_MACRO_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -233,7 +233,7 @@ class Test_Yextend_files():
     def test_content_yara_msoffice_doc_gzip_zip_targz_macro(self):
         f_obj = TARG_DIR + MSOFFICE_DOC_GZIP_ZIP_TARGZ
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICE_MACRO_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICE_MACRO_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -246,7 +246,7 @@ class Test_Yextend_files():
     def test_content_yara_msofficex_doc(self):
         f_obj = TARG_DIR + MSOFFICEX_DOC
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICEX_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICEX_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -260,7 +260,7 @@ class Test_Yextend_files():
     def test_content_yara_msofficex_doc_tar(self):
         f_obj = TARG_DIR + MSOFFICEX_DOC_TAR
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICEX_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICEX_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -274,7 +274,7 @@ class Test_Yextend_files():
     def test_content_yara_msofficex_doc_tar_zip(self):
         f_obj = TARG_DIR + MSOFFICEX_DOC_TAR_ZIP
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICEX_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICEX_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -292,7 +292,7 @@ class Test_Yextend_files():
     def test_content_yara_msofficex_doc_exe(self):
         f_obj = TARG_DIR + MSOFFICEX_DOC_EXE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICEX_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICEX_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -308,7 +308,7 @@ class Test_Yextend_files():
     def test_content_yara_crypto_doc_exe(self):
         f_obj = TARG_DIR + CRYPTO_DOC_EXE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, CRYPTO_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", CRYPTO_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -324,7 +324,7 @@ class Test_Yextend_files():
     def test_content_yara_packer_exe(self):
         f_obj = TARG_DIR + PACKER_EXE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, PACKER_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", PACKER_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -338,7 +338,7 @@ class Test_Yextend_files():
     def test_content_yara_7z(self):
         f_obj = TARG_DIR + ZIP_7Z_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICEX_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICEX_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -353,7 +353,7 @@ class Test_Yextend_files():
     def test_content_yara_msofficex_exe(self):
         f_obj = TARG_DIR + MZ_EXE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICEX_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICEX_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -366,7 +366,7 @@ class Test_Yextend_files():
     def test_content_yara_jpg_tar_dll(self):
         f_obj = TARG_DIR + JPG_TAR_DLL
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, MSOFFICEX_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", MSOFFICEX_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
@@ -379,7 +379,7 @@ class Test_Yextend_files():
     def test_yara_random_bz2(self):
         f_obj = TARG_DIR + BZ2_TEST_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, GUANGGAO_YARA_RULESET, f_obj],
+            proc = Popen([CMD, "-r", GUANGGAO_YARA_RULESET, "-t", f_obj],
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
