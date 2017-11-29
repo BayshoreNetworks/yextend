@@ -62,47 +62,33 @@ static std::string get_stdout_cmd(std::string lcmd)
 
 PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length)
 {
-	
-    char *input_filename = NULL;
-    char *input_filepath = NULL;
-    char *output_filename = NULL;
-    char *output_filepath = NULL;
     
-    size_t tmp_path_len = strlen(tmp_path);
-    size_t uuid_len = 32;
+    size_t uuid_len = 36;
     uuid_t id;
+    char uuid_inp[40];
+    char uuid_out[40];
+    char input_filepath[1024];
+    char output_filepath[1024];
     
     //////////////////////////////////////////////////////////
     uuid_generate(id);
-    input_filename = new char[uuid_len + tmp_path_len];
-    uuid_unparse(id, input_filename);
-    input_filepath = new char[tmp_path_len + strlen(input_filename)];
-    strcpy(input_filepath, tmp_path);
-    strcat(input_filepath, input_filename);
+    uuid_unparse(id, uuid_inp);
+    snprintf(input_filepath, sizeof(input_filepath), "%s%s", tmp_path, uuid_inp);
     // write original buffer to file
     std::ofstream fp;
     fp.open(input_filepath, std::ios::out | std::ios::binary );
     fp.write((char*)buffer, buffer_length);
     fp.close();
+
     //////////////////////////////////////////////////////////
     uuid_generate(id);
-    output_filename = new char[uuid_len + tmp_path_len];
-    uuid_unparse(id, output_filename);
-    output_filepath = new char[tmp_path_len + strlen(output_filename)];
-    strcpy(output_filepath, tmp_path);
-    strcat(output_filepath, output_filename);
+    uuid_unparse(id, uuid_out);
+    snprintf(output_filepath, sizeof(output_filepath), "%s%s", tmp_path, uuid_out);
     
 	// set class variables
 	stored_file_name = std::string(input_filepath, strlen(input_filepath));
 	buf_len = buffer_length;
 	extracted_file_name = std::string(output_filepath, strlen(output_filepath));
-	
-	// clean up local vars
-    delete input_filename;
-    delete input_filepath;
-    delete output_filename;
-    delete output_filepath;
-    
 }
 
 PDFParser::~PDFParser()
@@ -170,6 +156,7 @@ int PDFParser::has_embedded_files()
      * And if there is no conversion i_auto gets zero
      */
     int i_auto = atoi(stmp.c_str());
+    delete[] cmd;
 	return i_auto;
 }
 

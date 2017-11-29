@@ -454,8 +454,11 @@ void scan_office_open_xml_api(
 
 							if (x == ARCHIVE_EOF) {
 								
-								if (recurs_threshold_passed(iteration_counter))
-									return;
+								if (recurs_threshold_passed(iteration_counter)) {
+									free(fname);
+									if (final_buff) free(final_buff);
+									goto cleanup_archive;
+								}
 
 								final_buff[final_size] = 0;
 								int elf_type = get_content_type (final_buff, final_size);
@@ -583,6 +586,7 @@ void scan_office_open_xml_api(
 		if (final_buff)
 			free(final_buff);
 	} // end if r >= 0 
+cleanup_archive:
 	// clean up libarchive resources
 	archive_read_close(a);
 	archive_read_free(a);
