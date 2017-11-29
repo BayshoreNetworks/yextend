@@ -171,7 +171,7 @@ def print_yextend_json_output(out=''):
                 print '{} : {}'.format(my_print(thestr="File Size", thecolor='white'), my_print(thestr=rule_file['file_size'], thecolor='green'))
                 print '{} : {}'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=rule_file['file_signature_MD5'], thecolor='green'))
 
-                if 'yara_ruleset_file_name' in rule_file:
+                if 'yara_ruleset_file_name' in rule_file.keys():
                     print '{} : {}'.format(my_print(thestr="Yara Ruleset File Name", thecolor='white'), my_print(thestr=rule_file['yara_ruleset_file_name'], thecolor='green'))
 
                 print '\n{}\n'.format(my_print(thestr='=======================================================================', thecolor='white'))
@@ -180,7 +180,7 @@ def print_yextend_json_output(out=''):
                 if ('scan_results' in rule_file) and (rule_file['scan_results'] is not None):
 
                     for result in rule_file['scan_results']:
-
+                        res_keys = result.keys()
                         if result['yara_matches_found']:
 
                             print '\tRule ID: {}'.format(my_print(thestr=result['yara_rule_id'], thecolor='red'))
@@ -206,41 +206,41 @@ def print_yextend_json_output(out=''):
                             if len(result) <= 2:
                                 print '\t\t{}\n'.format('None')
 
-                            if 'scan_type' in result:
+                            if 'scan_type' in res_keys:
                                 print '\n{} : {}'.format(my_print(thestr="Scan Type", thecolor='white'), my_print(thestr=result['scan_type'], thecolor='green'))
 
-                            if 'file_name' in result:
+                            if 'file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="File Name", thecolor='white'), my_print(thestr=result['file_name'], thecolor='green'))
 
-                            if 'child_file_name' in result:
+                            if 'child_file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="Child File Name", thecolor='white'), my_print(thestr=result['child_file_name'], thecolor='green'))
 
-                            if 'parent_file_name' in result:
+                            if 'parent_file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="Parent File Name", thecolor='white'), my_print(thestr=result['parent_file_name'], thecolor='green'))
 
-                            if 'file_signature_MD5' in result:
+                            if 'file_signature_MD5' in res_keys:
                                 print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
 
                         else:
 
                             print '\tRule ID: {}\n'.format('None')
 
-                            if 'scan_type' in result:
+                            if 'scan_type' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="Scan Type", thecolor='white'), my_print(thestr=result['scan_type'], thecolor='green'))
 
-                            if 'non_archive_file_name' in result:
+                            if 'non_archive_file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="Non-Archive File Name", thecolor='white'), my_print(thestr=result['non_archive_file_name'], thecolor='green'))
 
-                            if 'file_name' in result:
+                            if 'file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="File Name", thecolor='white'), my_print(thestr=result['file_name'], thecolor='green'))
 
-                            if 'parent_file_name' in result:
+                            if 'parent_file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="Parent File Name", thecolor='white'), my_print(thestr=result['parent_file_name'], thecolor='green'))
 
-                            if 'child_file_name' in result:
+                            if 'child_file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="Child File Name", thecolor='white'), my_print(thestr=result['child_file_name'], thecolor='green'))
 
-                            if 'file_signature_MD5' in result:
+                            if 'file_signature_MD5' in res_keys:
                                 print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
 
                 print '{}\n'.format(my_print(thestr='===============================OMEGA===================================', thecolor='white'))
