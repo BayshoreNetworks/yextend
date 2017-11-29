@@ -54,6 +54,7 @@ void *bayshoresubstring(size_t start, size_t stop, const char *src, char *dst, s
 		count = size;
 	}
 	sprintf(dst, "%.*s", count, src + start);
+	return dst;
 }
 
 
@@ -1474,9 +1475,9 @@ int get_file_type(const uint8_t *file_name) {
 		size_t newLen = fread(source, sizeof(char), MAXBUFLEN, fp);
 		if ( ferror( fp ) != 0 ) {
 			fputs("Error reading file", stderr);
-		} else {
-			source[newLen++] = '\0'; /* Just to be safe. */
-		}
+			return -1; // signal the error
+		} 
+		source[newLen++] = '\0'; /* Just to be safe. */
 		ret = get_buffer_type((uint8_t *)source, strlen(source));
 		fclose(fp);
 	}

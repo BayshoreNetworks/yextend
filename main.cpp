@@ -307,6 +307,80 @@ std::string process_scan_hit_str(const std::string &hit_str,
 	
 }
 
+
+std::string process_scan_no_hit(bool hit,
+		const std::string &file_scan_result,
+		const std::string &file_scan_type,
+		const std::string &file_signature_md5,
+		const std::string &parent_file_name,
+		const std::string &child_file_name,
+		size_t file_size
+		) {
+	
+	std::string resp;
+
+	json j_results;
+	j_results[json_output_labels[10]] = hit;
+	
+	if (file_scan_result.size() > 0) {
+		j_results[json_output_labels[12]] = file_scan_result;
+	}
+	
+	j_results[json_output_labels[3]] = file_scan_type;
+	j_results[json_output_labels[4]] = file_signature_md5;
+	
+	if (parent_file_name.size()) {
+		if (child_file_name.size()) {
+			if (parent_file_name != child_file_name) {
+				j_results[json_output_labels[6]] = parent_file_name;
+				j_results[json_output_labels[7]] = child_file_name;
+			} else  {
+				j_results[json_output_labels[0]] = parent_file_name;
+			}
+		} else {
+			j_results[json_output_labels[5]] = parent_file_name;
+		}
+	}
+	
+	if (file_size > 0) {
+		j_results[json_output_labels[1]] = file_size;
+	}
+	
+	if (!j_results.is_null()) {
+		resp = j_results.dump();
+	}
+
+	return resp;
+	
+}
+
+
+void legacy_output(const std::string &file_scan_result,
+		const std::string &file_scan_type,
+		const std::string &file_signature_md5,
+		const std::string &parent_file_name,
+		const std::string &child_file_name,
+		size_t file_size
+		) {
+	
+	std::cout << std::endl;
+	std::cout << output_labels[2] << file_scan_result << std::endl;
+	std::cout << output_labels[3] << file_scan_type << std::endl;
+	if (parent_file_name.size()) {
+		if (child_file_name.size()) {
+			if (parent_file_name != child_file_name)
+				std::cout << output_labels[6] << parent_file_name << std::endl << output_labels[7] << child_file_name << std::endl;
+			else
+				std::cout << output_labels[0] << parent_file_name << std::endl;
+		} else {
+			std::cout << output_labels[5] << parent_file_name << std::endl;
+		}
+	}
+	std::cout << output_labels[4] << file_signature_md5 << std::endl;
+	std::cout << output_labels[1] << file_size << std::endl;
+	std::cout << std::endl;
+
+}
 ///////////////////////////////////////////////////////////////
 
 
@@ -315,8 +389,7 @@ std::string process_scan_hit_str(const std::string &hit_str,
 main
  ****/
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 
 	int c;
 	bool out_json = false;
@@ -459,6 +532,7 @@ int main(int argc, char* argv[])
 									1);
 
 						} else {
+							
 							scan_content (
 									c,
 									file_size,
@@ -467,6 +541,7 @@ int main(int argc, char* argv[])
 									fs,
 									yara_cb,
 									1);
+							
 						}
 
 						if (!ssr_list.empty()) {
@@ -477,26 +552,17 @@ int main(int argc, char* argv[])
 							
 							for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
 									v != ssr_list.end();
-									v++)
-							{
+									v++) {
 								
 								if (!out_json) {
-
-									std::cout << std::endl;
-									std::cout << output_labels[2] << v->file_scan_result << std::endl;
-									std::cout << output_labels[3] << v->file_scan_type << std::endl;
-									if (v->parent_file_name.size()) {
-										if (v->child_file_name.size()) {
-											if(v->parent_file_name != v->child_file_name)
-												std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
-											else
-												std::cout << output_labels[0] << v->parent_file_name << std::endl;
-										} else { 
-											std::cout << output_labels[5] << v->parent_file_name << std::endl;
-										}
-									}
-									std::cout << output_labels[4] << v->file_signature_md5 << std::endl;
-									std::cout << std::endl;
+									
+									legacy_output(v->file_scan_result,
+											v->file_scan_type,
+											v->file_signature_md5,
+											v->parent_file_name,
+											v->child_file_name,
+											v->file_size
+											);
 								
 								} else {
 									
@@ -513,6 +579,7 @@ int main(int argc, char* argv[])
 									// we have hits
 									if (file_scan_result.size()) {
 									
+										// we have multiple hits
 										if (tokens.size() > 0) {
 											
 											for (auto& it : tokens) {
@@ -527,6 +594,7 @@ int main(int argc, char* argv[])
 													
 													auto jresp = json::parse(pshs_resp);
 													jresp[json_output_labels[10]] = true;
+													jresp[json_output_labels[1]] = v->file_size;
 													j_children.push_back(jresp);
 													
 												} else {
@@ -543,17 +611,24 @@ int main(int argc, char* argv[])
 													 *     }
 													 * 
 													 * 
-													 */
-													json jnohit;
-													jnohit[json_output_labels[10]] = true;
-													jnohit[json_output_labels[12]] = it;
-													j_children.push_back(jnohit);
+													 */													
+													std::string j_no_hit = process_scan_no_hit(true,
+															it,
+															v->file_scan_type,
+															v->file_signature_md5,
+															v->parent_file_name,
+															v->child_file_name,
+															v->file_size
+															);
+													if (j_no_hit.size() > 0) {
+														j_children.push_back(json::parse(j_no_hit));
+													}
 													
 												}
 												
 											}
 											
-										} else {
+										} else { // we have single hit
 											
 											std::string pshs_resp = process_scan_hit_str(file_scan_result,
 													v->file_scan_type, 
@@ -565,41 +640,40 @@ int main(int argc, char* argv[])
 												
 												auto jresp = json::parse(pshs_resp);
 												jresp[json_output_labels[10]] = true;
+												jresp[json_output_labels[1]] = v->file_size;
 												j_children.push_back(jresp);
 												
 											} else {
-												
-												json jnohit;
-												jnohit[json_output_labels[10]] = true;
-												jnohit[json_output_labels[12]] = file_scan_result;
-												j_children.push_back(jnohit);
+
+												std::string j_no_hit = process_scan_no_hit(true,
+														file_scan_result,
+														v->file_scan_type,
+														v->file_signature_md5,
+														v->parent_file_name,
+														v->child_file_name,
+														v->file_size
+														);
+												if (j_no_hit.size() > 0) {
+													j_children.push_back(json::parse(j_no_hit));
+												}
 												
 											}
 											
 										}
 									
 									} else { // no hits just display meta data
-										
-										json j_no_hit;
-										j_no_hit[json_output_labels[10]] = false;
-										
-										j_no_hit[json_output_labels[3]] = v->file_scan_type;
-										j_no_hit[json_output_labels[4]] = v->file_signature_md5;
-										
-										if (v->parent_file_name.size()) {
-											if (v->child_file_name.size()) {
-												if (v->parent_file_name != v->child_file_name) {
-													j_no_hit[json_output_labels[6]] = v->parent_file_name;
-													j_no_hit[json_output_labels[7]] = v->child_file_name;
-												} else  {
-													j_no_hit[json_output_labels[0]] = v->parent_file_name;
-												}
-											} else {
-												j_no_hit[json_output_labels[5]] = v->parent_file_name;
-											}
+
+										std::string j_no_hit = process_scan_no_hit(false,
+												"",
+												v->file_scan_type,
+												v->file_signature_md5,
+												v->parent_file_name,
+												v->child_file_name,
+												v->file_size
+												);
+										if (j_no_hit.size() > 0) {
+											j_children.push_back(json::parse(j_no_hit));
 										}
-										
-										j_children.push_back(j_no_hit);
 										
 									}
 									
@@ -703,7 +777,9 @@ int main(int argc, char* argv[])
 							fs,
 							yara_cb,
 							1);
+					
 				} else {
+					
 					scan_content (
 							c,
 							file_size,
@@ -712,6 +788,7 @@ int main(int argc, char* argv[])
 							fs,
 							yara_cb,
 							1);
+					
 				}
 
 				if (!ssr_list.empty()) {
@@ -726,21 +803,13 @@ int main(int argc, char* argv[])
 
 						if (!out_json) {
 
-							std::cout << std::endl;
-							std::cout << output_labels[2] << v->file_scan_result << std::endl;
-							std::cout << output_labels[3] << v->file_scan_type << std::endl;
-							if (v->parent_file_name.size()) {
-								if (v->child_file_name.size()) {
-									if ( v->parent_file_name != v->child_file_name)
-										std::cout << output_labels[6] << v->parent_file_name << std::endl << output_labels[7] << v->child_file_name << std::endl;
-									else
-										std::cout << output_labels[0] << v->parent_file_name << std::endl;
-								} else {
-									std::cout << output_labels[5] << v->parent_file_name << std::endl;
-								}
-							}
-							std::cout << output_labels[4] << v->file_signature_md5 << std::endl;
-							std::cout << std::endl;
+							legacy_output(v->file_scan_result,
+									v->file_scan_type,
+									v->file_signature_md5,
+									v->parent_file_name,
+									v->child_file_name,
+									v->file_size
+									);
 
 						} else {
 
@@ -756,6 +825,7 @@ int main(int argc, char* argv[])
 								std::vector<std::string> tokens;
 								tokenize_string (file_scan_result, tokens, ", ");
 								
+								// we have multiple hits
 								if (tokens.size() > 0) {
 									
 									for (auto& it : tokens) {
@@ -770,20 +840,28 @@ int main(int argc, char* argv[])
 											
 											auto jresp = json::parse(pshs_resp);
 											jresp[json_output_labels[10]] = true;
+											jresp[json_output_labels[1]] = v->file_size;
 											j_children.push_back(jresp);
 											
 										} else {
 
-											json jnohit;
-											jnohit[json_output_labels[10]] = true;
-											jnohit[json_output_labels[12]] = it;
-											j_children.push_back(jnohit);
+											std::string j_no_hit = process_scan_no_hit(true,
+													it,
+													v->file_scan_type,
+													v->file_signature_md5,
+													v->parent_file_name,
+													v->child_file_name,
+													v->file_size
+													);
+											if (j_no_hit.size() > 0) {
+												j_children.push_back(json::parse(j_no_hit));
+											}
 											
 										}
 										
 									}
 									
-								} else {
+								} else { // we have single hit
 									
 									std::string pshs_resp = process_scan_hit_str(file_scan_result,
 											v->file_scan_type, 
@@ -795,41 +873,40 @@ int main(int argc, char* argv[])
 										
 										auto jresp = json::parse(pshs_resp);
 										jresp[json_output_labels[10]] = true;
+										jresp[json_output_labels[1]] = v->file_size;
 										j_children.push_back(jresp);
 										
 									} else {
 										
-										json jnohit;
-										jnohit[json_output_labels[10]] = true;
-										jnohit[json_output_labels[12]] = file_scan_result;
-										j_children.push_back(jnohit);
-										
+										std::string j_no_hit = process_scan_no_hit(true,
+												file_scan_result,
+												v->file_scan_type,
+												v->file_signature_md5,
+												v->parent_file_name,
+												v->child_file_name,
+												v->file_size
+												);
+										if (j_no_hit.size() > 0) {
+											j_children.push_back(json::parse(j_no_hit));
+										}
+
 									}
 									
 								}
 							
 							} else { // no hits just display meta data
 								
-								json j_no_hit;
-								j_no_hit[json_output_labels[10]] = false;
-								
-								j_no_hit[json_output_labels[3]] = v->file_scan_type;
-								j_no_hit[json_output_labels[4]] = v->file_signature_md5;
-								
-								if (v->parent_file_name.size()) {
-									if (v->child_file_name.size()) {
-										if (v->parent_file_name != v->child_file_name) {
-											j_no_hit[json_output_labels[6]] = v->parent_file_name;
-											j_no_hit[json_output_labels[7]] = v->child_file_name;
-										} else  {
-											j_no_hit[json_output_labels[0]] = v->parent_file_name;
-										}
-									} else {
-										j_no_hit[json_output_labels[5]] = v->parent_file_name;
-									}
+								std::string j_no_hit = process_scan_no_hit(false,
+										"",
+										v->file_scan_type,
+										v->file_signature_md5,
+										v->parent_file_name,
+										v->child_file_name,
+										v->file_size
+										);
+								if (j_no_hit.size() > 0) {
+									j_children.push_back(json::parse(j_no_hit));
 								}
-								
-								j_children.push_back(j_no_hit);
 								
 							}
 
@@ -853,7 +930,10 @@ int main(int argc, char* argv[])
 				fclose(file);
 			}
 
-			j_level1[json_output_labels[13]] = j_children;
+			//j_level1[json_output_labels[13]] = j_children;
+			if (!j_children.is_null()) {
+				j_level1[json_output_labels[13]] = j_children;
+			}
 			
 			if (!j_level1.is_null()) {
 				j_main.push_back(j_level1);
