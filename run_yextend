@@ -218,6 +218,9 @@ def print_yextend_json_output(out=''):
                             if 'parent_file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="Parent File Name", thecolor='white'), my_print(thestr=result['parent_file_name'], thecolor='green'))
 
+                            if 'file_size' in res_keys:
+                                print '{} : {}'.format(my_print(thestr="File Size", thecolor='white'), my_print(thestr=result['file_size'], thecolor='green'))
+
                             if 'file_signature_MD5' in res_keys:
                                 print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
 
@@ -239,6 +242,9 @@ def print_yextend_json_output(out=''):
 
                             if 'child_file_name' in res_keys:
                                 print '{} : {}'.format(my_print(thestr="Child File Name", thecolor='white'), my_print(thestr=result['child_file_name'], thecolor='green'))
+
+                            if 'file_size' in res_keys:
+                                print '{} : {}'.format(my_print(thestr="File Size", thecolor='white'), my_print(thestr=result['file_size'], thecolor='green'))
 
                             if 'file_signature_MD5' in res_keys:
                                 print '{} : {}\n'.format(my_print(thestr="File Signature (MD5)", thecolor='white'), my_print(thestr=result['file_signature_MD5'], thecolor='green'))
