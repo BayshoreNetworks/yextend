@@ -1,63 +1,49 @@
 sudo: required
-  
-# Enable C++ support
 language: cpp
-
-# Compiler selection
 compiler:
-  - gcc
-
+- gcc
 env:
   global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "VHfYzTAUo4xAn6pef5G+ml142xGKNUkXYn+LLaaWaZnkfJueCfJEmPHIdSKm8Eh645ytr2TJ3TXRdUvioeaK1jfjUZKqFsICFJxxoWO6VuKv7DEr8OsIioHKNU9fv2IkXHC+vI6J9NjJrI1UH0XmmqkulzUvePFPIvBRm3AAg/zrnG/vyrROu+ZUxJpEV7bPbJZnUFHNeqwV9WQwWKZ5cB0KNgStLbYmfUWf27FOKB2nqq/m6FHvPYO49eDE4QRV9SgiFZasJnltHnNyxlok5Nrf2A0Uhvpw5Ad8I77eP8tf2Ur385+NUm8PpQiwHwWCRfa7wDowDp9EPMjjelNfbuvEKDqT145v41+hPULOo9oK2UPQxiShAHUKdZ4IUWlo89MB8xpM8T+cjpcal8ALCXpC8f/4+8PwuYJ4JTsNzY/ZZhr2WJA1tVWU5k7868nvjLcMOR7YisK6Duz2SzsAvbPWz46krZQOGDYmGKBLBHSW2UlFDuwjzOpx+bMcYC6pv1Xz43fFKzwLI9qVUC27WslabXCI0fGU1jTy185ccF78MCNe+mCYoeCW+nWtLgjIsPXXcCMzZWiiuXw8uwgXFo0Ul0axO5WcfLFojepYsPfa/A9OXv9Pq7UrKiTvIjW6td1zPY30wpdAO4bn64K2eZzDPrMa+xYvMNWPqopzt3I="
-
+  - secure: blElWPbZkN5BUYkUyNctjeV5NA2f90DyNJtOWYeleOCaVg0n0VFIOoO677mDhSLX8i9FAChUTd4x2Q/uQlu0PWXkmqX+Hs+t+V5Pr6GLADo15gHeOYu/Ebezvz3M5JG4W6De3dcVbNsU0HZxGWfZGeFHVof0zUO8J1Q5dbzJxRwZABkAtmVNw10tbiSUI0H3lrU3/GhRvHVZJdtXXyMU2kM8R/KgaLzek35CG6tEKKMThvRiM3wCDOcBO2uPZSrjFGhrNyzsVXlEfupsFwadns6khpGqxcX+Gfj9OdimLH8AYC9vchdHxBkPiaxRjf6gG3oqmidmXxpboLJrAjuwNh+BuPYIZUHormPjb+IS8JU1KhqEhXi722/RJtBH7Q/ysyn+HPfEbT4GvkR4Hz5aGHU3je8yWxcHE/96/zmSywpg+Pvcp3ifIRTXymEbEKoqEBdInuea/9QQEi8d94sbjVzDSf4Cdx3JTbOwBQGWaVF/Wz8PqIKSvGJixUPDjKBVb4QdsaY2YDFWDwQsDfvaJVXUf8YpBK1i766KLcbwq6xNypeJdtBTbs/I4qs+DOVzTLWTwErUkQ7m47ql9cNgcqmRl2Mp5t1ACRVHvUv2v39tITEE44JEYmRse9OoOk3yUGbOnodDmiPfmjXgZ1VpL5eV+uo6u0SJBap1zcT2VWk=
 matrix:
   include:
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-7
+    env:
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 before_install:
-  - eval "${MATRIX_EVAL}"
-  - sudo apt-get install libssl-dev
-  - sudo apt-get install zlib1g-dev
-  - sudo apt-get install libbz2-dev
-  - sudo apt-get install libarchive-dev
-  - sudo apt-get install libpcre3-dev
-  - sudo apt-get install uuid-dev
-  - sudo apt-get install poppler-utils
-  - sudo apt-get install python-nose
-  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-
+- eval "${MATRIX_EVAL}"
+- sudo apt-get install libssl-dev
+- sudo apt-get install zlib1g-dev
+- sudo apt-get install libbz2-dev
+- sudo apt-get install libarchive-dev
+- sudo apt-get install libpcre3-dev
+- sudo apt-get install uuid-dev
+- sudo apt-get install poppler-utils
+- sudo apt-get install python-nose
+- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
+  CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 install:
-  - wget https://github.com/VirusTotal/yara/archive/v3.7.0.tar.gz
-  - tar -xzvf v3.7.0.tar.gz
-  - cd yara-3.7.0
-  - ./bootstrap.sh
-  - ./configure
-  - make
-  - sudo make install
-  - cd ../
-
+- wget https://github.com/VirusTotal/yara/archive/v3.7.0.tar.gz
+- tar -xzvf v3.7.0.tar.gz
+- cd yara-3.7.0
+- "./bootstrap.sh"
+- "./configure"
+- make
+- sudo make install
+- cd ../
 addons:
   coverity_scan:
     project:
-      name: "BayshoreNetworks/yextend"
-      description: "Build submitted via Travis CI"
+      name: BayshoreNetworks/yextend
+      description: Build submitted via Travis CI
     notification_email: andres@neurofuzzsecurity.com
-    build_command_prepend: "make clean"
-    build_command:   "./build.sh"
+    build_command_prepend: make clean
+    build_command: "./build.sh"
     branch_pattern: coverity_scan
-
-# Build steps
 script: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./build.sh ; fi
-
