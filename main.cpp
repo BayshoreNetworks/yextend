@@ -97,6 +97,7 @@ static const char *json_output_labels[] = {
 static const char *alpha = "===============================ALPHA===================================";
 static const char *midline = "=======================================================================";
 static const char *omega = "===============================OMEGA===================================";
+static const char *json_type_error = "JSON type error";
 
 void usage() {
 
@@ -609,11 +610,15 @@ int main(int argc, char* argv[]) {
 															v->child_file_name);
 													
 													if (pshs_resp.size()) {
-														
-														auto jresp = json::parse(pshs_resp);
-														jresp[json_output_labels[10]] = true;
-														jresp[json_output_labels[1]] = v->file_size;
-														j_children.push_back(jresp);
+
+														try {
+															auto jresp = json::parse(pshs_resp);
+															jresp[json_output_labels[10]] = true;
+															jresp[json_output_labels[1]] = v->file_size;
+															j_children.push_back(jresp);
+														} catch (nlohmann::detail::type_error const& e) {
+															std::cout << json_type_error << " : " << e.what() << std::endl;
+														}
 														
 													} else {
 														
@@ -639,7 +644,14 @@ int main(int argc, char* argv[]) {
 																v->file_size
 																);
 														if (j_no_hit.size() > 0) {
-															j_children.push_back(json::parse(j_no_hit));
+															
+															//j_children.push_back(json::parse(j_no_hit));
+															try {
+																j_children.push_back(json::parse(j_no_hit));
+															} catch (nlohmann::detail::type_error const& e) {
+																std::cout << json_type_error << " : " << e.what() << std::endl;
+															}
+															
 														}
 														
 													}
@@ -655,11 +667,15 @@ int main(int argc, char* argv[]) {
 														v->child_file_name);
 												
 												if (pshs_resp.size()) {
-													
-													auto jresp = json::parse(pshs_resp);
-													jresp[json_output_labels[10]] = true;
-													jresp[json_output_labels[1]] = v->file_size;
-													j_children.push_back(jresp);
+
+													try {
+														auto jresp = json::parse(pshs_resp);
+														jresp[json_output_labels[10]] = true;
+														jresp[json_output_labels[1]] = v->file_size;
+														j_children.push_back(jresp);
+													} catch (nlohmann::detail::type_error const& e) {
+														std::cout << json_type_error << " : " << e.what() << std::endl;
+													}
 													
 												} else {
 	
@@ -672,7 +688,14 @@ int main(int argc, char* argv[]) {
 															v->file_size
 															);
 													if (j_no_hit.size() > 0) {
-														j_children.push_back(json::parse(j_no_hit));
+														
+														//j_children.push_back(json::parse(j_no_hit));
+														try {
+															j_children.push_back(json::parse(j_no_hit));
+														} catch (nlohmann::detail::type_error const& e) {
+															std::cout << json_type_error << " : " << e.what() << std::endl;
+														}
+														
 													}
 													
 												}
@@ -690,7 +713,14 @@ int main(int argc, char* argv[]) {
 													v->file_size
 													);
 											if (j_no_hit.size() > 0) {
-												j_children.push_back(json::parse(j_no_hit));
+												
+												//j_children.push_back(json::parse(j_no_hit));
+												try {
+													j_children.push_back(json::parse(j_no_hit));
+												} catch (nlohmann::detail::type_error const& e) {
+													std::cout << json_type_error << " : " << e.what() << std::endl;
+												}
+												
 											}
 											
 										}
@@ -863,11 +893,15 @@ int main(int argc, char* argv[]) {
 													v->child_file_name);
 											
 											if (pshs_resp.size()) {
-												
-												auto jresp = json::parse(pshs_resp);
-												jresp[json_output_labels[10]] = true;
-												jresp[json_output_labels[1]] = v->file_size;
-												j_children.push_back(jresp);
+
+												try {
+													auto jresp = json::parse(pshs_resp);
+													jresp[json_output_labels[10]] = true;
+													jresp[json_output_labels[1]] = v->file_size;
+													j_children.push_back(jresp);
+												} catch (nlohmann::detail::type_error const& e) {
+													std::cout << json_type_error << " : " << e.what() << std::endl;
+												}
 												
 											} else {
 	
@@ -880,7 +914,14 @@ int main(int argc, char* argv[]) {
 														v->file_size
 														);
 												if (j_no_hit.size() > 0) {
-													j_children.push_back(json::parse(j_no_hit));
+													
+													//j_children.push_back(json::parse(j_no_hit));
+													try {
+														j_children.push_back(json::parse(j_no_hit));
+													} catch (nlohmann::detail::type_error const& e) {
+														std::cout << json_type_error << " : " << e.what() << std::endl;
+													}
+													
 												}
 												
 											}
@@ -897,10 +938,14 @@ int main(int argc, char* argv[]) {
 										
 										if (pshs_resp.size()) {
 											
-											auto jresp = json::parse(pshs_resp);
-											jresp[json_output_labels[10]] = true;
-											jresp[json_output_labels[1]] = v->file_size;
-											j_children.push_back(jresp);
+											try {
+												auto jresp = json::parse(pshs_resp);
+												jresp[json_output_labels[10]] = true;
+												jresp[json_output_labels[1]] = v->file_size;
+												j_children.push_back(jresp);
+											} catch (nlohmann::detail::type_error const& e) {
+												std::cout << json_type_error << " : " << e.what() << std::endl;
+											}
 											
 										} else {
 											
@@ -913,7 +958,14 @@ int main(int argc, char* argv[]) {
 													v->file_size
 													);
 											if (j_no_hit.size() > 0) {
-												j_children.push_back(json::parse(j_no_hit));
+												
+												//j_children.push_back(json::parse(j_no_hit));
+												try {
+													j_children.push_back(json::parse(j_no_hit));
+												} catch (nlohmann::detail::type_error const& e) {
+													std::cout << json_type_error << " : " << e.what() << std::endl;
+												}
+												
 											}
 	
 										}
@@ -931,7 +983,14 @@ int main(int argc, char* argv[]) {
 											v->file_size
 											);
 									if (j_no_hit.size() > 0) {
-										j_children.push_back(json::parse(j_no_hit));
+										
+										//j_children.push_back(json::parse(j_no_hit));
+										try {
+											j_children.push_back(json::parse(j_no_hit));
+										} catch (nlohmann::detail::type_error const& e) {
+											std::cout << json_type_error << " : " << e.what() << std::endl;
+										}
+										
 									}
 									
 								}
