@@ -29,6 +29,7 @@
 
 
 #include <iostream>
+#include <fstream>
 #include <list>
 #include <sstream>
 #include <vector>
@@ -110,15 +111,26 @@ void usage() {
 }
 ///////////////////////////////////////////////////////////////
 
-// Get the size of a file
-long get_file_size(FILE *file) {
+bool is_file(const std::string &fpath) {
 
-	long lCurPos, lEndPos;
-	lCurPos = ftell(file);
-	fseek(file, 0, 2);
-	lEndPos = ftell(file);
-	fseek(file, lCurPos, 0);
-	return lEndPos;
+	struct stat buf;
+	stat(fpath.c_str(), &buf);
+	return S_ISREG(buf.st_mode);
+
+}
+
+// Get the size of a file
+size_t get_file_size(const char *full_file_path) {
+
+	size_t total = 0;
+
+	if (is_file(full_file_path)) {
+		std::ifstream file_sz(full_file_path, std::ios::binary | std::ios::ate);
+		total = file_sz.tellg();
+		file_sz.close();
+	}
+
+	return total;
 }
 
 char *str_to_md5(const char *str, int length) {
@@ -196,8 +208,10 @@ double get_yara_version() {
 			yara_version = strtod(yver_str.c_str(), NULL);
 
 		}
+		
+		pclose(fp);
+		
 	}
-	pclose(fp);
 
 	return yara_version;
 }
@@ -485,7 +499,7 @@ int main(int argc, char* argv[]) {
 
 					if ((file = fopen(fs, "rb")) != NULL) {
 						// Get the size of the file in bytes
-						long file_size = get_file_size(file);
+						size_t file_size = get_file_size(fs);
 
 						// Allocate space in the buffer for the whole file
 						c = new uint8_t[file_size];
@@ -738,7 +752,7 @@ int main(int argc, char* argv[]) {
 			if ((file = fopen(fs, "rb")) != NULL) {
 				
 				// Get the size of the file in bytes
-				long file_size = get_file_size(file);
+				size_t file_size = get_file_size(fs);
 
 				// Allocate space in the buffer for the whole file
 				c = new uint8_t[file_size];
