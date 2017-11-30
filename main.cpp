@@ -114,7 +114,9 @@ void usage() {
 bool is_file(const std::string &fpath) {
 
 	struct stat buf;
-	stat(fpath.c_str(), &buf);
+	if (stat(fpath.c_str(), &buf) != 0) {
+		return false;
+	}
 	return S_ISREG(buf.st_mode);
 
 }
@@ -466,7 +468,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	json j_main;
-	
+
 	if (is_directory(target_resource.c_str())) {
 
 		DIR *dpdf;
