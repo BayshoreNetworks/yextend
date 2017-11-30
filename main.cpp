@@ -490,101 +490,149 @@ int main(int argc, char* argv[]) {
 						// Allocate space in the buffer for the whole file
 						c = new uint8_t[file_size];
 						// Read the file in to the buffer
-						fread(c, file_size, 1, file);
-
-						if (!out_json) {
-							
-							std::cout << std::endl << alpha << std::endl;
-							std::cout << output_labels[8] << yara_ruleset_file_name << std::endl;
-							std::cout << output_labels[0] << fs << std::endl;
-							std::cout << output_labels[1] << file_size << std::endl;
+						size_t dat_read = fread(c, 1, file_size, file);
 						
-						} else {
-
-							j_level1[json_output_labels[8]] = yara_ruleset_file_name;
-							j_level1[json_output_labels[0]] = fs;
-							j_level1[json_output_labels[1]] = file_size;							
-							
-						}
-
-						char *output = str_to_md5((const char *)c, file_size);
-						if (output) {
-
+						if (dat_read == file_size) {
+	
 							if (!out_json) {
-								std::cout << output_labels[4] << output << std::endl;
+								
+								std::cout << std::endl << alpha << std::endl;
+								std::cout << output_labels[8] << yara_ruleset_file_name << std::endl;
+								std::cout << output_labels[0] << fs << std::endl;
+								std::cout << output_labels[1] << file_size << std::endl;
+							
 							} else {
-								j_level1[json_output_labels[4]] = output;
-							}
-							free(output);
-						}
-
-						std::list<security_scan_results_t> ssr_list;
-
-						if (rules) {
-
-							scan_content (
-									c,
-									file_size,
-									rules,
-									&ssr_list,
-									fs,
-									yara_cb,
-									1);
-
-						} else {
-							
-							scan_content (
-									c,
-									file_size,
-									yara_ruleset_file_name.c_str(),
-									&ssr_list,
-									fs,
-									yara_cb,
-									1);
-							
-						}
-
-						if (!ssr_list.empty()) {
-
-							if (!out_json) {
-								std::cout << std::endl << midline << std::endl;
-							}
-							
-							for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
-									v != ssr_list.end();
-									v++) {
+	
+								j_level1[json_output_labels[8]] = yara_ruleset_file_name;
+								j_level1[json_output_labels[0]] = fs;
+								j_level1[json_output_labels[1]] = file_size;							
 								
+							}
+	
+							char *output = str_to_md5((const char *)c, file_size);
+							if (output) {
+	
 								if (!out_json) {
-									
-									legacy_output(v->file_scan_result,
-											v->file_scan_type,
-											v->file_signature_md5,
-											v->parent_file_name,
-											v->child_file_name,
-											v->file_size
-											);
-								
+									std::cout << output_labels[4] << output << std::endl;
 								} else {
+									j_level1[json_output_labels[4]] = output;
+								}
+								free(output);
+							}
+	
+							std::list<security_scan_results_t> ssr_list;
+	
+							if (rules) {
+	
+								scan_content (
+										c,
+										file_size,
+										rules,
+										&ssr_list,
+										fs,
+										yara_cb,
+										1);
+	
+							} else {
+								
+								scan_content (
+										c,
+										file_size,
+										yara_ruleset_file_name.c_str(),
+										&ssr_list,
+										fs,
+										yara_cb,
+										1);
+								
+							}
+	
+							if (!ssr_list.empty()) {
+	
+								if (!out_json) {
+									std::cout << std::endl << midline << std::endl;
+								}
+								
+								for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
+										v != ssr_list.end();
+										v++) {
 									
-									std::string file_scan_result = v->file_scan_result;
-									if (file_scan_result.size() > 1) {
-
-										j_level1[json_output_labels[10]] = true;
+									if (!out_json) {
 										
-									}
+										legacy_output(v->file_scan_result,
+												v->file_scan_type,
+												v->file_signature_md5,
+												v->parent_file_name,
+												v->child_file_name,
+												v->file_size
+												);
 									
-									std::vector<std::string> tokens;
-									tokenize_string (file_scan_result, tokens, ", ");
-									
-									// we have hits
-									if (file_scan_result.size()) {
-									
-										// we have multiple hits
-										if (tokens.size() > 0) {
+									} else {
+										
+										std::string file_scan_result = v->file_scan_result;
+										if (file_scan_result.size() > 1) {
+	
+											j_level1[json_output_labels[10]] = true;
 											
-											for (auto& it : tokens) {
+										}
+										
+										std::vector<std::string> tokens;
+										tokenize_string (file_scan_result, tokens, ", ");
+										
+										// we have hits
+										if (file_scan_result.size()) {
+										
+											// we have multiple hits
+											if (tokens.size() > 0) {
 												
-												std::string pshs_resp = process_scan_hit_str(it,
+												for (auto& it : tokens) {
+													
+													std::string pshs_resp = process_scan_hit_str(it,
+															v->file_scan_type, 
+															v->file_signature_md5,
+															v->parent_file_name,
+															v->child_file_name);
+													
+													if (pshs_resp.size()) {
+														
+														auto jresp = json::parse(pshs_resp);
+														jresp[json_output_labels[10]] = true;
+														jresp[json_output_labels[1]] = v->file_size;
+														j_children.push_back(jresp);
+														
+													} else {
+														
+														/*
+														 * here we have rule hits with not much
+														 * in the way of meta-data, an example
+														 * of a rule like this:
+														 * 
+														 *     rule is_entropy
+														 *     {
+														 *         condition:
+														 *             math.entropy(0,filesize)>5
+														 *     }
+														 * 
+														 * 
+														 */													
+														std::string j_no_hit = process_scan_no_hit(true,
+																it,
+																v->file_scan_type,
+																v->file_signature_md5,
+																v->parent_file_name,
+																v->child_file_name,
+																v->file_size
+																);
+														if (j_no_hit.size() > 0) {
+															j_children.push_back(json::parse(j_no_hit));
+														}
+														
+													}
+													
+												}
+												
+											} else { // we have single hit
+												
+												std::string pshs_resp = process_scan_hit_str(file_scan_result,
 														v->file_scan_type, 
 														v->file_signature_md5,
 														v->parent_file_name,
@@ -598,22 +646,9 @@ int main(int argc, char* argv[]) {
 													j_children.push_back(jresp);
 													
 												} else {
-													
-													/*
-													 * here we have rule hits with not much
-													 * in the way of meta-data, an example
-													 * of a rule like this:
-													 * 
-													 *     rule is_entropy
-													 *     {
-													 *         condition:
-													 *             math.entropy(0,filesize)>5
-													 *     }
-													 * 
-													 * 
-													 */													
+	
 													std::string j_no_hit = process_scan_no_hit(true,
-															it,
+															file_scan_result,
 															v->file_scan_type,
 															v->file_signature_md5,
 															v->parent_file_name,
@@ -627,74 +662,44 @@ int main(int argc, char* argv[]) {
 												}
 												
 											}
-											
-										} else { // we have single hit
-											
-											std::string pshs_resp = process_scan_hit_str(file_scan_result,
-													v->file_scan_type, 
+										
+										} else { // no hits just display meta data
+	
+											std::string j_no_hit = process_scan_no_hit(false,
+													"",
+													v->file_scan_type,
 													v->file_signature_md5,
 													v->parent_file_name,
-													v->child_file_name);
-											
-											if (pshs_resp.size()) {
-												
-												auto jresp = json::parse(pshs_resp);
-												jresp[json_output_labels[10]] = true;
-												jresp[json_output_labels[1]] = v->file_size;
-												j_children.push_back(jresp);
-												
-											} else {
-
-												std::string j_no_hit = process_scan_no_hit(true,
-														file_scan_result,
-														v->file_scan_type,
-														v->file_signature_md5,
-														v->parent_file_name,
-														v->child_file_name,
-														v->file_size
-														);
-												if (j_no_hit.size() > 0) {
-													j_children.push_back(json::parse(j_no_hit));
-												}
-												
+													v->child_file_name,
+													v->file_size
+													);
+											if (j_no_hit.size() > 0) {
+												j_children.push_back(json::parse(j_no_hit));
 											}
 											
-										}
-									
-									} else { // no hits just display meta data
-
-										std::string j_no_hit = process_scan_no_hit(false,
-												"",
-												v->file_scan_type,
-												v->file_signature_md5,
-												v->parent_file_name,
-												v->child_file_name,
-												v->file_size
-												);
-										if (j_no_hit.size() > 0) {
-											j_children.push_back(json::parse(j_no_hit));
 										}
 										
 									}
 									
 								}
 								
+								if (!out_json) {
+									std::cout << std::endl << omega << std::endl;
+								}
+								
+							} else {
+								
+								if (!out_json) {
+									std::cout << std::endl << omega << std::endl;
+								}
+								
 							}
-							
-							if (!out_json) {
-								std::cout << std::endl << omega << std::endl;
-							}
-							
-						} else {
-							
-							if (!out_json) {
-								std::cout << std::endl << omega << std::endl;
-							}
-							
+						
 						}
 
 						delete[] c;
 						fclose(file);
+
 					}
 					
 					if (!j_children.is_null()) {
@@ -707,7 +712,9 @@ int main(int argc, char* argv[]) {
 					
 				}
 
-				j_main.push_back(j_level1);
+				if (!j_level1.is_null()) {
+					j_main.push_back(j_level1);
+				}
 
 			}
 
@@ -737,100 +744,136 @@ int main(int argc, char* argv[]) {
 				c = new uint8_t[file_size];
 
 				// Read the file in to the buffer
-				fread(c, file_size, 1, file);
-
-				if (!out_json) {
-
-					std::cout << std::endl << alpha << std::endl;
-					std::cout << output_labels[0] << fs << std::endl;
-					std::cout << output_labels[1] << file_size << std::endl;
-
-				} else {
-
-					j_level1[json_output_labels[8]] = yara_ruleset_file_name;
-					j_level1[json_output_labels[0]] = fs;
-					j_level1[json_output_labels[1]] = file_size;
-
-				}
-
-				char *output = str_to_md5((const char *)c, file_size);
-				if (output) {
-
+				//fread(c, file_size, 1, file);
+				size_t dat_read = fread(c, 1, file_size, file);
+				
+				if (dat_read == file_size) {
+	
 					if (!out_json) {
-						std::cout << output_labels[4] << output << std::endl;
+	
+						std::cout << std::endl << alpha << std::endl;
+						std::cout << output_labels[0] << fs << std::endl;
+						std::cout << output_labels[1] << file_size << std::endl;
+	
 					} else {
-						j_level1[json_output_labels[4]] = output;
+	
+						j_level1[json_output_labels[8]] = yara_ruleset_file_name;
+						j_level1[json_output_labels[0]] = fs;
+						j_level1[json_output_labels[1]] = file_size;
+	
 					}
-					free(output);
-
-				}
-
-				std::list<security_scan_results_t> ssr_list;
-
-				if (rules) {
-
-					scan_content (
-							c,
-							file_size,
-							rules,
-							&ssr_list,
-							fs,
-							yara_cb,
-							1);
-					
-				} else {
-					
-					scan_content (
-							c,
-							file_size,
-							yara_ruleset_file_name.c_str(),
-							&ssr_list,
-							fs,
-							yara_cb,
-							1);
-					
-				}
-
-				if (!ssr_list.empty()) {
-
-					if (!out_json) {
-						std::cout << std::endl << midline << std::endl;
-					}
-					
-					for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
-							v != ssr_list.end();
-							v++) {
-
+	
+					char *output = str_to_md5((const char *)c, file_size);
+					if (output) {
+	
 						if (!out_json) {
-
-							legacy_output(v->file_scan_result,
-									v->file_scan_type,
-									v->file_signature_md5,
-									v->parent_file_name,
-									v->child_file_name,
-									v->file_size
-									);
-
+							std::cout << output_labels[4] << output << std::endl;
 						} else {
-
-							std::string file_scan_result = v->file_scan_result;
-							
-							if (file_scan_result.size() > 1) {
-								j_level1[json_output_labels[10]] = true;
-							}
-							
-							// we have hits
-							if (file_scan_result.size()) {
+							j_level1[json_output_labels[4]] = output;
+						}
+						free(output);
+	
+					}
+	
+					std::list<security_scan_results_t> ssr_list;
+	
+					if (rules) {
+	
+						scan_content (
+								c,
+								file_size,
+								rules,
+								&ssr_list,
+								fs,
+								yara_cb,
+								1);
+						
+					} else {
+						
+						scan_content (
+								c,
+								file_size,
+								yara_ruleset_file_name.c_str(),
+								&ssr_list,
+								fs,
+								yara_cb,
+								1);
+						
+					}
+	
+					if (!ssr_list.empty()) {
+	
+						if (!out_json) {
+							std::cout << std::endl << midline << std::endl;
+						}
+						
+						for (std::list<security_scan_results_t>::const_iterator v = ssr_list.begin();
+								v != ssr_list.end();
+								v++) {
+	
+							if (!out_json) {
+	
+								legacy_output(v->file_scan_result,
+										v->file_scan_type,
+										v->file_signature_md5,
+										v->parent_file_name,
+										v->child_file_name,
+										v->file_size
+										);
+	
+							} else {
+	
+								std::string file_scan_result = v->file_scan_result;
 								
-								std::vector<std::string> tokens;
-								tokenize_string (file_scan_result, tokens, ", ");
+								if (file_scan_result.size() > 1) {
+									j_level1[json_output_labels[10]] = true;
+								}
 								
-								// we have multiple hits
-								if (tokens.size() > 0) {
+								// we have hits
+								if (file_scan_result.size()) {
 									
-									for (auto& it : tokens) {
+									std::vector<std::string> tokens;
+									tokenize_string (file_scan_result, tokens, ", ");
+									
+									// we have multiple hits
+									if (tokens.size() > 0) {
 										
-										std::string pshs_resp = process_scan_hit_str(it,
+										for (auto& it : tokens) {
+											
+											std::string pshs_resp = process_scan_hit_str(it,
+													v->file_scan_type, 
+													v->file_signature_md5,
+													v->parent_file_name,
+													v->child_file_name);
+											
+											if (pshs_resp.size()) {
+												
+												auto jresp = json::parse(pshs_resp);
+												jresp[json_output_labels[10]] = true;
+												jresp[json_output_labels[1]] = v->file_size;
+												j_children.push_back(jresp);
+												
+											} else {
+	
+												std::string j_no_hit = process_scan_no_hit(true,
+														it,
+														v->file_scan_type,
+														v->file_signature_md5,
+														v->parent_file_name,
+														v->child_file_name,
+														v->file_size
+														);
+												if (j_no_hit.size() > 0) {
+													j_children.push_back(json::parse(j_no_hit));
+												}
+												
+											}
+											
+										}
+										
+									} else { // we have single hit
+										
+										std::string pshs_resp = process_scan_hit_str(file_scan_result,
 												v->file_scan_type, 
 												v->file_signature_md5,
 												v->parent_file_name,
@@ -844,9 +887,9 @@ int main(int argc, char* argv[]) {
 											j_children.push_back(jresp);
 											
 										} else {
-
+											
 											std::string j_no_hit = process_scan_no_hit(true,
-													it,
+													file_scan_result,
 													v->file_scan_type,
 													v->file_signature_md5,
 													v->parent_file_name,
@@ -856,74 +899,43 @@ int main(int argc, char* argv[]) {
 											if (j_no_hit.size() > 0) {
 												j_children.push_back(json::parse(j_no_hit));
 											}
-											
+	
 										}
 										
 									}
+								
+								} else { // no hits just display meta data
 									
-								} else { // we have single hit
-									
-									std::string pshs_resp = process_scan_hit_str(file_scan_result,
-											v->file_scan_type, 
+									std::string j_no_hit = process_scan_no_hit(false,
+											"",
+											v->file_scan_type,
 											v->file_signature_md5,
 											v->parent_file_name,
-											v->child_file_name);
-									
-									if (pshs_resp.size()) {
-										
-										auto jresp = json::parse(pshs_resp);
-										jresp[json_output_labels[10]] = true;
-										jresp[json_output_labels[1]] = v->file_size;
-										j_children.push_back(jresp);
-										
-									} else {
-										
-										std::string j_no_hit = process_scan_no_hit(true,
-												file_scan_result,
-												v->file_scan_type,
-												v->file_signature_md5,
-												v->parent_file_name,
-												v->child_file_name,
-												v->file_size
-												);
-										if (j_no_hit.size() > 0) {
-											j_children.push_back(json::parse(j_no_hit));
-										}
-
+											v->child_file_name,
+											v->file_size
+											);
+									if (j_no_hit.size() > 0) {
+										j_children.push_back(json::parse(j_no_hit));
 									}
 									
 								}
-							
-							} else { // no hits just display meta data
-								
-								std::string j_no_hit = process_scan_no_hit(false,
-										"",
-										v->file_scan_type,
-										v->file_signature_md5,
-										v->parent_file_name,
-										v->child_file_name,
-										v->file_size
-										);
-								if (j_no_hit.size() > 0) {
-									j_children.push_back(json::parse(j_no_hit));
-								}
-								
+	
 							}
-
+	
 						}
-
+	
+						if (!out_json) {
+							std::cout << std::endl << omega << std::endl;
+						}
+	
+					} else {
+	
+						if (!out_json) {
+							std::cout << std::endl << omega << std::endl;
+						}
+	
 					}
-
-					if (!out_json) {
-						std::cout << std::endl << omega << std::endl;
-					}
-
-				} else {
-
-					if (!out_json) {
-						std::cout << std::endl << omega << std::endl;
-					}
-
+				
 				}
 
 				delete[] c;
@@ -942,15 +954,21 @@ int main(int argc, char* argv[]) {
 		}
 
 	} else {
+		
 		std::cout << std::endl << "Could not read resource: \"" << target_resource << "\", exiting ..." << std::endl << std::endl;
+	
 	}
 	
-	if (out_json) {
-
-		if (out_json_pretty_print)
-			std::cout << j_main.dump(4);
-		else
-			std::cout << j_main.dump();
+	if (!j_main.is_null()) {
+		
+		if (out_json) {
+	
+			if (out_json_pretty_print)
+				std::cout << j_main.dump(4);
+			else
+				std::cout << j_main.dump();
+		
+		}
 	
 	}
 
