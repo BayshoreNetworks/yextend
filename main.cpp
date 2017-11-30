@@ -198,8 +198,7 @@ double get_yara_version() {
 	fp = popen("yara -v", "r");
 	if (fp != NULL) {
 
-		fgets(yver, sizeof(yver)-1, fp);
-		if (yver != NULL) {
+		if (fgets (yver, sizeof(yver)-1, fp) != NULL) {
 
 			yver_str = yver;
 			std::size_t found = yver_str.find(y);
