@@ -94,8 +94,13 @@ PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length)
 PDFParser::~PDFParser()
 {
 	// should we shred here instead?
-	remove(stored_file_name.c_str());
-	remove(extracted_file_name.c_str());
+	if (remove(stored_file_name.c_str()) != 0) {
+		std::cout << "Error removing file: " << stored_file_name << std::endl;
+	}
+	if (remove(extracted_file_name.c_str()) != 0) {
+		std::cout << "Error removing file: " << extracted_file_name << std::endl;
+	}
+	
 }
 
 std::string PDFParser::extract_text_buffer()
@@ -121,7 +126,7 @@ std::string PDFParser::exc_extract_text_buffer()
         std::string content( (std::istreambuf_iterator<char>(ifs) ),
         		(std::istreambuf_iterator<char>()) );
 
-        delete cmd;        
+        delete[] cmd;
         return content;
     } catch (std::exception e) {
 
