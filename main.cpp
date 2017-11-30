@@ -98,6 +98,11 @@ static const char *alpha = "===============================ALPHA================
 static const char *midline = "=======================================================================";
 static const char *omega = "===============================OMEGA===================================";
 static const char *json_type_error = "JSON type error";
+static const char *json_other_error = "JSON other error";
+static const char *json_parse_error = "JSON parse error";
+static const char *json_invalid_iterator_error = "JSON invalid iterator error";
+static const char *json_out_of_range_error = "JSON out of range error";
+static const char *json_exception = "JSON exception";
 
 void usage() {
 
@@ -397,6 +402,31 @@ void legacy_output(const std::string &file_scan_result,
 	std::cout << std::endl;
 
 }
+
+
+json parse_json_string(std::string j_dat) {
+
+	json j_null;
+	try {
+		auto j = json::parse(j_dat);
+		return j;
+	} catch (nlohmann::detail::type_error & e) {
+		std::cout << json_type_error << " : " << e.what() << std::endl;
+	} catch (nlohmann::detail::parse_error const& e) {
+		std::cout << json_parse_error << " : " << e.what() << std::endl;
+	} catch (nlohmann::detail::invalid_iterator const& e) {
+		std::cout << json_invalid_iterator_error << " : " << e.what() << std::endl;
+	} catch (nlohmann::detail::out_of_range const& e) {
+		std::cout << json_out_of_range_error << " : " << e.what() << std::endl;
+	} catch (nlohmann::detail::other_error const& e) {
+		std::cout << json_other_error << " : " << e.what() << std::endl;
+	} catch (nlohmann::detail::exception const& e) {
+		std::cout << json_exception << " : " << e.what() << std::endl;
+	}
+	return j_null;
+	
+}
+
 ///////////////////////////////////////////////////////////////
 
 
@@ -644,11 +674,9 @@ int main(int argc, char* argv[]) {
 																);
 														if (j_no_hit.size() > 0) {
 															
-															//j_children.push_back(json::parse(j_no_hit));
-															try {
-																j_children.push_back(json::parse(j_no_hit));
-															} catch (nlohmann::detail::type_error const& e) {
-																std::cout << json_type_error << " : " << e.what() << std::endl;
+															auto jnh = parse_json_string(j_no_hit);
+															if (!jnh.is_null()) {
+																j_children.push_back(jnh);
 															}
 															
 														}
@@ -688,11 +716,9 @@ int main(int argc, char* argv[]) {
 															);
 													if (j_no_hit.size() > 0) {
 														
-														//j_children.push_back(json::parse(j_no_hit));
-														try {
-															j_children.push_back(json::parse(j_no_hit));
-														} catch (nlohmann::detail::type_error const& e) {
-															std::cout << json_type_error << " : " << e.what() << std::endl;
+														auto jnh = parse_json_string(j_no_hit);
+														if (!jnh.is_null()) {
+															j_children.push_back(jnh);
 														}
 														
 													}
@@ -713,11 +739,9 @@ int main(int argc, char* argv[]) {
 													);
 											if (j_no_hit.size() > 0) {
 												
-												//j_children.push_back(json::parse(j_no_hit));
-												try {
-													j_children.push_back(json::parse(j_no_hit));
-												} catch (nlohmann::detail::type_error const& e) {
-													std::cout << json_type_error << " : " << e.what() << std::endl;
+												auto jnh = parse_json_string(j_no_hit);
+												if (!jnh.is_null()) {
+													j_children.push_back(jnh);
 												}
 												
 											}
@@ -914,11 +938,9 @@ int main(int argc, char* argv[]) {
 														);
 												if (j_no_hit.size() > 0) {
 													
-													//j_children.push_back(json::parse(j_no_hit));
-													try {
-														j_children.push_back(json::parse(j_no_hit));
-													} catch (nlohmann::detail::type_error const& e) {
-														std::cout << json_type_error << " : " << e.what() << std::endl;
+													auto jnh = parse_json_string(j_no_hit);
+													if (!jnh.is_null()) {
+														j_children.push_back(jnh);
 													}
 													
 												}
@@ -958,11 +980,9 @@ int main(int argc, char* argv[]) {
 													);
 											if (j_no_hit.size() > 0) {
 												
-												//j_children.push_back(json::parse(j_no_hit));
-												try {
-													j_children.push_back(json::parse(j_no_hit));
-												} catch (nlohmann::detail::type_error const& e) {
-													std::cout << json_type_error << " : " << e.what() << std::endl;
+												auto jnh = parse_json_string(j_no_hit);
+												if (!jnh.is_null()) {
+													j_children.push_back(jnh);
 												}
 												
 											}
@@ -983,11 +1003,10 @@ int main(int argc, char* argv[]) {
 											);
 									if (j_no_hit.size() > 0) {
 										
-										//j_children.push_back(json::parse(j_no_hit));
-										try {
-											j_children.push_back(json::parse(j_no_hit));
-										} catch (nlohmann::detail::type_error const& e) {
-											std::cout << json_type_error << " : " << e.what() << std::endl;
+										//j_children.push_back(json::parse(j_no_hit));										
+										auto jnh = parse_json_string(j_no_hit);
+										if (!jnh.is_null()) {
+											j_children.push_back(jnh);
 										}
 										
 									}
