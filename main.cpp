@@ -640,13 +640,11 @@ int main(int argc, char* argv[]) {
 													
 													if (pshs_resp.size()) {
 
-														try {
-															auto jresp = json::parse(pshs_resp);
+														auto jresp = parse_json_string(pshs_resp);
+														if (!jresp.is_null()) {
 															jresp[json_output_labels[10]] = true;
 															jresp[json_output_labels[1]] = v->file_size;
 															j_children.push_back(jresp);
-														} catch (nlohmann::detail::type_error const& e) {
-															std::cout << json_type_error << " : " << e.what() << std::endl;
 														}
 														
 													} else {
@@ -695,13 +693,11 @@ int main(int argc, char* argv[]) {
 												
 												if (pshs_resp.size()) {
 
-													try {
-														auto jresp = json::parse(pshs_resp);
+													auto jresp = parse_json_string(pshs_resp);
+													if (!jresp.is_null()) {
 														jresp[json_output_labels[10]] = true;
 														jresp[json_output_labels[1]] = v->file_size;
 														j_children.push_back(jresp);
-													} catch (nlohmann::detail::type_error const& e) {
-														std::cout << json_type_error << " : " << e.what() << std::endl;
 													}
 													
 												} else {
@@ -917,13 +913,11 @@ int main(int argc, char* argv[]) {
 											
 											if (pshs_resp.size()) {
 
-												try {
-													auto jresp = json::parse(pshs_resp);
+												auto jresp = parse_json_string(pshs_resp);
+												if (!jresp.is_null()) {
 													jresp[json_output_labels[10]] = true;
 													jresp[json_output_labels[1]] = v->file_size;
 													j_children.push_back(jresp);
-												} catch (nlohmann::detail::type_error const& e) {
-													std::cout << json_type_error << " : " << e.what() << std::endl;
 												}
 												
 											} else {
@@ -959,13 +953,11 @@ int main(int argc, char* argv[]) {
 										
 										if (pshs_resp.size()) {
 											
-											try {
-												auto jresp = json::parse(pshs_resp);
+											auto jresp = parse_json_string(pshs_resp);
+											if (!jresp.is_null()) {
 												jresp[json_output_labels[10]] = true;
 												jresp[json_output_labels[1]] = v->file_size;
 												j_children.push_back(jresp);
-											} catch (nlohmann::detail::type_error const& e) {
-												std::cout << json_type_error << " : " << e.what() << std::endl;
 											}
 											
 										} else {
