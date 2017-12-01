@@ -20,12 +20,12 @@ Software Credits
 
 Notes:
 
-- (11/30/2017) yextend version 1.6
+- (12/08/2017) yextend version 1.6
 
 	- added support for bzip2
 	- added numerous new file type detection patterns
 	- added macro file detection inside of .docm files
-	- added support for JSON output
+	- added support for JSON output (standard and advanced)
 
 - (08/30/2016) yextend version 1.5
 
