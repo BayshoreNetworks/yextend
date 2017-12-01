@@ -6,7 +6,7 @@ yextend
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/13906/badge.svg"/>
 </a>
-<a href="https://www.openhub.net/p/yextend?ref=Thin+badge" rel="nofollow"><img alt="OpenHub-Status" data-canonical-src="https://www.openhub.net/p/yextend/widgets/project_thin_badge?format=gif" style="max-width:100%;"></a>
+<script type='text/javascript' src='https://www.openhub.net/p/yextend/widgets/project_thin_badge?format=js'></script>
 </p>
 
 
