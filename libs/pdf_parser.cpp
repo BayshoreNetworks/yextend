@@ -75,10 +75,13 @@ PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length)
     uuid_unparse(id, uuid_inp);
     snprintf(input_filepath, sizeof(input_filepath), "%s%s", tmp_path, uuid_inp);
     // write original buffer to file
-    std::ofstream fp;
-    fp.open(input_filepath, std::ios::out | std::ios::binary );
-    fp.write((char*)buffer, buffer_length);
-    fp.close();
+    if (buffer && buffer_length) {
+        //TODO: Move code out of ctor() into init() method
+        std::ofstream fp;
+        fp.open(input_filepath, std::ios::out | std::ios::binary );
+        fp.write((char*)buffer, buffer_length);
+        fp.close();
+    }
 
     //////////////////////////////////////////////////////////
     uuid_generate(id);
@@ -130,7 +133,7 @@ std::string PDFParser::exc_extract_text_buffer()
         return content;
     } catch (std::exception e) {
 
-        if(cmd) {delete cmd;}
+        if(cmd) {delete[] cmd;}
 
         syslog (LOG_INFO|LOG_LOCAL6, "PDFParser encountered fatal error");
         return "";
