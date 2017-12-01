@@ -63,7 +63,6 @@ static std::string get_stdout_cmd(std::string lcmd)
 PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length)
 {
     
-    size_t uuid_len = 36;
     uuid_t id;
     char uuid_inp[40];
     char uuid_out[40];
@@ -75,10 +74,13 @@ PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length)
     uuid_unparse(id, uuid_inp);
     snprintf(input_filepath, sizeof(input_filepath), "%s%s", tmp_path, uuid_inp);
     // write original buffer to file
-    std::ofstream fp;
-    fp.open(input_filepath, std::ios::out | std::ios::binary );
-    fp.write((char*)buffer, buffer_length);
-    fp.close();
+    if (buffer && buffer_length) {
+        //TODO: Move code out of ctor() into init() method
+        std::ofstream fp;
+        fp.open(input_filepath, std::ios::out | std::ios::binary );
+        fp.write((char*)buffer, buffer_length);
+        fp.close();
+    }
 
     //////////////////////////////////////////////////////////
     uuid_generate(id);
@@ -94,8 +96,13 @@ PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length)
 PDFParser::~PDFParser()
 {
 	// should we shred here instead?
-	remove(stored_file_name.c_str());
-	remove(extracted_file_name.c_str());
+	if (remove(stored_file_name.c_str()) != 0) {
+		std::cout << "Error removing file: " << stored_file_name << std::endl;
+	}
+	if (remove(extracted_file_name.c_str()) != 0) {
+		std::cout << "Error removing file: " << extracted_file_name << std::endl;
+	}
+	
 }
 
 std::string PDFParser::extract_text_buffer()
@@ -121,11 +128,11 @@ std::string PDFParser::exc_extract_text_buffer()
         std::string content( (std::istreambuf_iterator<char>(ifs) ),
         		(std::istreambuf_iterator<char>()) );
 
-        delete cmd;        
+        delete[] cmd;
         return content;
     } catch (std::exception e) {
 
-        if(cmd) {delete cmd;}
+        if(cmd) {delete[] cmd;}
 
         syslog (LOG_INFO|LOG_LOCAL6, "PDFParser encountered fatal error");
         return "";

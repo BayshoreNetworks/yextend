@@ -294,15 +294,15 @@ if not RULES_ENTITY or not FILE_ENTITY:
     sys.exit()
 
 '''
-	we will force the JSON option to yextend
-	as the default run mode going forward
+    we will force the JSON option to yextend
+    as the default run mode going forward
 
-	function 'print_yextend_json_output' presents
-	the results of a run to stdout the same way
-	we always have except that under the hood it
-	is transforming the JSON output from yextend
-	instead of transforming the legacy output
-	format (i.e. non-JSON)
+    function 'print_yextend_json_output' presents
+    the results of a run to stdout the same way
+    we always have except that under the hood it
+    is transforming the JSON output from yextend
+    instead of transforming the legacy output
+    format (i.e. non-JSON)
 '''
 JSON_OUT_FORCE = "-j"
 if JSON_OUT:
@@ -352,9 +352,14 @@ def advanced_print(out):
                 all_files[(name,file_sig)]["yara_results"].update(new_dict["yara_results"])
             else:
                 all_files[(name,file_sig)]["yara_results"] = new_dict["yara_results"]
+            del new_dict["yara_results"]
+
+        all_files[(name,file_sig)].update(new_dict)
+        
+        
     for file_dict in out:
         #dictionary of all files name:metadata
-        all_files = {}
+        all_files = OrderedDict()
         #map parents to children just using file name and we will get metadata from all_files when needed
         parent_child = {}
 
@@ -370,8 +375,8 @@ def advanced_print(out):
         except Exception, e:
             all_files[(name,file_sig)] = new_dict
 
+        
         for child in file_dict["scan_results"]:
-
             child_dict = format_dict(child)
             name = child_dict["file_name"]
             file_sig = child_dict["file_signature_MD5"]
@@ -396,30 +401,26 @@ def advanced_print(out):
                 except:
                     parent_child[child["file_name"]] = [(name,file_sig)]
 
-        keyorder = ["file_name","file_signature_MD5","file_size","yara_matches_found", "hit_count", "yara_ruleset_file_name", "scan_type", "yara_results"]
-
         for f in all_files:
             if "parent_file_name" in all_files[f]:
                 del all_files[f]["parent_file_name"]
             try:
                 if f[0] in parent_child and parent_child[f[0]]:
-                    obj = OrderedDict()
-                    for key in keyorder:
-                        if key in all_files[f]:
-                            obj[key] = all_files[f][key]
-
-                    if len(parent_child[f[0]]) == 1 and parent_child[f[0]] == [f]:
+                    obj = dict(all_files[f])
+                    #dont add itself as its own child - don't need the same metadata more than once
+                    if len(parent_child[f[0]]) == 1 and parent_child[f[0]] == [f][0]:
                         pass
-                    else:                        
+                    else:
                         obj["children"] = []
                         for child in parent_child[f[0]]:
-                            new_child = OrderedDict()
-                            for key in keyorder:
-                                if key in all_files[child]:
-                                    new_child[key] = all_files[child][key]
+                            if child != (obj["file_name"],obj["file_signature_MD5"]):
+                                new_child = dict(all_files[child])
 
-                            obj["children"].append(new_child)
-
+                                obj["children"].append(new_child)
+                    try:
+                        del parent_child[f[0]]
+                    except Exception, e:
+                        print e
                     final.append(obj)
 
             except Exception, e:
@@ -435,12 +436,12 @@ if not RULES_ENTITY_DIR:
                             stderr=subprocess.PIPE,
                             )
     out, err = proc.communicate()
+
     if out:
         if JSON_OUT:
             if ADVANCED:
                 print json.dumps(advanced_print(out), indent=4)
             else:
-                #print_yextend_json_output(out=out)
                 print out
         else:
             #print_yextend_output(out=out)
@@ -459,6 +460,7 @@ if RULES_ENTITY_DIR:
                                 stderr=subprocess.PIPE,
                                 )
         out, err = proc.communicate()
+
         if out:
             if JSON_OUT:
                 if ADVANCED:

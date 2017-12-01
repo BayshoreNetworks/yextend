@@ -545,7 +545,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 
 	// encrypted?
 	if (return_type == -1) {
-		double ci;
+		double ci = text_ioc_threshold + 1; // ensure the variable is always initialized
 		compute_coincidence_index (buf, threshold, &ci);
 		/*
 		 * we were getting many false positives when
@@ -1464,21 +1464,24 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 
 int get_file_type(const uint8_t *file_name) {
 
+	if (!file_name) return -1;
+
 	// open and read file
 	// pass buffer and length to get_buffer_type
 	// return val returned from get_buffer_type
 	int ret = -1;
 	char source[MAXBUFLEN + 1];
 
-	FILE *fp = fopen(file_name, "r");
+	FILE *fp = fopen((const char*)file_name, "r");
 	if (fp != NULL) {
 		size_t newLen = fread(source, sizeof(char), MAXBUFLEN, fp);
 		if ( ferror( fp ) != 0 ) {
 			fputs("Error reading file", stderr);
-			return -1; // signal the error
-		} 
-		source[newLen++] = '\0'; /* Just to be safe. */
-		ret = get_buffer_type((uint8_t *)source, strlen(source));
+			ret = -1; // signal the error
+		} else {
+			source[newLen++] = '\0'; /* Just to be safe. */
+			ret = get_buffer_type((uint8_t *)source, strlen(source));
+		}
 		fclose(fp);
 	}
 	//printf("RET: %d\n\n", ret);
