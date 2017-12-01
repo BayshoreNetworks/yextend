@@ -1,10 +1,13 @@
 yextend
 =======
 
+<p>
 <a href="https://scan.coverity.com/projects/bayshorenetworks-yextend">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/13906/badge.svg"/>
 </a>
+<a href="https://www.openhub.net/p/yextend?ref=Thin+badge" rel="nofollow"><img alt="OpenHub-Status" src="https://camo.githubusercontent.com/2217ef92e733cc2c7256db75c98847c9de93d965/68747470733a2f2f7777772e6f70656e6875622e6e65742f702f6769742d66616d652f776964676574732f70726f6a6563745f7468696e5f62616467653f666f726d61743d676966" data-canonical-src="https://www.openhub.net/p/yextend/widgets/project_thin_badge?format=gif" style="max-width:100%;"></a>
+</p>
 
 
 Yara integrated software to handle archive file data.
