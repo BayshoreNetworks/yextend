@@ -94,6 +94,12 @@ Instructions:
 
 5 - Run:
 
+	- Note on run modes:
+	
+		- No arguments/switches passed in means the output is intended for human eyes
+		- The -j switch means the output is for machine to consume [JSON]
+		- The -a switch, used in conjunction -j, means that file structure/hierarchy will be added to the machine consumable JSON output 
+
 	- 2 options to run:
 
 	A. use executable run_yextend - it wraps the native yextend executable. To run:
