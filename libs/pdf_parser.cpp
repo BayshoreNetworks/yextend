@@ -63,7 +63,6 @@ static std::string get_stdout_cmd(std::string lcmd)
 PDFParser::PDFParser(const uint8_t *buffer, size_t buffer_length)
 {
     
-    size_t uuid_len = 36;
     uuid_t id;
     char uuid_inp[40];
     char uuid_out[40];
