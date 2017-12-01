@@ -309,6 +309,10 @@ void scan_pdf_api(void *cookie,
 	else
 		cb((void *)ssp_local, ssr_list, "");
 	/////////////////////////////////////////////////////////
+
+	// These can no longer be used.
+	ssp_local->buffer = NULL;
+	ssp_local->buffer_length = 0;
 }
 
 
@@ -557,6 +561,9 @@ void scan_office_open_xml_api(
 									snprintf (ssp_local->parent_file_name, sizeof(ssp_local->parent_file_name), "%s", parent_file_name);
 
 									cb((void *)ssp_local, oxml_ssr_list, fname);
+
+									ssp_local->buffer = NULL;
+									ssp_local->buffer_length = 0;
 									
 								}
 
