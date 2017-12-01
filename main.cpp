@@ -514,8 +514,8 @@ int main(int argc, char* argv[]) {
 				uint8_t *c;
 				FILE *file = NULL;
 
-				strncpy (fs, target_resource.c_str(), strlen(target_resource.c_str()));
-				fs[strlen(target_resource.c_str())] = '\0';
+				strncpy (fs, target_resource.c_str(), sizeof(fs));
+				fs[sizeof(fs)-1]= '\0'; //fs[strlen(target_resource.c_str())] = '\0';
 				
 				if (epdf->d_name[0] != '.') {
 					
@@ -791,8 +791,8 @@ int main(int argc, char* argv[]) {
 
 		uint8_t *c;
 		FILE *file = NULL;
-		strncpy (fs, target_resource.c_str(), strlen(target_resource.c_str()));
-		fs[strlen(target_resource.c_str())] = '\0';
+		strncpy (fs, target_resource.c_str(), sizeof(fs));
+		fs[sizeof(fs)-1]= '\0'; //fs[strlen(target_resource.c_str())] = '\0';
 
 		
 		if (fs[0] != '.') {
