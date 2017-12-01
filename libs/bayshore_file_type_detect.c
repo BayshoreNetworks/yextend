@@ -41,6 +41,7 @@
 static void compute_coincidence_index (const char*, size_t, double*);
 #define AMT 600
 #define MAXBUFLEN 2048
+#define MAXPATHLEN 8192
 
 int min(int x, int y)
 {
@@ -420,24 +421,11 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 	double text_ioc_threshold = 0.1;
 
 	//////////////////////////////////////////////////////////
-	/*
-	 * this has to get replaced for production, using it
-	 * like this for testing now
-	 */
-	//char *path = NULL;
-	char path[8192];
-	*path = 0;
-	strncat (path, getcwd(NULL, 0), sizeof(path)-strlen(path)-1);
-	//path = getcwd(NULL, 0);
-	//std::string ltfn = path;
-	//ltfn.append("/yara_ruleset/bayshore_file_type_detect.yara");
-	//strncat (path, "/yara_ruleset/bayshore_file_type_detect.yara", sizeof(path)-strlen(path)-1);
+    char path[MAXPATHLEN];
+	getcwd(path, MAXPATHLEN);
 	strncat (path, "/libs/bayshore_file_type_detect.yara", sizeof(path)-strlen(path)-1);
-	//printf("%s\n", path);
 	//////////////////////////////////////////////////////////
 
-	//char local_tmp_file_name[] 
-	//YR_RULES* rules = bayshore_yara_preprocess_rules (ltfn.c_str());
 	YR_RULES* rules = bayshore_yara_preprocess_rules (path);
 
 	/* 
