@@ -1475,10 +1475,11 @@ int get_file_type(const uint8_t *file_name) {
 		size_t newLen = fread(source, sizeof(char), MAXBUFLEN, fp);
 		if ( ferror( fp ) != 0 ) {
 			fputs("Error reading file", stderr);
-			return -1; // signal the error
-		} 
-		source[newLen++] = '\0'; /* Just to be safe. */
-		ret = get_buffer_type((uint8_t *)source, strlen(source));
+			ret = -1; // signal the error
+		} else {
+			source[newLen++] = '\0'; /* Just to be safe. */
+			ret = get_buffer_type((uint8_t *)source, strlen(source));
+		}
 		fclose(fp);
 	}
 	//printf("RET: %d\n\n", ret);
