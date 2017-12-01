@@ -422,7 +422,11 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 
 	//////////////////////////////////////////////////////////
     char path[MAXPATHLEN];
-	getcwd(path, MAXPATHLEN);
+	if (NULL==getcwd(path, MAXPATHLEN)) {
+		// We either have no access or another error occured
+		return 65535; //-1;
+	}
+
 	strncat (path, "/libs/bayshore_file_type_detect.yara", sizeof(path)-strlen(path)-1);
 	//////////////////////////////////////////////////////////
 
