@@ -691,8 +691,9 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 		ssr.file_scan_result = sres;
 		ssr.file_size = ssp_local->buffer_length;
 				
-		if (ssp_local->parent_file_name) {
-			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+		size_t sspl_sz = strlen(ssp_local->parent_file_name);
+		if (sspl_sz > 0) {
+			std::string sfname(ssp_local->parent_file_name, sspl_sz);
 			ssr.parent_file_name = sfname;
 		}
 				
