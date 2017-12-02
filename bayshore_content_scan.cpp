@@ -455,7 +455,7 @@ void scan_office_open_xml_api(
 						int x;
 						const void *buff;
 						size_t lsize;
-						off_t offset;
+						off64_t offset;
 
 						for (;;) {
 							x = archive_read_data_block(a, &buff, &lsize, &offset);
@@ -1021,7 +1021,7 @@ void scan_content2 (
 							int x;
 							const void *buff;
 							size_t lsize;
-							off_t offset;
+							off64_t offset;
 		
 							for (;;) {
 								
