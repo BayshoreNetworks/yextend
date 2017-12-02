@@ -1,10 +1,13 @@
 yextend
 =======
 
+<p>
 <a href="https://scan.coverity.com/projects/bayshorenetworks-yextend">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/13906/badge.svg"/>
 </a>
+<a href="https://www.openhub.net/p/yextend?ref=Thin+badge" rel="nofollow"><img alt="OpenHub-Status" src="https://www.openhub.net/p/yextend/widgets/project_thin_badge?format=gif" data-canonical-src="https://www.openhub.net/p/yextend/widgets/project_thin_badge?format=gif" style="max-width:100%;"></a>
+</p>
 
 
 Yara integrated software to handle archive file data.
@@ -93,6 +96,12 @@ Instructions:
 	- make unittests
 
 5 - Run:
+
+	- Note on run modes:
+	
+		- No arguments/switches passed in means the output is intended for human eyes
+		- The -j switch means the output is for machine to consume [JSON]
+		- The -a switch, used in conjunction -j, means that file structure/hierarchy will be added to the machine consumable JSON output 
 
 	- 2 options to run:
 

@@ -337,6 +337,8 @@ void scan_office_open_xml_api(
 
 	cb(cookie, oxml_ssr_list, parent_file_name ? parent_file_name : "");
 
+	if (src == NULL) return; //TODO: Indicate the condition
+
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	size_t src_len = strlen(src);
 	
