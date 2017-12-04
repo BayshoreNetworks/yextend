@@ -351,11 +351,11 @@ def advanced_print(out="", ruleset_name=""):
         
         if len(j_final) > 0:
             files_level1.update(j_final[0])
-            files_level1[scan_results_key] = {}
+            files_level1[scan_results_key] = []
             cnt = 0
             for i in j_final:
-                if cnt > 1:
-                    files_level1[scan_results_key].update(j_final[cnt])
+                if cnt > 0:
+                    files_level1[scan_results_key].append(j_final[cnt])
                 cnt = cnt + 1
 
             r_final.append(files_level1)
