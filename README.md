@@ -395,7 +395,7 @@ Instructions:
 		
 		
 	D. An example of advanced JSON output:
-		
+		```
 		./run_yextend -r test_rulesets/BAYSHORE_Officex1.yar -t test_files/Lorem-winlogon.docx.bz2 -j -a
 		[
     		{
@@ -461,4 +461,5 @@ Instructions:
         		"file_signature_MD5": "26b485701d6a47618a7f915aa7a38045"
     		}
 		]
+		```
 		
