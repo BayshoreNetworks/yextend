@@ -395,7 +395,7 @@ Instructions:
 		
 		
 	D. An example of advanced JSON output:
-		```
+		
 		./run_yextend -r test_rulesets/BAYSHORE_Officex1.yar -t test_files/Lorem-winlogon.docx.bz2 -j -a
 		[
     		{
@@ -407,11 +407,11 @@ Instructions:
                 		"file_size": 210193, 
                 		"children": [
                     		{
-                        		"yara_matches_found": false, 
-                        		"file_size": 29639, 
-                        		"file_name": "word/document.xml", 
-                        		"file_signature_MD5": "9d58972d9a528da89c971597e4aa1844", 
-                        		"scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file"
+                        			"yara_matches_found": false, 
+                        			"file_size": 29639, 
+                        			"file_name": "word/document.xml", 
+                        			"file_signature_MD5": "9d58972d9a528da89c971597e4aa1844", 
+                        			"scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file"
                     		}, 
                     		{
                         		"yara_matches_found": true, 
@@ -461,5 +461,5 @@ Instructions:
         		"file_signature_MD5": "26b485701d6a47618a7f915aa7a38045"
     		}
 		]
-		```
+		
 		
