@@ -254,8 +254,10 @@ void scan_pdf_api(void *cookie,
 		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 	
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
+	assert(ssp_local);
 	
-	size_t src_len = strlen(src);
+	size_t src_len = 0;
+	if (src) src_len = strlen(src);
 	
 	/////////////////////////////////////////////////////////
 	/*
@@ -337,10 +339,12 @@ void scan_office_open_xml_api(
 
 	cb(cookie, oxml_ssr_list, parent_file_name ? parent_file_name : "");
 
-	if (src == NULL) return; //TODO: Indicate the condition
 
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
-	size_t src_len = strlen(src);
+	assert(ssp_local);
+
+	size_t src_len = 0;
+	if (NULL!=src) src_len = strlen(src);
 	
 	struct archive *a = archive_read_new();
 	assert(a);
