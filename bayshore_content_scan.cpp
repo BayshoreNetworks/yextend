@@ -309,6 +309,10 @@ void scan_pdf_api(void *cookie,
 	else
 		cb((void *)ssp_local, ssr_list, "");
 	/////////////////////////////////////////////////////////
+
+	// These can no longer be used.
+	ssp_local->buffer = NULL;
+	ssp_local->buffer_length = 0;
 }
 
 
@@ -332,6 +336,8 @@ void scan_office_open_xml_api(
 		std::cout << DEBUG_PREFIX << IN_FUNC << __FUNCTION__ << std::endl;
 
 	cb(cookie, oxml_ssr_list, parent_file_name ? parent_file_name : "");
+
+	if (src == NULL) return; //TODO: Indicate the condition
 
 	security_scan_parameters_t *ssp_local = (security_scan_parameters_t *)cookie;
 	size_t src_len = strlen(src);
@@ -449,7 +455,7 @@ void scan_office_open_xml_api(
 						int x;
 						const void *buff;
 						size_t lsize;
-						off_t offset;
+						off64_t offset;
 
 						for (;;) {
 							x = archive_read_data_block(a, &buff, &lsize, &offset);
@@ -557,6 +563,9 @@ void scan_office_open_xml_api(
 									snprintf (ssp_local->parent_file_name, sizeof(ssp_local->parent_file_name), "%s", parent_file_name);
 
 									cb((void *)ssp_local, oxml_ssr_list, fname);
+
+									ssp_local->buffer = NULL;
+									ssp_local->buffer_length = 0;
 									
 								}
 
@@ -647,9 +656,10 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 		std::string sres(local_api_yara_results, local_api_yara_results_len);
 		ssr.file_scan_result = sres;
 		ssr.file_size = ssp_local->buffer_length;
-				
-		if (ssp_local->parent_file_name) {
-			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+
+		size_t sspl_sz = strlen(ssp_local->parent_file_name);
+		if (sspl_sz > 0) {
+			std::string sfname(ssp_local->parent_file_name, sspl_sz);
 			ssr.parent_file_name = sfname;
 		}
 				
@@ -682,8 +692,9 @@ void yara_cb (void *cookie, std::list<security_scan_results_t> *ssr_list, const 
 		ssr.file_scan_result = sres;
 		ssr.file_size = ssp_local->buffer_length;
 				
-		if (ssp_local->parent_file_name) {
-			std::string sfname(ssp_local->parent_file_name, strlen(ssp_local->parent_file_name));
+		size_t sspl_sz = strlen(ssp_local->parent_file_name);
+		if (sspl_sz > 0) {
+			std::string sfname(ssp_local->parent_file_name, sspl_sz);
 			ssr.parent_file_name = sfname;
 		}
 				
@@ -1012,7 +1023,7 @@ void scan_content2 (
 							int x;
 							const void *buff;
 							size_t lsize;
-							off_t offset;
+							off64_t offset;
 		
 							for (;;) {
 								

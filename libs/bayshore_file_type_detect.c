@@ -41,6 +41,7 @@
 static void compute_coincidence_index (const char*, size_t, double*);
 #define AMT 600
 #define MAXBUFLEN 2048
+#define MAXPATHLEN 8192
 
 int min(int x, int y)
 {
@@ -307,7 +308,8 @@ int tokenize_yara_str(char *buf) {
 	int iter_cnt;
 	int hex_dec;
 
-	const char sss[2] = ",";
+	//const char sss[2] = ",";
+	const char sss[5] = ",#+,";
 	char *token3;
 	char *token3_save;
 
@@ -420,24 +422,15 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 	double text_ioc_threshold = 0.1;
 
 	//////////////////////////////////////////////////////////
-	/*
-	 * this has to get replaced for production, using it
-	 * like this for testing now
-	 */
-	//char *path = NULL;
-	char path[8192];
-	*path = 0;
-	strncat (path, getcwd(NULL, 0), sizeof(path)-strlen(path)-1);
-	//path = getcwd(NULL, 0);
-	//std::string ltfn = path;
-	//ltfn.append("/yara_ruleset/bayshore_file_type_detect.yara");
-	//strncat (path, "/yara_ruleset/bayshore_file_type_detect.yara", sizeof(path)-strlen(path)-1);
+    char path[MAXPATHLEN];
+	if (NULL==getcwd(path, MAXPATHLEN)) {
+		// We either have no access or another error occured
+		return 65535; //-1;
+	}
+
 	strncat (path, "/libs/bayshore_file_type_detect.yara", sizeof(path)-strlen(path)-1);
-	//printf("%s\n", path);
 	//////////////////////////////////////////////////////////
 
-	//char local_tmp_file_name[] 
-	//YR_RULES* rules = bayshore_yara_preprocess_rules (ltfn.c_str());
 	YR_RULES* rules = bayshore_yara_preprocess_rules (path);
 
 	/* 
@@ -545,7 +538,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 
 	// encrypted?
 	if (return_type == -1) {
-		double ci;
+		double ci = text_ioc_threshold + 1; // ensure the variable is always initialized
 		compute_coincidence_index (buf, threshold, &ci);
 		/*
 		 * we were getting many false positives when
@@ -1464,21 +1457,24 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 
 int get_file_type(const uint8_t *file_name) {
 
+	if (!file_name) return -1;
+
 	// open and read file
 	// pass buffer and length to get_buffer_type
 	// return val returned from get_buffer_type
 	int ret = -1;
 	char source[MAXBUFLEN + 1];
 
-	FILE *fp = fopen(file_name, "r");
+	FILE *fp = fopen((const char*)file_name, "r");
 	if (fp != NULL) {
 		size_t newLen = fread(source, sizeof(char), MAXBUFLEN, fp);
 		if ( ferror( fp ) != 0 ) {
 			fputs("Error reading file", stderr);
-			return -1; // signal the error
-		} 
-		source[newLen++] = '\0'; /* Just to be safe. */
-		ret = get_buffer_type((uint8_t *)source, strlen(source));
+			ret = -1; // signal the error
+		} else {
+			source[newLen++] = '\0'; /* Just to be safe. */
+			ret = get_buffer_type((uint8_t *)source, strlen(source));
+		}
 		fclose(fp);
 	}
 	//printf("RET: %d\n\n", ret);

@@ -1,46 +1,53 @@
 sudo: required
-  
-# Enable C++ support
 language: cpp
-
-# Compiler selection
 compiler:
-  - gcc
-
+- gcc
+notifications:
+  slack:
+    secure: qjUCogalJqhgvzg9hDGlakVanA6DxvwrTFTevL8Rx5/fAf7OKKtyEB6KrNwq3n/rbSfAqno5n6L5qWaQXfK4N0WYev1KnssXZ/jpWOEC1HVUf2Y/4lAhD2PLMXDUlfyhmwjXBVQSdOFiMRRMAI4hMjLnqea1jugQOFh5APPfZ1vLQRmnl2HdtCObzhZBiLuZfcfngshsSpnVjzruC797ciFkeO9EShbinLWBe2VUYc3QgEzItT0/GgNUkjDVOkQHZtKxI+K3DmgH2Igzygr/Kv5yP4fgYT8qL9804d7kWMbhkChHJTOJ4ZrfVJuQ/94xkqTk5E/ujxq3+sQmLOAgqJFUwvkDuzUNSygn8Qw+5ED1MJqX3IpF7ALoUFaizsxrB12MUbXIJQi4ism+iRpgTSGXD3j7hGLU6uT8er6sFYEIZgUdy1/yPhY1INfRkbgrEmRguGn9bAQBixIdzZgliKw1hQKLDm5L8CN7XIZQv25XjX331Lb8ZDoqbYl6dbIB8X+dIdRJldtPxOxhUPVRuBqVuDAc7PvG/y6YBD1CfKyou9Kh3GMicmHERua4oTgquITN88j7asvEk6fBnrhc6z6HkfNrUAGaiWleQBNj2iiuWhF53nDAAxpwbD5QMomPnhuGGbvkEhm/oBr6rErfYSgThglkLLMreWyC67HXRHo=
+env:
+  global:
+  - secure: blElWPbZkN5BUYkUyNctjeV5NA2f90DyNJtOWYeleOCaVg0n0VFIOoO677mDhSLX8i9FAChUTd4x2Q/uQlu0PWXkmqX+Hs+t+V5Pr6GLADo15gHeOYu/Ebezvz3M5JG4W6De3dcVbNsU0HZxGWfZGeFHVof0zUO8J1Q5dbzJxRwZABkAtmVNw10tbiSUI0H3lrU3/GhRvHVZJdtXXyMU2kM8R/KgaLzek35CG6tEKKMThvRiM3wCDOcBO2uPZSrjFGhrNyzsVXlEfupsFwadns6khpGqxcX+Gfj9OdimLH8AYC9vchdHxBkPiaxRjf6gG3oqmidmXxpboLJrAjuwNh+BuPYIZUHormPjb+IS8JU1KhqEhXi722/RJtBH7Q/ysyn+HPfEbT4GvkR4Hz5aGHU3je8yWxcHE/96/zmSywpg+Pvcp3ifIRTXymEbEKoqEBdInuea/9QQEi8d94sbjVzDSf4Cdx3JTbOwBQGWaVF/Wz8PqIKSvGJixUPDjKBVb4QdsaY2YDFWDwQsDfvaJVXUf8YpBK1i766KLcbwq6xNypeJdtBTbs/I4qs+DOVzTLWTwErUkQ7m47ql9cNgcqmRl2Mp5t1ACRVHvUv2v39tITEE44JEYmRse9OoOk3yUGbOnodDmiPfmjXgZ1VpL5eV+uo6u0SJBap1zcT2VWk=
+  - secure: ab1esfOSzw624D0c+qmvteN+Iv3ZqQetgIzwVTV+aOo5/qOSCHfHEgJbT2OBtl7MRXtZSZKQhA8HEDfcOE/WBCEBqRWBedoI8aTle4p/BtM+4gerPbviTIakqgdB8gYJoSUvg2GrC8bJRmAXrEAGwv7bRQTdBT0i3C0qpyobZl80zBrubAEO+DpYLU4Wb/iWvOyyiGBU1Wk41qJ0TL0Fy5746cKUt0oZ9bS8rCMy/42r+Muu6099YtgRing9qhF/P6P+Pz0yxhp68y544d/If7ZfFLMBaAl8S5kOKJNvjzkjECuiHCfm9eXz0zIpmRlQJZBAvmlDsEALwUbDL90FbUfhlnpJmRNMiFb7HxMw9EEHbkpTvnFtq/P6I5apTnqUEAlsU+z8A5HsmZ3mw7uOvpS/J+f9rO14Ufw+U6fHZj5lzArb5ZblGzhTJ/Qsjg/sbMLzWcj5T7/QeWEIlJnd8R30LpWz8Nly40YCDt1SSSPBnuC6XSN/AaFm/eH4/YbeBbUCUlW/jSWXRSGTLRyklqXZEMDC9isYvz1MOAIL4Dz6jsu7wVnD0MxfxtUYtqN5uITgAUJV9rHAsm1H86w0xHZtHD0mLR8QSsimObbRG7WvrEMgRd+Kf0qssnx2IOqMw52BbhArFCZkMrvaZYG0lNG/4LByLIH6K+/PTxNF4X4=
 matrix:
   include:
-    # works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-7
+    env:
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 before_install:
-  - eval "${MATRIX_EVAL}"
-  - sudo apt-get install libssl-dev
-  - sudo apt-get install zlib1g-dev
-  - sudo apt-get install libbz2-dev
-  - sudo apt-get install libarchive-dev
-  - sudo apt-get install libpcre3-dev
-  - sudo apt-get install uuid-dev
-  - sudo apt-get install poppler-utils
-  - sudo apt-get install python-nose
-
+- eval "${MATRIX_EVAL}"
+- sudo apt-get install libssl-dev
+- sudo apt-get install zlib1g-dev
+- sudo apt-get install libbz2-dev
+- sudo apt-get install libarchive-dev
+- sudo apt-get install libpcre3-dev
+- sudo apt-get install uuid-dev
+- sudo apt-get install poppler-utils
+- sudo apt-get install python-nose
+- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
+  CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 install:
-  - wget https://github.com/VirusTotal/yara/archive/v3.7.0.tar.gz
-  - tar -xzvf v3.7.0.tar.gz
-  - cd yara-3.7.0
-  - ./bootstrap.sh
-  - ./configure
-  - make
-  - sudo make install
-  - cd ../
-
-# Build steps
+- wget https://github.com/VirusTotal/yara/archive/v3.7.0.tar.gz
+- tar -xzvf v3.7.0.tar.gz
+- cd yara-3.7.0
+- "./bootstrap.sh"
+- "./configure"
+- make
+- sudo make install
+- cd ../
+addons:
+  coverity_scan:
+    project:
+      name: BayshoreNetworks/yextend
+      description: Build submitted via Travis CI
+    notification_email: andres@neurofuzzsecurity.com
+    build_command_prepend: make clean
+    build_command: "./build.sh"
+    branch_pattern: coverity_scan
 script: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./build.sh ; fi
-

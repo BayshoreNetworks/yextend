@@ -1,10 +1,13 @@
 yextend
 =======
 
+<p>
 <a href="https://scan.coverity.com/projects/bayshorenetworks-yextend">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/13906/badge.svg"/>
 </a>
+<a href="https://www.openhub.net/p/yextend?ref=Thin+badge" rel="nofollow"><img alt="OpenHub-Status" src="https://www.openhub.net/p/yextend/widgets/project_thin_badge?format=gif" data-canonical-src="https://www.openhub.net/p/yextend/widgets/project_thin_badge?format=gif" style="max-width:100%;"></a>
+</p>
 
 
 Yara integrated software to handle archive file data.
@@ -20,12 +23,12 @@ Software Credits
 
 Notes:
 
-- (11/30/2017) yextend version 1.6
+- (12/08/2017) yextend version 1.6
 
 	- added support for bzip2
 	- added numerous new file type detection patterns
 	- added macro file detection inside of .docm files
-	- added support for JSON output
+	- added support for JSON output (standard and advanced)
 
 - (08/30/2016) yextend version 1.5
 
@@ -93,6 +96,12 @@ Instructions:
 	- make unittests
 
 5 - Run:
+
+	- Note on run modes:
+	
+		- No arguments/switches passed in means the output is intended for human eyes
+		- The -j switch means the output is for machine to consume [JSON]
+		- The -a switch, used in conjunction -j, means that file structure/hierarchy will be added to the machine consumable JSON output 
 
 	- 2 options to run:
 
@@ -383,5 +392,74 @@ Instructions:
         		"yara_ruleset_file_name": "test_rulesets/BAYSHORE_Officex1.yar"
     		}
 		]
+		
+		
+	D. An example of advanced JSON output:
+		
+             ./run_yextend -r test_rulesets/BAYSHORE_Officex1.yar -t test_files/Lorem-winlogon.docx.bz2 -j -a
+             [
+                 {
+                     "yara_matches_found": true, 
+                     "scan_results": [
+                         {
+                             "yara_matches_found": false, 
+                             "file_name": "test_files/Lorem-winlogon.docx", 
+                             "file_size": 210193, 
+                             "children": [
+                                 {
+                                     "yara_matches_found": false, 
+                                     "file_size": 29639, 
+                                     "file_name": "word/document.xml", 
+                                     "file_signature_MD5": "9d58972d9a528da89c971597e4aa1844", 
+                                     "scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file"
+                                 }, 
+                                 {
+                        	     "yara_matches_found": true, 
+                                     "file_name": "word/embeddings/oleObject1.bin", 
+                        	     "scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file", 
+                                     "yara_results": {
+                                         "maldoc_suspicious_strings": {
+                                             "description": "suspicious marco action", 
+                                             "hit_count": "8", 
+                                             "offsets": [
+                                                "0x12231:$a02", 
+                                                "0x135c5:$a03", 
+                                                "0x55dc7:$a03", 
+                                                "0x5f1e2:$a03", 
+                                                "0x55db9:$a09", 
+                                                "0x5f1d5:$a09", 
+                                                "0x55e31:$a12", 
+                                                "0x1037d:$a15"
+                                             ]
+                                         }
+                                     }, 
+                                     "file_size": 392192, 
+                                     "file_signature_MD5": "27250593fccbfb679320a74be9459d17"
+                                 }, 
+                                 {
+                                     "yara_matches_found": false, 
+                                     "file_size": 8, 
+                                     "file_name": "word/embeddings/oleObject1.bin", 
+                                     "file_signature_MD5": "6674f1535a94304e58f26d06f348190d", 
+                                     "scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file"
+                                 }
+                             ], 
+                             "file_signature_MD5": "d8f0fab30eae91687c0d80f8dd08218f"
+                         }
+                     ], 
+       	             "file_name": "test_files/Lorem-winlogon.docx.bz2", 
+       	             "yara_ruleset_file_name": "test_rulesets/BAYSHORE_Officex1.yar", 
+       	             "file_size": 208940, 
+       	             "children": [
+                        {
+               	            "yara_matches_found": false, 
+               	            "file_size": 210193, 
+                            "file_name": "test_files/Lorem-winlogon.docx", 
+                            "file_signature_MD5": "d8f0fab30eae91687c0d80f8dd08218f"
+                        }
+                    ], 
+                    "file_signature_MD5": "26b485701d6a47618a7f915aa7a38045"
+                }
+            ]
 		
 		

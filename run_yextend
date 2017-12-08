@@ -31,6 +31,9 @@ def usage():
 
 
 def get_file_list(thedir='', thepattern='*'):
+
+    if not thedir.endswith('/'):
+        thedir = thedir + '/'
     f_list = []
     if thedir:
         for root, dirnames, filenames in os.walk(thedir):
@@ -257,14 +260,127 @@ def print_yextend_json_output(out=''):
             t_o = out.split(': ')
             print '{}: {}'.format(my_print(thestr=t_o[0], thecolor='white'), my_print(thestr=t_o[1].strip("null"), thecolor='green'))
 
+
+def format_child(child):
+    
+    if "yara_rule_id" in child:
+        rule_id = child["yara_rule_id"]
+        try:
+            yara_results = {rule_id: {"description":""}}
+            if "description" in child:
+                yara_results[rule_id]["description"] = child["description"]
+                del child["description"]
+            if "detected offsets" in child:
+                yara_results[rule_id]["offsets"] = child["detected offsets"]
+                del child["detected offsets"]
+            if "hit_count" in child:
+                yara_results[rule_id]["hit_count"] = child["hit_count"]
+                del child["hit_count"]
+            del child["yara_rule_id"]
+            child["yara_results"] = yara_results
+        except Exception, e:
+            print e
+    else:
+        # clean out empty k/v pairs
+        for k,v in child.items():
+            if v == "":
+                del child[k]
+
+    return child
+
+
+def advanced_print(out="", ruleset_name=""):
+
+    scan_results_key = 'scan_results'
+    out = json.loads(out)
+    r_final = []
+    j_final = []
+    files_level1 = {}
+    
+    for file_dict in out:
+        
+        files = []
+        new_files = dict(file_dict)
+        del new_files[scan_results_key]
+        files.append(format_child(new_files))
+        
+        for child in file_dict[scan_results_key]:
+            
+            child_keys = child.keys()
+            new_child = dict(child)
+            if "child_file_name" in child_keys:
+            
+                new_child["file_name"] = new_child.pop("child_file_name")
+                child["file_name"] = child.pop("child_file_name")
+
+                for f in reversed(files):
+                    f_keys = f.keys()
+                    if "file_name" in f_keys:
+                        if f["file_name"] == child["parent_file_name"]:
+                            try:
+                                f["children"].append(format_child(new_child))
+                            except:
+                                f["children"] = [format_child(new_child)]
+                
+
+                del child["parent_file_name"]
+                del new_child["parent_file_name"]
+
+                files.append(format_child(child))
+
+            elif "non_archive_file_name" in child_keys:
+            
+                new_child["file_name"] = new_child.pop("non_archive_file_name")
+                try:
+                    files[0]["children"].append(format_child(new_child))
+                except:
+                    files[0]["children"] = [format_child(new_child)]
+                    
+            else:
+            
+                try:
+                    files[0]["children"].append(format_child(new_child))
+                except:
+                    files[0]["children"] = [format_child(new_child)]
+
+        for x in files:
+            if "children" in x:
+                if x not in j_final:
+                    j_final.append(x)
+                    #r_final.append(x)
+        
+        if len(j_final) > 0:
+            files_level1.update(j_final[0])
+            files_level1[scan_results_key] = []
+            cnt = 0
+            for i in j_final:
+                if cnt > 0:
+                    files_level1[scan_results_key].append(j_final[cnt])
+                cnt = cnt + 1
+
+            r_final.append(files_level1)
+
+    return r_final
 ########################################################
 
 RULES_ENTITY = ''
 FILE_ENTITY = ''
 RULES_ENTITY_DIR = False
 YEXTEND = which(program="yextend")
-LD_LIBRARY_PATH = "{}".format("LD_LIBRARY_PATH")
+
 USRLOCLIB = "{}".format("\/usr\/local\/lib")
+try:
+    proc = subprocess.Popen([YEXTEND],
+                            env={LD_LIBRARY_PATH:USRLOCLIB},
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            )
+    out, err = proc.communicate()
+except:
+    USRLOCLIB = "{}".format("/usr/local/lib")
+    
+LD_LIBRARY_PATH = "{}".format("LD_LIBRARY_PATH")
+
 JSON_OUT = False
 ADVANCED = False
 try:
@@ -294,15 +410,15 @@ if not RULES_ENTITY or not FILE_ENTITY:
     sys.exit()
 
 '''
-	we will force the JSON option to yextend
-	as the default run mode going forward
+    we will force the JSON option to yextend
+    as the default run mode going forward
 
-	function 'print_yextend_json_output' presents
-	the results of a run to stdout the same way
-	we always have except that under the hood it
-	is transforming the JSON output from yextend
-	instead of transforming the legacy output
-	format (i.e. non-JSON)
+    function 'print_yextend_json_output' presents
+    the results of a run to stdout the same way
+    we always have except that under the hood it
+    is transforming the JSON output from yextend
+    instead of transforming the legacy output
+    format (i.e. non-JSON)
 '''
 JSON_OUT_FORCE = "-j"
 if JSON_OUT:
@@ -310,169 +426,38 @@ if JSON_OUT:
 else:
     JSON_OUT = ""
 
-def advanced_print(out):
 
-    out = json.loads(out)
-
-    final = []
-
-    def format_dict(child):
-        if "child_file_name" in child:
-            child["file_name"] = child.pop("child_file_name")
-        elif "non_archive_file_name" in child:
-            child["file_name"] = child.pop("non_archive_file_name")
-
-        if "yara_rule_id" in child:
-            rule_id = child["yara_rule_id"]
-            try:
-                yara_results = {rule_id:{}}
-                if "description" in child:
-                    yara_results[rule_id]["description"] = child["description"]
-                else:
-                    yara_results[rule_id]["description"] = ""
-                if "detected offsets" in child:
-                    yara_results[rule_id]["offsets"] = child["detected offsets"]
-                    del child["detected offsets"]
-
-                del child["yara_rule_id"]
-                child["yara_results"] = yara_results
-
-            except Exception,e:
-                print e
-
-        if "scan_results" in child:
-            del child["scan_results"]
-
-        return child
-
-    def add_results(all_files,new_dict,name,file_sig):
-
-        if "yara_results" in new_dict:
-            all_files[(name,file_sig)]["yara_results"].update(new_dict["yara_results"])
-
-
-    for file_dict in out:
-        #dictionary of all files name:metadata
-        all_files = {}
-        #map parents to children just using file name and we will get metadata from all_files when needed
-        parent_child = {}
-
-        name=file_dict["file_name"]
-        file_sig=file_dict["file_signature_MD5"]
-        new_dict = format_dict(dict(file_dict))
-
-        try:
-            new_dict["yara_results"]
-        except:
-            new_dict["yara_results"] = {}
-
-        try:
-            all_files[(name,file_sig)]
-            if new_dict["yara_results"]:
-                add_results(all_files,format_dict(new_dict),name,file_sig)           
-
-        except Exception, e:
-            all_files[(name,file_sig)] = new_dict
-
-        for child in file_dict["scan_results"]:
-
-            child_dict = format_dict(child)
-            name = child_dict["file_name"]
-            file_sig = child_dict["file_signature_MD5"]
-
-            if (name,file_sig) in all_files:
-                add_results(all_files,child_dict,name,file_sig)
-            else:
-                all_files[(name,file_sig)] = child_dict
-
-            if "parent_file_name" in child:
-                try:
-                    if (name,file_sig) not in parent_child[child["parent_file_name"]]:
-                        parent_child[child["parent_file_name"]].append((name,file_sig))
-                except Exception, e:
-                    parent_child[child["parent_file_name"]] = [(name,file_sig)]
-
-            #when it's a non-archived file map it as its own child
-            else:
-                try:
-                    if (name,file_sig) not in parent_child[child["file_name"]]:
-                        parent_child[child["file_name"]].append((name,file_sig))
-                except:
-                    parent_child[child["file_name"]] = [(name,file_sig)]
-
-        keyorder = ["file_name","file_signature_MD5","file_size","yara_matches_found", "hit_count", "yara_ruleset_file_name", "scan_type", "yara_results"]
-
-        for f in all_files:
-            if "parent_file_name" in all_files[f]:
-                del all_files[f]["parent_file_name"]
-            try:
-                if f[0] in parent_child and parent_child[f[0]]:
-                    obj = OrderedDict()
-                    for key in keyorder:
-                        if key in all_files[f]:
-                            obj[key] = all_files[f][key]
-
-                    if len(parent_child[f[0]]) == 1 and parent_child[f[0]] == [f]:
-                        pass
-                    else:                        
-                        obj["children"] = []
-                        for child in parent_child[f[0]]:
-                            new_child = OrderedDict()
-                            for key in keyorder:
-                                if key in all_files[child]:
-                                    new_child[key] = all_files[child][key]
-                            obj["children"].append(new_child)
-
-                    final.append(obj)
-
-            except Exception, e:
-                print e
-
-    return final
-
+ruleset_pool = []    
 ''' ruleset = file '''
 if not RULES_ENTITY_DIR:
-    proc = subprocess.Popen([YEXTEND, "-r", RULES_ENTITY, "-t", FILE_ENTITY, JSON_OUT_FORCE],
+    ruleset_pool.append(RULES_ENTITY)
+else:
+    for r in get_file_list(thedir=RULES_ENTITY):
+        ruleset_pool.append(r)
+
+    
+for lpol in ruleset_pool:
+
+    out = ""
+    err = ""
+    proc = subprocess.Popen([YEXTEND, "-r", lpol, "-t", FILE_ENTITY, JSON_OUT_FORCE],
                             env={LD_LIBRARY_PATH:USRLOCLIB},
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
                             )
     out, err = proc.communicate()
+
     if out:
         if JSON_OUT:
             if ADVANCED:
-                print json.dumps(advanced_print(out), indent=4)
+                print json.dumps(advanced_print(out=out, ruleset_name=lpol), indent=4)
             else:
                 #print_yextend_json_output(out=out)
                 print out
         else:
             #print_yextend_output(out=out)
             print_yextend_json_output(out=out)
-    '''
+    
     if err:
         print "ERR: %s" % err
-    '''
-
-''' ruleset = dir '''
-if RULES_ENTITY_DIR:
-    for lpol in get_file_list(thedir=RULES_ENTITY):
-        proc = subprocess.Popen([YEXTEND, "-r", lpol, "-t", FILE_ENTITY, JSON_OUT_FORCE],
-                                env={LD_LIBRARY_PATH:USRLOCLIB},
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                )
-        out, err = proc.communicate()
-        if out:
-            if JSON_OUT:
-                if ADVANCED:
-                    print json.dumps(advanced_print(out), indent=4)
-                else:
-                    #print_yextend_json_output(out=out)
-                    print out
-            else:
-                #print_yextend_output(out=out)
-                print_yextend_json_output(out=out)
-        '''
-        if err:
-            print "ERR: %s" % err
-        '''
+        

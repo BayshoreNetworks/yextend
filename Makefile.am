@@ -46,4 +46,4 @@ bin_PROGRAMS = yextend
 yextend_SOURCES = libs/json.hpp wrapper.cpp bayshore_content_scan.cpp libs/bayshore_file_type_detect.cpp main.cpp libs/zl.cpp libs/bayshore_yara_wrapper.c libs/pdf_parser.cpp libs/bzl.cpp
 
 unittests:
-	nosetests -s test/
+	cd test; nosetests -s; cd ..
