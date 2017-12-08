@@ -200,3 +200,21 @@ rule is_entropy
 	condition:
 		math.entropy(0,filesize)>5
 }
+
+rule dummy_true {
+    meta:
+        description = "One, Two, Three"
+    
+    condition:
+        true
+}
+
+rule test_comma {
+    meta:
+        description = "One, Two, Three"
+    strings:
+            $a = "as, df, gg" 
+    condition:
+        $a
+}
+
