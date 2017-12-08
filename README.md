@@ -414,15 +414,15 @@ Instructions:
                         			"scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file"
                     		}, 
                     		{
-                        		"yara_matches_found": true, 
-                        		"file_name": "word/embeddings/oleObject1.bin", 
-                        		"scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file", 
-                        		"yara_results": {
-                            		"maldoc_suspicious_strings": {
-                               			"description": "suspicious marco action", 
-                               			"hit_count": "8", 
-                                		"offsets": [
-                                    		"0x12231:$a02", 
+                        			"yara_matches_found": true, 
+                        			"file_name": "word/embeddings/oleObject1.bin", 
+                        			"scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file", 
+                        			"yara_results": {
+										"maldoc_suspicious_strings": {
+										"description": "suspicious marco action", 
+										"hit_count": "8", 
+										"offsets": [
+											"0x12231:$a02", 
                                     		"0x135c5:$a03", 
                                     		"0x55dc7:$a03", 
                                     		"0x5f1e2:$a03", 
