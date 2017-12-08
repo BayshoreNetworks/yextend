@@ -43,6 +43,7 @@
 #define PRIx64 "llx"
 #define PRId64 "lld"
 */
+#define META_DELIM ",#+,"
 
 // structs
 /*
@@ -159,8 +160,10 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 			//printf("[ ");
 			yr_rule_metas_foreach(rule, meta)
 			{
-				if (meta != rule->metas)
-					strncat (yara_meta_results, ",", sizeof(yara_results)-strlen(yara_results)-1);
+				if (meta != rule->metas) {
+					//strncat (yara_meta_results, ",", sizeof(yara_results)-strlen(yara_results)-1);
+					strncat (yara_meta_results, META_DELIM, sizeof(yara_results)-strlen(yara_results)-1);
+				}
 				
 				if (meta->type == META_TYPE_INTEGER) {
 					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
@@ -226,10 +229,10 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 			 * so if there is no meta data to output we dont start with
 			 * a comma here
 			 */
-			if (strlen(yara_meta_results) > 0)
-				strncat (yara_meta_results, ",detected offsets=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-			else
-				strncat (yara_meta_results, "detected offsets=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+			if (strlen(yara_meta_results) > 0) {
+				strncat (yara_meta_results, META_DELIM, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+			}
+			strncat (yara_meta_results, "detected offsets=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 			strncat (yara_meta_results, tmp_str_results, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 		}
 	    
@@ -239,7 +242,8 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 	     */
 		if (strlen(yara_meta_results) > 0) {
 		    if (hit_cnt > 0) {
-		    	strncat (yara_meta_results, ",hit_count=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+		    	strncat (yara_meta_results, META_DELIM, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
+		    	strncat (yara_meta_results, "hit_count=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 		    	// convert into to str (char array)
 		    	char intstr[15];
 		    	sprintf(intstr, "%d", hit_cnt);
@@ -249,8 +253,9 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 			strncat (yara_results, yara_meta_results, sizeof(yara_results)-strlen(yara_results)-1);
 			strncat (yara_results, "]", sizeof(yara_results)-strlen(yara_results)-1);
 		}
-		
-		strncat (yara_results, ", ", sizeof(yara_results)-strlen(yara_results)-1);
+
+		strncat (yara_results, META_DELIM, sizeof(yara_results)-strlen(yara_results)-1);
+		strncat (yara_results, " ", sizeof(yara_results)-strlen(yara_results)-1);
 		count++;
 	}
 

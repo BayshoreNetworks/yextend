@@ -103,6 +103,7 @@ static const char *json_parse_error = "JSON parse error";
 static const char *json_invalid_iterator_error = "JSON invalid iterator error";
 static const char *json_out_of_range_error = "JSON out of range error";
 static const char *json_exception = "JSON exception";
+static const char *meta_delim = ",#+,";
 
 void usage() {
 
@@ -262,7 +263,8 @@ std::string process_scan_hit_str(const std::string &hit_str,
 		std::string yara_rule_hit_meta = mtch[2];
 
 		std::vector<std::string> tokens_2;
-		tokenize_string (yara_rule_hit_meta, tokens_2, ",");
+		//tokenize_string (yara_rule_hit_meta, tokens_2, ",");
+		tokenize_string (yara_rule_hit_meta, tokens_2, meta_delim);
 
 		json j_meta;
 		for (auto& it2 : tokens_2) {
@@ -622,7 +624,9 @@ int main(int argc, char* argv[]) {
 										}
 										
 										std::vector<std::string> tokens;
-										tokenize_string (file_scan_result, tokens, ", ");
+										std::string delim = meta_delim;
+										delim.append(" ");
+										tokenize_string (file_scan_result, tokens, delim);
 										
 										// we have hits
 										if (file_scan_result.size()) {
@@ -898,7 +902,10 @@ int main(int argc, char* argv[]) {
 								if (file_scan_result.size()) {
 									
 									std::vector<std::string> tokens;
-									tokenize_string (file_scan_result, tokens, ", ");
+									std::string delim = meta_delim;
+									delim.append(" ");
+									//tokenize_string (file_scan_result, tokens, meta_delim);
+									tokenize_string (file_scan_result, tokens, delim);
 									
 									// we have multiple hits
 									if (tokens.size() > 0) {
