@@ -308,7 +308,8 @@ int tokenize_yara_str(char *buf) {
 	int iter_cnt;
 	int hex_dec;
 
-	const char sss[2] = ",";
+	//const char sss[2] = ",";
+	const char sss[5] = ",#+,";
 	char *token3;
 	char *token3_save;
 
@@ -441,7 +442,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 	if (rules) {
 		size_t local_api_yara_results_len = 0;
 		if (bayshore_yara_wrapper_yrrules_api((uint8_t *)buf, sz, rules, local_api_yara_results, &local_api_yara_results_len) > 0) {
-			//printf("%s\n", local_api_yara_results);
+			printf("%s\n", local_api_yara_results);
 			return_type = tokenize_yara_str(local_api_yara_results);
 		}
 		yr_rules_destroy (rules);
