@@ -420,22 +420,22 @@ Instructions:
                                     "yara_results": {
                                         "maldoc_suspicious_strings": {
                                         "description": "suspicious marco action", 
-										"hit_count": "8", 
-										"offsets": [
-											"0x12231:$a02", 
-                                    		"0x135c5:$a03", 
-                                    		"0x55dc7:$a03", 
-                                    		"0x5f1e2:$a03", 
-                                    		"0x55db9:$a09", 
-                                    		"0x5f1d5:$a09", 
-                                    		"0x55e31:$a12", 
-                                    		"0x1037d:$a15"
-                                		]
-                            		}
-                        		}, 
-                        		"file_size": 392192, 
-                        		"file_signature_MD5": "27250593fccbfb679320a74be9459d17"
-                    		}, 
+                                        "hit_count": "8", 
+                                        "offsets": [
+                                            "0x12231:$a02", 
+                                            "0x135c5:$a03", 
+                                            "0x55dc7:$a03", 
+                                            "0x5f1e2:$a03", 
+                                            "0x55db9:$a09", 
+                                            "0x5f1d5:$a09", 
+                                            "0x55e31:$a12", 
+                                            "0x1037d:$a15"
+                                        ]
+                                    }
+                                }, 
+                                "file_size": 392192, 
+                                "file_signature_MD5": "27250593fccbfb679320a74be9459d17"
+                            }, 
                     		{
                         		"yara_matches_found": false, 
                         		"file_size": 8, 
