@@ -308,7 +308,8 @@ int tokenize_yara_str(char *buf) {
 	int iter_cnt;
 	int hex_dec;
 
-	const char sss[2] = ",";
+	//const char sss[2] = ",";
+	const char sss[5] = ",#+,";
 	char *token3;
 	char *token3_save;
 
