@@ -27,24 +27,26 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifndef PDF_PARSER_H_
-#define PDF_PARSER_H_
+#ifndef PDF_PARSER_HELPER_H_
+#define PDF_PARSER_HELPER_H_
+
+#include <stdint.h>
 
 #include <cstddef>
-#include <stdint.h>
+#include <string>
+#include <unordered_map>
 #include <vector>
-
-#include "pdf.h"
 
 namespace pdfparser {
 
     extern "C" {
 
-        std::vector<uint8_t> PdfToText (const uint8_t* pdf_start, size_t pdf_size);
-        std::vector<std::vector<uint8_t>> PdfDetach (uint8_t* pdf_start, size_t pdf_size);
+        size_t FindStringInBuffer (const uint8_t* haystack, const char* needle, const size_t haystack_size);
+        size_t FindStringInBufferReverse (const uint8_t* haystack, const char* needle, const size_t haystack_size);
+        std::vector<std::string> SplitString(std::string const & string, char delim, size_t quantity = std::string::npos);
 
     } // !extern "C"
 
 } // !namespace pdfparser
 
-#endif /* PDF_PARSER_H_ */
+#endif /* PDF_PARSER_HELPER_H_ */

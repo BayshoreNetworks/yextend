@@ -27,24 +27,48 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifndef PDF_PARSER_H_
-#define PDF_PARSER_H_
+#ifndef PDF_H_
+#define PDF_H_
+
+#include <stdint.h>
 
 #include <cstddef>
-#include <stdint.h>
+#include <string>
+#include <map>
 #include <vector>
 
-#include "pdf.h"
+#include "pdf_object.h"
 
 namespace pdfparser {
 
     extern "C" {
 
-        std::vector<uint8_t> PdfToText (const uint8_t* pdf_start, size_t pdf_size);
-        std::vector<std::vector<uint8_t>> PdfDetach (uint8_t* pdf_start, size_t pdf_size);
+        class Pdf {
+	        size_t xref_offset{0}; // Offset to start of xref from start_pdf
+	        std::vector<size_t> xref{}; // Offset of each 'obj' in pdf
+
+	        const uint8_t* start_pdf{nullptr};
+	        size_t length_pdf{0};
+
+	        std::map<std::string, PdfObject> objects{};
+
+	        std::map<std::string, std::string> obj_ref;
+
+	        void BuildObjReference(Dictionary* dictionary);
+	        void DeleteDictionary(Dictionary* dictionary);
+            void GetXref();
+
+        public:
+	        Pdf(const uint8_t* buffer, size_t size);
+	        ~Pdf();
+
+	        size_t Size();
+	        std::vector<uint8_t> ExtractText();
+	        std::vector<std::vector<uint8_t>> ExtractFile();
+        };
 
     } // !extern "C"
 
 } // !namespace pdfparser
 
-#endif /* PDF_PARSER_H_ */
+#endif /* PDF_H_ */
