@@ -16,7 +16,7 @@ yextend was written for the sake of augmenting yara. yara by itself is great but
 
 
 Software Credits
-	
+
 	- Yara is originally authored by Victor M. Alvarez (https://github.com/VirusTotal/yara) - License: https://raw.githubusercontent.com/VirusTotal/yara/master/COPYING
 	- json.hpp is authored by Niels Lohmann (https://github.com/nlohmann/json) - License: https://raw.githubusercontent.com/nlohmann/json/develop/LICENSE.MIT  *** Note that for Yextend to compile I had to make a change to the original json.hpp - function "get_string" was causing name conflicts with function "get_string" from Yara. So I renamed json.hpp's function to "j_get_string"
 
@@ -45,7 +45,7 @@ Notes:
 
 	- output now includes the offset and string definition identifier for every hit reported by Yara
 	- output now includes the name of the Yara ruleset file at hand
-	- initial release of run_yextend prog 
+	- initial release of run_yextend prog
 
 - (10/24/2015) yextend version 1.3 will only work with yara 3.4.
 
@@ -69,7 +69,6 @@ Requirements to build and run:
 - libarchive (v4) be installed (sudo dnf install libarchive-devel or sudo apt-get install libarchive-dev)
 - pcrecpp (sudo dnf install pcre-devel or sudo apt-get install libpcre3-dev)
 - uuid (sudo dnf install uuid-devel / libuuid-devel or sudo apt-get install uuid-dev)
-- pdf2text (sudo dnf install poppler-utils or sudo apt-get install poppler-utils)
 - nose (sudo dnf install python2-nose or sudo apt-get install python-nose)
 - yara v3.X be fully installed
 - if you are running yara pre-version 3.1.X then yara v3 lib header files to be moved to a specific location after a typical yara install, steps:
@@ -98,10 +97,10 @@ Instructions:
 5 - Run:
 
 	- Note on run modes:
-	
+
 		- No arguments/switches passed in means the output is intended for human eyes
 		- The -j switch means the output is for machine to consume [JSON]
-		- The -a switch, used in conjunction -j, means that file structure/hierarchy will be added to the machine consumable JSON output 
+		- The -a switch, used in conjunction -j, means that file structure/hierarchy will be added to the machine consumable JSON output
 
 	- 2 options to run:
 
@@ -122,7 +121,7 @@ Instructions:
 		 ./run_yextend -r rule_entity -t target_file_entity
         ./run_yextend --ruleset rule_entity -t target_file_entity
         ./run_yextend -r rule_entity -t target_file_entity -j
-        
+
 		***** make sure the executable bit is set on the file system for run_yextend *****
 
 	B. run yextend executable - prefix the run statement by telling LD_LIBRARY_PATH where the yara shared object lib (or its symlink) is. If you changed nothing during the yara install then that value is '/usr/local/lib'
@@ -132,31 +131,31 @@ Instructions:
 		1. A yara ruleset file
 		2. A file name or a directory name where the target files exist
 		3. '-j' for json output [optional]
-		
+
 	usage:
         -r rule_entity
         -t target_file_entity
         -j
-	
+
 	example:
-	
+
 		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex
 		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/
 		- LD_LIBRARY_PATH=/usr/local/lib ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex -j
-		
-		***** 
+
+		*****
 			if you don't want to set LD_LIBRARY_PATH on each prog run then you can set it in your .bashrc (or equivalent on your system) as such:
-		
+
 			export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-			
+
 			then the program runs would be as such:
-	
+
 				- ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/filex
 				- ./yextend -r ~/Desktop/bayshore.yara.rules -t /tmp/targetfiles/			
 		*****
 
 6 - Analyze output. The output will be structured as such (number of result stanzas will obviously vary based on the content at hand):
-	
+
 	===============================ALPHA===================================
 	Ruleset File Name: w
 	File Name: x
@@ -170,8 +169,8 @@ Instructions:
 	Parent File Name: b
 	Child File Name: c
 	File Signature (MD5): d
-	
-	
+
+
 	Yara Result(s): RULE2, RULEWITHMETA:[type=Simple string search,signature=Looking for 95,author=Dre,testint=9,d=false,detected offsets=0x0:$a-0x1:$a-0x2:$a-0x3:$a,hit_count=4], RULE3
 	Scan Type: v
 	Parent File Name: x
@@ -186,7 +185,7 @@ Instructions:
 		RULE_ID:[META_DATA,OFFSETS,HIT_COUNT], RULE_ID[OFFSETS,HIT_COUNT], ... RULE_ID[OFFSETS,HIT_COUNT]
 
 		Inside the square brackets:
-		
+
 			The "META_DATA" are comma-separated and represent the data from your rules "meta" section. As this is optional you may see no meta-data output from yextend.
 			The OFFSETS are comma-separated. Each offset listing is delimited by a dash and represent the offset in the content where the rule hit took place and the respective string definition identifier from your Yara rule.
 			The HIT_COUNT is simply a listing of the number of rule hits.
@@ -209,37 +208,37 @@ Instructions:
 			OFFSETS: detected offsets=0xd94e:$a-0x2c5b5:$b ("0xd94e" is one offset in the content that hit on string definition "$a". "0x2c5b5" is another offset in the content that hit on string definition "$b")
 			HIT_COUNT: hit_count=2
 
-		
-		
+
+
 	A. example output from one of the test files:
-	
+
 		===============================ALPHA===================================
 		Ruleset File Name: test_rules/ruleset_blah
 		File Name: test_files/rands_tarball.tar.gz
 		File Size: 271386
 		File Signature (MD5): 74edc10648f6d65e90cd859120eaa31b
-		
+
 		=======================================================================
-		
+
 		Yara Result(s): JUDO:[detected offsets=0x48:$a,hit_count=1]
 		Scan Type: Yara Scan (ASCII Text File) inside GZIP Archive file
 		Parent File Name: AAA.gz
 		Child File Name: AAA
 		File Signature (MD5): bf6aadaf4b6fb726040c1131d809bfc2
-		
-		
+
+
 		Yara Result(s): EXE_DROP:[detected offsets=0x4e:$a,hit_count=1], MZ_PORTABLE_EXE, S95:[detected offsets=0xd94e:$a-0x2c5b5:$a,hit_count=2]
 		Scan Type: Yara Scan (Windows - Portable Executable) inside ZIP 2.0 (deflation) file
 		Parent File Name: rand987.zip
 		Child File Name: spoolsy.exe
 		File Signature (MD5): 25ca7beed707e94ce70137f7d0c7b14e
-		
-		
+
+
 		===============================OMEGA===================================
-		
-		
+
+
 		This is based on file "test_files/rands_tarball.tar.gz" that has the following structure:
-		
+
 		rands_tarball.tar.gz
 		|_ rands.tar
 		   |_ rand123.zip
@@ -328,7 +327,7 @@ Instructions:
 
 
 		This last example is based on file "test_files/step1-zips.tar.gz" that has the following structure:
-		
+
 		step1-zips.tar.gz
 		|_ docx-embedded-step3.xlsx.zip
 		   |_ docx-embedded-step3.xlsx
@@ -392,74 +391,72 @@ Instructions:
         		"yara_ruleset_file_name": "test_rulesets/BAYSHORE_Officex1.yar"
     		}
 		]
-		
-		
+
+
 	D. An example of advanced JSON output:
-		
+
              ./run_yextend -r test_rulesets/BAYSHORE_Officex1.yar -t test_files/Lorem-winlogon.docx.bz2 -j -a
              [
                  {
-                     "yara_matches_found": true, 
+                     "yara_matches_found": true,
                      "scan_results": [
                          {
-                             "yara_matches_found": false, 
-                             "file_name": "test_files/Lorem-winlogon.docx", 
-                             "file_size": 210193, 
+                             "yara_matches_found": false,
+                             "file_name": "test_files/Lorem-winlogon.docx",
+                             "file_size": 210193,
                              "children": [
                                  {
-                                     "yara_matches_found": false, 
-                                     "file_size": 29639, 
-                                     "file_name": "word/document.xml", 
-                                     "file_signature_MD5": "9d58972d9a528da89c971597e4aa1844", 
+                                     "yara_matches_found": false,
+                                     "file_size": 29639,
+                                     "file_name": "word/document.xml",
+                                     "file_signature_MD5": "9d58972d9a528da89c971597e4aa1844",
                                      "scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file"
-                                 }, 
+                                 },
                                  {
-                        	     "yara_matches_found": true, 
-                                     "file_name": "word/embeddings/oleObject1.bin", 
-                        	     "scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file", 
+                        	     "yara_matches_found": true,
+                                     "file_name": "word/embeddings/oleObject1.bin",
+                        	     "scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file",
                                      "yara_results": {
                                          "maldoc_suspicious_strings": {
-                                             "description": "suspicious marco action", 
-                                             "hit_count": "8", 
+                                             "description": "suspicious marco action",
+                                             "hit_count": "8",
                                              "offsets": [
-                                                "0x12231:$a02", 
-                                                "0x135c5:$a03", 
-                                                "0x55dc7:$a03", 
-                                                "0x5f1e2:$a03", 
-                                                "0x55db9:$a09", 
-                                                "0x5f1d5:$a09", 
-                                                "0x55e31:$a12", 
+                                                "0x12231:$a02",
+                                                "0x135c5:$a03",
+                                                "0x55dc7:$a03",
+                                                "0x5f1e2:$a03",
+                                                "0x55db9:$a09",
+                                                "0x5f1d5:$a09",
+                                                "0x55e31:$a12",
                                                 "0x1037d:$a15"
                                              ]
                                          }
-                                     }, 
-                                     "file_size": 392192, 
+                                     },
+                                     "file_size": 392192,
                                      "file_signature_MD5": "27250593fccbfb679320a74be9459d17"
-                                 }, 
+                                 },
                                  {
-                                     "yara_matches_found": false, 
-                                     "file_size": 8, 
-                                     "file_name": "word/embeddings/oleObject1.bin", 
-                                     "file_signature_MD5": "6674f1535a94304e58f26d06f348190d", 
+                                     "yara_matches_found": false,
+                                     "file_size": 8,
+                                     "file_name": "word/embeddings/oleObject1.bin",
+                                     "file_signature_MD5": "6674f1535a94304e58f26d06f348190d",
                                      "scan_type": "Yara Scan (Office Open XML)  inside BZIP2 Archive file"
                                  }
-                             ], 
+                             ],
                              "file_signature_MD5": "d8f0fab30eae91687c0d80f8dd08218f"
                          }
-                     ], 
-       	             "file_name": "test_files/Lorem-winlogon.docx.bz2", 
-       	             "yara_ruleset_file_name": "test_rulesets/BAYSHORE_Officex1.yar", 
-       	             "file_size": 208940, 
+                     ],
+       	             "file_name": "test_files/Lorem-winlogon.docx.bz2",
+       	             "yara_ruleset_file_name": "test_rulesets/BAYSHORE_Officex1.yar",
+       	             "file_size": 208940,
        	             "children": [
                         {
-               	            "yara_matches_found": false, 
-               	            "file_size": 210193, 
-                            "file_name": "test_files/Lorem-winlogon.docx", 
+               	            "yara_matches_found": false,
+               	            "file_size": 210193,
+                            "file_name": "test_files/Lorem-winlogon.docx",
                             "file_signature_MD5": "d8f0fab30eae91687c0d80f8dd08218f"
                         }
-                    ], 
+                    ],
                     "file_signature_MD5": "26b485701d6a47618a7f915aa7a38045"
                 }
             ]
-		
-		
