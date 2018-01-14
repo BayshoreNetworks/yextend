@@ -276,7 +276,8 @@ void scan_pdf_api(void *cookie,
 	 * completes
 	 */
 	std::string str_buf;
-	PDFParser pdf(ssp_local->buffer, ssp_local->buffer_length);
+	auto pdf_temp = pdfparser::PdfToText((uint8_t *)ssp_local->buffer, ssp_local->buffer_length);
+	str_buf = std::string (pdf_temp.begin(), pdf_temp.end());
 
 	/*
 	 * 2.
@@ -285,10 +286,10 @@ void scan_pdf_api(void *cookie,
 	 */
 	if (in_type_of_scan == 1) {
 
-		str_buf = pdf.extract_text_buffer();
-
+		//str_buf = pdf.extract_text_buffer();
 		ssp_local->buffer = (const uint8_t*)str_buf.c_str();
 		ssp_local->buffer_length = str_buf.length();
+
 	}
 
 	//std::cout << "EMBED: " << pdf.has_embedded_files() << std::endl;
@@ -308,6 +309,7 @@ void scan_pdf_api(void *cookie,
 	// These can no longer be used.
 	ssp_local->buffer = NULL;
 	ssp_local->buffer_length = 0;
+	
 }
 
 
