@@ -30,9 +30,9 @@ You are presented with a docker shell:
 The docker contained maps your $HOME/src/yextend folder to /yextend
 In order to build yextend - issue the following commands:
 
-* bayshore@yextend-build:/$ cd /yextend/
-* bayshore@yextend-build:~$ ./autogen.sh
-* bayshore@yextend-build:~$ ./configure && make
+	bayshore@yextend-build:/$ cd /yextend/
+	bayshore@yextend-build:~$ ./autogen.sh
+	bayshore@yextend-build:~$ ./configure && make
 
 This will build yextend in your $HOME/src/yextend folder.
 If you wish to run the built-in unit tests - issue:
@@ -40,12 +40,12 @@ If you wish to run the built-in unit tests - issue:
 * bayshore@yextend-build:~$ make unittests
 
 Example output:
-* cd test; nosetests -s; cd ..
-* ....................
-* ----------------------------------------------------------------------
-* Ran 20 tests in 0.004s
-* 
-* OK
+	cd test; nosetests -s; cd ..
+	....................
+	----------------------------------------------------------------------
+	Ran 20 tests in 0.004s
+	 
+	OK
 
 
 BayshoreNetworks provides docker build files for:
@@ -54,6 +54,7 @@ BayshoreNetworks provides docker build files for:
 * Ubuntu Artful - dockerfile-amd64-ubuntu-artful
 * Debian Stretch - dockerfile-amd64-debian-stretch
 * Debian Stretch - dockerfile-amd64-debian-jessie
+* Fedora Core 27 - dockerfile-amd64-fedora
 * Raspberry Pi - dockerfile-armhf-raspbian-stretch
 * HardKernel Odroid C1 - dockerfile-armhf-ubuntu-xenial
 
