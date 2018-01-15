@@ -30,7 +30,7 @@
 #ifndef PDF_OBJECT_H_
 #define PDF_OBJECT_H_
 
-#define DEBUG
+//#define DEBUG
 
 #include <stdint.h>
 
