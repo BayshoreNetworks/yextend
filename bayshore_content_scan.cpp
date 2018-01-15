@@ -278,6 +278,7 @@ void scan_pdf_api(void *cookie,
 	std::string str_buf;
 	auto pdf_temp = pdfparser::PdfToText((uint8_t *)ssp_local->buffer, ssp_local->buffer_length);
 	str_buf = std::string (pdf_temp.begin(), pdf_temp.end());
+	std::cout << "START RODRIGO" << std::endl << str_buf << "END RODRIGO" << std::endl;
 
 	/*
 	 * 2.
@@ -309,7 +310,7 @@ void scan_pdf_api(void *cookie,
 	// These can no longer be used.
 	ssp_local->buffer = NULL;
 	ssp_local->buffer_length = 0;
-	
+
 }
 
 
