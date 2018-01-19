@@ -139,6 +139,7 @@ namespace pdfparser {
 
 			        if (obj.ExtractStream((obj.GetDictionary())->values["Filter"])){
 				        obj.TextParser();
+        				text_buffer = obj.GetParsedText();
 				        whole_text.insert(whole_text.end(), text_buffer.begin(), text_buffer.end());
 			        }
 		        }

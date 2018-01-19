@@ -70,11 +70,11 @@ char* identifiers[MAX_ARGS_IDENTIFIER + 1];
 char* ext_vars[MAX_ARGS_EXT_VAR + 1];
 char* modules_data[MAX_ARGS_EXT_VAR + 1];
 
-static int show_strings = TRUE;
-static int show_meta = TRUE;
-static int show_module_data = FALSE;
-static int show_errors = FALSE;
-static int show_warnings = FALSE;
+int show_strings = TRUE;
+int show_meta = TRUE;
+
+int show_errors = FALSE;
+int show_warnings = FALSE;
 
 MODULE_DATA* modules_data_list = NULL;
 
@@ -105,12 +105,6 @@ void print_scanner_error(int error)
 	case ERROR_CORRUPT_FILE:
 		fprintf(stderr, "corrupt compiled rules file.\n");
 		break;
-	case ERROR_EXEC_STACK_OVERFLOW:
-    	fprintf(stderr, "stack overflow while evaluating condition (see --stack-size argument).\n");
-    	break;
-    case ERROR_INVALID_EXTERNAL_VARIABLE_TYPE:
-    	fprintf(stderr, "invalid type for external variable.\n");
-    	break;
 	default:
 		fprintf(stderr, "internal error: %d\n", error);
 		break;
@@ -305,24 +299,6 @@ int bayshore_yara_callback(
 		}
 
 		return CALLBACK_CONTINUE;
-
-	case CALLBACK_MSG_MODULE_IMPORTED:
-
-		if (show_module_data)
-		{
-
-			object = (YR_OBJECT*) message_data;
-
-			//mutex_lock(&output_mutex);
-
-			yr_object_print_data(object, 0, 1);
-			printf("\n");
-
-			//mutex_unlock(&output_mutex);
-		}
-
-		return CALLBACK_CONTINUE;
-
 	}
 	return CALLBACK_ERROR;
 }

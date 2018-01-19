@@ -438,6 +438,10 @@ namespace pdfparser {
 	        #endif
         }
 
+        std::vector<uint8_t> PdfObject::GetParsedText(){
+        	return parsed_text;
+        }
+
         //start of 'obj' + size of 'obj' + length of flag
         const uint8_t* PdfObject::GetObjectEnd() {
 	        if (object_size == 0) {

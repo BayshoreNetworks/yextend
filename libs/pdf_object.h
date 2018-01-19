@@ -159,6 +159,7 @@ namespace pdfparser {
 	        bool ExtractStream(std::string filter);
 	        std::vector<uint8_t> GetDecodedStream();
 	        void TextParser();
+        	std::vector<uint8_t> GetParsedText();
 	        const uint8_t* GetObjectEnd();
 	        bool HasStream();
         };
