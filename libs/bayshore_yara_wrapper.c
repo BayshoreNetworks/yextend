@@ -305,7 +305,6 @@ int bayshore_yara_callback(
 		}
 
 		return CALLBACK_CONTINUE;
-		
 
 	case CALLBACK_MSG_MODULE_IMPORTED:
 
