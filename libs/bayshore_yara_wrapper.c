@@ -305,6 +305,25 @@ int bayshore_yara_callback(
 		}
 
 		return CALLBACK_CONTINUE;
+		
+
+	case CALLBACK_MSG_MODULE_IMPORTED:
+
+		if (show_module_data)
+		{
+
+			object = (YR_OBJECT*) message_data;
+
+			//mutex_lock(&output_mutex);
+
+			yr_object_print_data(object, 0, 1);
+			printf("\n");
+
+			//mutex_unlock(&output_mutex);
+		}
+
+		return CALLBACK_CONTINUE;
+
 	}
 	return CALLBACK_ERROR;
 }
