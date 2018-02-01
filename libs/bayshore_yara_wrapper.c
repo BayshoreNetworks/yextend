@@ -105,6 +105,12 @@ void print_scanner_error(int error)
 	case ERROR_CORRUPT_FILE:
 		fprintf(stderr, "corrupt compiled rules file.\n");
 		break;
+	case ERROR_EXEC_STACK_OVERFLOW:
+    		fprintf(stderr, "stack overflow while evaluating condition (see --stack-size argument).\n");
+    		break;
+    	case ERROR_INVALID_EXTERNAL_VARIABLE_TYPE:
+    		fprintf(stderr, "invalid type for external variable.\n");
+    		break;
 	default:
 		fprintf(stderr, "internal error: %d\n", error);
 		break;
