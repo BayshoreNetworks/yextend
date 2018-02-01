@@ -70,11 +70,11 @@ char* identifiers[MAX_ARGS_IDENTIFIER + 1];
 char* ext_vars[MAX_ARGS_EXT_VAR + 1];
 char* modules_data[MAX_ARGS_EXT_VAR + 1];
 
-int show_strings = TRUE;
-int show_meta = TRUE;
-
-int show_errors = FALSE;
-int show_warnings = FALSE;
+static int show_strings = TRUE;
+static int show_meta = TRUE;
+static int show_module_data = FALSE;
+static int show_errors = FALSE;
+static int show_warnings = FALSE;
 
 MODULE_DATA* modules_data_list = NULL;
 
