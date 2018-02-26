@@ -24,7 +24,7 @@ extern "C" {
 using PDF_DETACH = std::vector<std::vector<uint8_t>>;
 
 
-std::vector<uint8_t> PdfToText (const uint8_t* pdf_start, size_t pdf_size, TextEncoding encoding);
+std::vector<uint8_t> PdfToText (const uint8_t* pdf_start, size_t pdf_size, pdfparser::TextEncoding encoding = TextEncoding::raw);
 
 PDF_DETACH PdfDetach (const uint8_t* pdf_start, size_t pdf_size);
 
