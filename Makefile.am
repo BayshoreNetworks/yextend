@@ -40,7 +40,8 @@ include_HEADERS = libs/json.hpp \
 				libs/pdf_parser.h \
 				libs/pdf_parser_helper.h \
 				libs/pdf.h \
-				libs/pdf_object.h
+				libs/pdf_object.h \
+				libs/pdf_font.h
 
 
 lib_YARA = /usr/local/lib
@@ -57,7 +58,8 @@ yextend_SOURCES = libs/json.hpp \
 				libs/pdf_parser.cpp \
 				libs/pdf_parser_helper.cpp \
 				libs/pdf.cpp \
-				libs/pdf_object.cpp
+				libs/pdf_object.cpp \
+				libs/pdf_font.cpp
 
 
 unittests:
