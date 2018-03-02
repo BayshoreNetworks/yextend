@@ -278,33 +278,49 @@ void scan_pdf_api(void *cookie,
 	std::string str_buf;
 	auto pdf_temp = pdfparser::PdfToText((uint8_t *)ssp_local->buffer, ssp_local->buffer_length);
 	str_buf = std::string (pdf_temp.begin(), pdf_temp.end());
-	std::cout << "START RODRIGO" << std::endl << str_buf << "END RODRIGO" << std::endl;
 
 	/*
-	 * 2.
-	 * scan the extracted text from the PDF so that we
-	 * can scan for actual strings
+	 * in the case of a byte sequence like this:
+	 * 0x00, 0x4F, 0x00, 0x57
+	 *
+	 * let's re-call PdfToText with a forced encoding of utf8
+	 * instead of the default 'raw'
 	 */
-	if (in_type_of_scan == 1) {
-
-		//str_buf = pdf.extract_text_buffer();
-		ssp_local->buffer = (const uint8_t*)str_buf.c_str();
-		ssp_local->buffer_length = str_buf.length();
-
+	if (strlen(str_buf.c_str()) == 0) {
+		str_buf.clear();
+		auto _pdf_temp = pdfparser::PdfToText((uint8_t *)ssp_local->buffer, ssp_local->buffer_length, pdfparser::TextEncoding::utf8);
+		str_buf = std::string (_pdf_temp.begin(), _pdf_temp.end());
 	}
 
-	//std::cout << "EMBED: " << pdf.has_embedded_files() << std::endl;
+	if (str_buf.size()) {
 
-	if (src_len == 0) {
-		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)");
-	} else {
-		snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s%s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)", src);
+		/*
+		 * 2.
+		 * scan the extracted text from the PDF so that we
+		 * can scan for actual strings
+		 */
+		if (in_type_of_scan == 1) {
+
+			//str_buf = pdf.extract_text_buffer();
+			ssp_local->buffer = (const uint8_t*)str_buf.c_str();
+			ssp_local->buffer_length = str_buf.length();
+
+		}
+
+		//std::cout << "EMBED: " << pdf.has_embedded_files() << std::endl;
+
+		if (src_len == 0) {
+			snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)");
+		} else {
+			snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s%s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)", src);
+		}
+
+		if (child_file_name)
+			cb((void *)ssp_local, ssr_list, child_file_name);
+		else
+			cb((void *)ssp_local, ssr_list, "");
+
 	}
-
-	if (child_file_name)
-		cb((void *)ssp_local, ssr_list, child_file_name);
-	else
-		cb((void *)ssp_local, ssr_list, "");
 	/////////////////////////////////////////////////////////
 
 	// These can no longer be used.
