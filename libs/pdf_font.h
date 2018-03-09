@@ -27,31 +27,70 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifndef PDF_PARSER_H_
-#define PDF_PARSER_H_
+#ifndef FONT_H_
+#define FONT_H_
 
-#include <stdint.h>
+//#define DEBUG
+
+/* Include order
+Own .h.
+C.
+C++.
+Other libraries' .h files.
+Your project's .h files.
+*/
 
 #include <cstddef>
+#include <string>
+#include <map>
 #include <vector>
-
-#include "pdf.h"
-#include "pdf_text_encoding.h"
 
 namespace pdfparser {
 
 extern "C" {
 
+using UNICODE_MAP=std::map<std::string, std::vector<uint8_t>>;
+//typedef std::map<std::string, std::string> UNICODE_MAP;
 
-using PDF_DETACH = std::vector<std::vector<uint8_t>>;
+const std::string kCmapBegin			{"begincmap"};
+const std::string kCmapOrdering			{"/Ordering"};
+const std::string kCodeSpaceRangeBegin 	{"begincodespacerange"};
+const std::string kBeginBFChar			{"beginbfchar"};
+const std::string kEndBFChar			{"endbfchar"};
+const std::string kBeginHex				{"<"};
 
 
-std::vector<uint8_t> PdfToText (const uint8_t* pdf_start, size_t pdf_size, pdfparser::TextEncoding encoding = TextEncoding::raw);
+const std::map<std::string, const std::string> kOrdering = {
+		{"None", "UTF-8"},
+		{"UCS", "UTF-16BE"}
+};
 
-PDF_DETACH PdfDetach (const uint8_t* pdf_start, size_t pdf_size);
+
+class Font {
+	union Utf16ToByte {
+		uint8_t byte[2];
+		char16_t utf16;
+	};
+	std::string id{};
+	std::string base_font{"None"};
+	std::string encoding {"None"};
+	UNICODE_MAP unicode_map{}; // Key: cid, value: Unicode
+
+public:
+	Font();
+	Font(std::string id);
+
+	/**
+	 * @brief					Parses the unicode map and fills up unicode_map
+	 * @param raw_definition	string with raw CIDFont
+	 */
+	void BuildUnicodeMap(std::string raw_cidfont);
+	UNICODE_MAP GetUnicodeMap();
+	const char * GetFontEndianess();
+};
 
 } // !extern "C"
 
 } // !namespace pdfparser
 
-#endif /* PDF_PARSER_H_ */
+#endif /* FONTS_H_ */

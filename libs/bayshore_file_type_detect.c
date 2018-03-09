@@ -3,21 +3,21 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2014-2017, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2018, Bayshore Networks, Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  * the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
  * following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
  * following disclaimer in the documentation and/or other materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
  * products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -142,7 +142,7 @@ int is_buffer_encrypted(const uint8_t* buf, size_t nL)
 {
 	/*
 	 * return:
-	 * 
+	 *
 	 * 1 = true
 	 * 0 = false
 	 */
@@ -187,7 +187,7 @@ void get_buffer_hex(char *dest, const char *src, int threshold, int *ispe)
 	int i;
 	//int offs = 0;
 	/*
-    	hex for PE\0\0 - identifier for a 
+    	hex for PE\0\0 - identifier for a
     	windows portable executable
 	 */
 	const char pestr[] = "50450000";
@@ -270,7 +270,7 @@ int is_text_buffer(const uint8_t *buf, size_t sz) {
 	 * detect that a buffer is pure ASCII text
 	 * in nature. This will have to suffice
 	 * for now
-	 * 
+	 *
 	 * 1 = ascii text
 	 * 0 = not ascii text
 	 */
@@ -413,7 +413,7 @@ int tokenize_yara_str(char *buf) {
 }
 
 int get_buffer_type(const uint8_t *buf, size_t sz) {
-	
+
 	int return_type = -1;
 
 	int zip_exception = -1;
@@ -433,7 +433,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 
 	YR_RULES* rules = bayshore_yara_preprocess_rules (path);
 
-	/* 
+	/*
 	 * When calling bayshore_yara_wrapper_yrrules_api, the next-to-last parameter is a
 	 * pointer to a caller-supplied char buffer. The caller is required to ensure
 	 * that this buffer is at least MAX_YARA_RES_BUF bytes long.
@@ -480,11 +480,11 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 	 * move on
 	 */
 	if (zip_exception != -1) {
-		
+
 		/*
 		 * differentiate between zip / jar by looking
 		 * for - META-INF/MANIFEST.MF
-		 * 
+		 *
 		 * this isn't perfect but should catch a high
 		 * percentage of jar file detection
 		 */
@@ -494,15 +494,15 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 			/*
 			 * not a jar file so ....
 			 */
-			
+
 			if (zip_exception == 28) {
 				return 28;
 			}
-			
+
 			if (zip_exception == 50) {
 				return 50;
 			}
-			
+
 			if (zip_exception == 65534) {
 				return 65534;
 			}
@@ -525,7 +525,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 	// we have php, or is it xml??
 	if (xml_exception != -1) {
 		char thesubstr[11];
-		// xml = len 10 in hex 
+		// xml = len 10 in hex
 		bayshoresubstring(0, 11, hex_str, thesubstr, sizeof thesubstr);
 		// it is xml
 		if (strncmp (thesubstr, "3c3f786d6c", 10) == 0) {
@@ -570,7 +570,7 @@ int get_buffer_type(const uint8_t *buf, size_t sz) {
 /*
  * 1 = true
  * 0 = false
- * 
+ *
  */
 
 // officex - docx, pptx, xslx
@@ -806,15 +806,15 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 	 * this may not be cleanest way of doing this
 	 * (getting the text string of a detected file type)
 	 * but it seems fast enough
-	 * 
+	 *
 	 * I just hate maintaining this data set here
 	 * on top of the yara ruleset used for type
 	 * detection but this is the path of least
 	 * resistance at the moment ...
-	 * 
+	 *
 	 * The { case ... } code here was generated via
 	 * a py script run against the bayshore file
-	 * type detection yara ruleset 
+	 * type detection yara ruleset
 	 */
 	int the_len = 0;
 
@@ -1451,7 +1451,7 @@ void get_buffer_type_str(int type, uint8_t *buf) {
 		the_len = 0;
 		break;
 	}
-	buf[the_len] = '\0';    
+	buf[the_len] = '\0';
 }
 
 

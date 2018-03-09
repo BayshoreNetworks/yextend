@@ -3,21 +3,21 @@
  * YEXTEND: Help for YARA users.
  * This file is part of yextend.
  *
- * Copyright (c) 2014-2017, Bayshore Networks, Inc.
+ * Copyright (c) 2014-2018, Bayshore Networks, Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that
  * the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
  * following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
  * following disclaimer in the documentation and/or other materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
  * products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -106,11 +106,11 @@ void print_scanner_error(int error)
 		fprintf(stderr, "corrupt compiled rules file.\n");
 		break;
 	case ERROR_EXEC_STACK_OVERFLOW:
-    	fprintf(stderr, "stack overflow while evaluating condition (see --stack-size argument).\n");
-    	break;
-    case ERROR_INVALID_EXTERNAL_VARIABLE_TYPE:
-    	fprintf(stderr, "invalid type for external variable.\n");
-    	break;
+    		fprintf(stderr, "stack overflow while evaluating condition (see --stack-size argument).\n");
+    		break;
+    	case ERROR_INVALID_EXTERNAL_VARIABLE_TYPE:
+    		fprintf(stderr, "invalid type for external variable.\n");
+    		break;
 	default:
 		fprintf(stderr, "internal error: %d\n", error);
 		break;
@@ -144,17 +144,17 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 	is_matching = (message == CALLBACK_MSG_RULE_MATCHING);
 
 	/*
-	 * if there is a match with a yara rule then concat the 
+	 * if there is a match with a yara rule then concat the
 	 * relevant meta-data to the variable yara_results
 	 */
 	if (is_matching)
 	{
 		char yara_meta_results[MAX_YARA_RES_BUF];
 		yara_meta_results[0] = 0;
-		
+
 		// assuming yara_results is a buffer and not a pointer
 		strncat (yara_results, rule->identifier, sizeof(yara_results)-strlen(yara_results)-1);
-		
+
 		if (show_meta) {
 			YR_META* meta;
 			//printf("[ ");
@@ -164,11 +164,11 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 					//strncat (yara_meta_results, ",", sizeof(yara_results)-strlen(yara_results)-1);
 					strncat (yara_meta_results, META_DELIM, sizeof(yara_results)-strlen(yara_results)-1);
 				}
-				
+
 				if (meta->type == META_TYPE_INTEGER) {
 					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 					strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-					
+
 					char intstr[15];
 					//sprintf(intstr, "%d", meta->integer);
 					//sprintf(intstr, "%" PRId64, meta->integer);
@@ -177,7 +177,7 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 				} else if (meta->type == META_TYPE_BOOLEAN) {
 					strncat (yara_meta_results, meta->identifier, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 					strncat (yara_meta_results, "=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
-					
+
 					char intstr[15];
 					sprintf(intstr, "%s", meta->integer ? "true" : "false");
 					strncat (yara_meta_results, intstr, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
@@ -190,11 +190,11 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 			//printf("] ");
 		}
 		//printf("] ");
-		
+
 		int hit_cnt = 0;
 		char tmp_str_results[4096];
 		tmp_str_results[0] = 0;
-		
+
 		if (show_strings) {
 			YR_STRING* string;
 			yr_rule_strings_foreach(rule, string)
@@ -207,20 +207,20 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 					 * the string definition identifier from the yara rule,
 					 * where the target yara rule matched the data being
 					 * scanned/searched
-					 * 
-					 */					
+					 *
+					 */
 					char tmp_results[1024];
 			    	//sprintf(tmp_results, "0x%" PRIx64 ":%s-", match->base + match->offset, string->identifier);
 			    	//sprintf(tmp_results, "0x%lx:%s-", match->base + match->offset, string->identifier);
 					snprintf(tmp_results, sizeof(tmp_results), "0x%lx:%s-", match->base + match->offset, string->identifier);
 			    	strncat(tmp_str_results, tmp_results, sizeof(tmp_str_results)-strlen(tmp_str_results)-1);
-					
+
 					hit_cnt += 1;
 				}
 			}
 			//printf("%d\n\n", hit_cnt);
 		}
-		
+
 		if (strlen(tmp_str_results) > 0) {
 			// get rid of last dash
 			tmp_str_results[strlen(tmp_str_results)-1] = 0;
@@ -235,7 +235,7 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 			strncat (yara_meta_results, "detected offsets=", sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 			strncat (yara_meta_results, tmp_str_results, sizeof(yara_meta_results)-strlen(yara_meta_results)-1);
 		}
-	    
+
 	    /*
 	     * for now let's only display the hit count if there
 	     * is also metadata to display
@@ -305,14 +305,14 @@ int bayshore_yara_callback(
 		}
 
 		return CALLBACK_CONTINUE;
-		
+
 	case CALLBACK_MSG_MODULE_IMPORTED:
 
 		if (show_module_data)
 		{
-			
+
 			object = (YR_OBJECT*) message_data;
-			
+
 			//mutex_lock(&output_mutex);
 
 			yr_object_print_data(object, 0, 1);
@@ -322,7 +322,7 @@ int bayshore_yara_callback(
 		}
 
 		return CALLBACK_CONTINUE;
-		
+
 	}
 	return CALLBACK_ERROR;
 }
@@ -332,7 +332,7 @@ int is_integer(const char *str)
 {
 	if (*str == '-')
 		str++;
-	
+
 	while(*str)
 	{
 		if (!isdigit(*str))
@@ -346,20 +346,20 @@ int is_integer(const char *str)
 int is_float(const char *str)
 {
 	int has_dot = FALSE;
-	
+
 	if (*str == '-')      // skip the minus sign if present
 		str++;
-	
+
 	if (*str == '.')      // float can't start with a dot
 		return FALSE;
-	
+
 	while(*str)
 	{
 		if (*str == '.')
 		{
 			if (has_dot)      // two dots, not a float
 				return FALSE;
-			
+
 			has_dot = TRUE;
 		}
 		else if (!isdigit(*str))
@@ -523,9 +523,9 @@ void cleanup()
 /*
  * had to define a function to use instead of yara's built in
  * macro:
- * 
+ *
  * 		#define exit_with_code(code) { rresult = code; goto _exit; }
- * 		
+ *
  * that macro uses a goto call that assumes it's in the main function.
  * So it kills the rules object. Since we are in an API model we have
  * no main function and I need to return that rules object from the
@@ -534,19 +534,19 @@ void cleanup()
 void exit_with_code_cleanup(int code, YR_COMPILER *compiler, YR_RULES *rules)
 {
 	unload_modules_data();
-	
+
 	if (compiler != NULL)
 		yr_compiler_destroy(compiler);
-	
+
 	if (rules != NULL)
 		yr_rules_destroy(rules);
-	
+
 	yr_finalize();
 }
 
 /*
  * should return a pointer to populated YR_RULES struct,
- * otherwise it should return a pointer to NULL (0) 
+ * otherwise it should return a pointer to NULL (0)
  */
 YR_RULES *bayshore_yara_preprocess_rules (const char *rule_filename)
 {
@@ -644,7 +644,7 @@ YR_RULES *bayshore_yara_preprocess_rules (const char *rule_filename)
 			//exit_with_code(EXIT_FAILURE);
 			exit_with_code_cleanup(EXIT_FAILURE, compiler, rules);
 		}
-	}	
+	}
 	return rules;
 }
 
@@ -665,16 +665,16 @@ int bayshore_yara_wrapper_yrrules_api(
 {
 	int yresult;
 	int errors;
-	
+
 	// clear this for new data
 	*yara_results = 0;
 	*api_yara_results = 0;
 
 	// if there is no content or YR_RULES struct this wont work
 	if (file_content && rules) {
-		
+
 		yresult = yr_initialize();
-		
+
 		yresult = yr_rules_scan_mem(
 				rules,
 				file_content,
@@ -691,7 +691,7 @@ int bayshore_yara_wrapper_yrrules_api(
 
 		yr_finalize();
 		cleanup();
-		
+
 		// we have rule hits from yara
 		if (*yara_results) {
 			snprintf(api_yara_results, MAX_YARA_RES_BUF + 1024, "%s", yara_results);
@@ -712,10 +712,10 @@ int bayshore_yara_wrapper_yrrules_api(
  * this is the original entry point API, it
  * expects a yara ruleset file pointer to be
  * passed in and it will compile those rules
- * into a local YR_RULES struct. This is 
+ * into a local YR_RULES struct. This is
  * sub-optimal because we have to perform
  * that compilation process eveytime this
- * entry point is used, look at 
+ * entry point is used, look at
  * bayshore_yara_wrapper_yrrules_api usage
  * for a faster option
  */
@@ -729,7 +729,7 @@ int bayshore_yara_wrapper_api(
 {
 	int yresult;
 	int errors;
-	FILE* rule_file;	
+	FILE* rule_file;
 	YR_COMPILER* compiler = NULL;
 	YR_RULES* rules = NULL;
 
@@ -739,14 +739,14 @@ int bayshore_yara_wrapper_api(
 
 	// if there is no value in yara_ruleset_filename then yara will not work
 	if (file_content && *yara_ruleset_filename) {
-		
+
 		if (!load_modules_data()) {
 			//exit_with_code(EXIT_FAILURE);
 			exit_with_code_cleanup(EXIT_FAILURE, compiler, rules);
 		}
 
 		yresult = yr_initialize();
-		
+
 		if (yresult != ERROR_SUCCESS)
 		{
 			fprintf(stderr, "error: initialization error (%d)\n", yresult);
@@ -755,10 +755,10 @@ int bayshore_yara_wrapper_api(
 		}
 
 		// Try to load the rules file as a binary file containing
-		// compiled rules first		
+		// compiled rules first
 		yresult = yr_rules_load(yara_ruleset_filename, &rules);
-		
-		
+
+
 		// Accepted result are ERROR_SUCCESS or ERROR_INVALID_FILE
 		// if we are passing the rules in source form, if result is
 		if (yresult != ERROR_SUCCESS &&
