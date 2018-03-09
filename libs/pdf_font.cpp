@@ -34,7 +34,6 @@ C++.
 Other libraries' .h files.
 Your project's .h files.
 */
-//#include <stdint.h>
 
 #include "pdf_font.h"
 
@@ -49,9 +48,7 @@ namespace pdfparser {
 extern "C" {
 Font::Font (){};
 
-Font::Font (std::string id) {
-	this->id = id;
-}
+Font::Font (std::string id) : id(id) {}
 
 
 void Font::BuildUnicodeMap(std::string raw_cidfont) {
