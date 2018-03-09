@@ -97,7 +97,7 @@ void Pdf::DeleteDictionary(Dictionary* dictionary){
 	}
 }
 
-
+/*
 void Pdf::GetXref(){
 	//  It can point to a plain xref object or to a streamed xref object
 	xref_offset = FindStringInBufferReverse(start_pdf, "startxref", length_pdf); // TODO Verify
@@ -105,7 +105,7 @@ void Pdf::GetXref(){
 	if(memcmp (start_pdf+xref_offset, "xref", 4)){
 		;} //TODO
 }
-
+*/
 
 void Pdf::BuildObjReference(Dictionary* dictionary){
 	const std::regex obj_ref_regex {Pdf::kObjectReferenceRegEx};
@@ -126,11 +126,6 @@ void Pdf::BuildObjReference(Dictionary* dictionary){
 }
 
 void Pdf::BuildFonts(){
-
-	const std::regex obj_ref_regex {Pdf::kObjectReferenceRegEx};
-	std::smatch sm;
-
-	//bool font_found{false};
 
 	// Objects are sweep sequentially because a font definition
 	// can be a indirect reference or embedded data as a dictionary as a value of /Font
@@ -205,7 +200,7 @@ void Pdf::BuildFonts(){
 std::vector<uint8_t> Pdf::ExtractText(TextEncoding encoding){
 	auto accepted = kFilterDictionary;
 	auto rejected_attributes = kNonTextAttributes;
-	auto rejected_dictionary = kNonTextDictionary;
+	auto rejected_dictionary = kNonTextDictionaryKeys;
 
 	// BuildFonts is executed once Pdf::ExtractText is called (has no sense to execute it in advance
 	// and when all objects are in memory to be sure of having all objects referred indirectly
@@ -221,8 +216,8 @@ std::vector<uint8_t> Pdf::ExtractText(TextEncoding encoding){
 
 	    bool in_rejected_dict{false};
 	    for (auto key: obj.GetDictionary()->values) {
-	    	if (rejected_dictionary.end() != std::find(rejected_dictionary.begin(),
-	    			rejected_dictionary.end(), key.first)) {
+	    	if ((rejected_dictionary.end() != std::find(rejected_dictionary.begin(), rejected_dictionary.end(), key.first)) ||
+	    			(rejected_dictionary.end() != std::find(rejected_dictionary.begin(), rejected_dictionary.end(), key.second))){
 	    		in_rejected_dict = true;
 	    		break;
 	    	}
@@ -250,7 +245,6 @@ std::vector<std::vector<uint8_t>> Pdf::ExtractFile(){ //TODO
 	auto rejected_attributes = kNonFileAttributes;
 	auto rejected_dictionary = kNonFileDictionary;
 
-	std::vector<uint8_t> file_buffer{};
 	std::vector<std::vector<uint8_t>> all_files {};
 
 	for (auto map_obj: objects) {
@@ -301,3 +295,4 @@ size_t Pdf::Size(){
 } // !extern "C"
 
 } // !namespace pdfparser
+

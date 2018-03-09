@@ -27,9 +27,17 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+
 #ifndef PDF_H_
 #define PDF_H_
 
+/* Include order
+Own .h.
+C.
+C++.
+Other libraries' .h files.
+Your project's .h files.
+*/
 #include <stdint.h>
 
 #include <cstddef>
@@ -60,7 +68,7 @@ class Pdf {
 	std::map<std::string, std::string> 			obj_ref{}; // Map of objects that are the indirect reference for certain dictionary key (
 	std::map<std::string, pdfparser::Font>		fonts{}; // Key: Font ID. Value: Font
 
-	void GetXref();
+	//void GetXref();
 	void BuildObjReference(Dictionary* dictionary);
 
 	/**
