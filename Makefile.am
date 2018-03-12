@@ -3,7 +3,7 @@
 # YEXTEND: Help for YARA users.
 # This file is part of yextend.
 #
-# Copyright (c) 2014-2017, Bayshore Networks, Inc.
+# Copyright (c) 2014-2018, Bayshore Networks, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -36,14 +36,31 @@ include_HEADERS = libs/json.hpp \
 				bayshore_content_scan.h \
 				libs/bayshore_file_type_detect.h \
 				libs/zl.h \
+				libs/bzl.h \
 				libs/pdf_parser.h \
-				libs/bzl.h
-				
-				
+				libs/pdf_parser_helper.h \
+				libs/pdf.h \
+				libs/pdf_object.h \
+				libs/pdf_font.h
+
+
 lib_YARA = /usr/local/lib
 
 bin_PROGRAMS = yextend
-yextend_SOURCES = libs/json.hpp wrapper.cpp bayshore_content_scan.cpp libs/bayshore_file_type_detect.cpp main.cpp libs/zl.cpp libs/bayshore_yara_wrapper.c libs/pdf_parser.cpp libs/bzl.cpp
+yextend_SOURCES = libs/json.hpp \
+				wrapper.cpp \
+				bayshore_content_scan.cpp \
+				libs/bayshore_file_type_detect.cpp \
+				main.cpp \
+				libs/zl.cpp \
+				libs/bayshore_yara_wrapper.c \
+				libs/bzl.cpp \
+				libs/pdf_parser.cpp \
+				libs/pdf_parser_helper.cpp \
+				libs/pdf.cpp \
+				libs/pdf_object.cpp \
+				libs/pdf_font.cpp
+
 
 unittests:
 	cd test; nosetests -s; cd ..

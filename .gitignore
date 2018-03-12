@@ -57,3 +57,4 @@ yextend
 Makefile_*
 cov-int/*
 run_coverity_scan
+.bash_history
