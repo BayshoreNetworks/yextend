@@ -99,7 +99,7 @@ PdfObject::PdfObject(const uint8_t* buffer, size_t size){
 
 		pdf_object = buffer + obj_start;
 		object_size = obj_end-obj_start;
-		auto next_item = pdf_object + obj_header_size;
+		//auto next_item = pdf_object + obj_header_size;
 
 		if (string_buffer.substr(obj_start + obj_header_size, kDictionaryBegin.size()) == "<<") { //It has a dictionary
 
@@ -122,7 +122,7 @@ PdfObject::PdfObject(const uint8_t* buffer, size_t size){
 
 
 PdfObject::~PdfObject(){
-	delete[] decoded_stream;
+	//delete[] decoded_stream;
 //	if (dictionary.dictionaries.size() > 0)
 //		DeleteDictionary(&dictionary);
 }
@@ -157,7 +157,7 @@ void  PdfObject::UnfoldDictionary(Dictionary* dictionary, const uint8_t* begin, 
 	//const std::string kObjectBegin = R("^([0-9]+\s+[0-9]+\s+obj)(\s*)([\s\S]*))"; // Obj '15 0 obj'
 	//const std::string kNameRegEx 	= R"(^(/[^\x00-\x20\(\)\<\>\[\]\{\}/\%\x7f-\xff]+)(\s*)([\s\S]*))";	// Name objects /Key1+3 Optimal TODO
 	const std::string kBoolRegEx	= R"(^(true|false)\s*([\s\S]*))";				// Boolean true or false
-	const std::string kNameRegEx 	= R"(^(/[[:w:]\+\-]+)\s*([\s\S]*))";			// Name objects /Key1+3
+	const std::string kNameRegEx 	= R"(^[\s]*(/[[:w:]\+\-]+)\s*([\s\S]*))";			// Name objects /Key1+3
 	const std::string kObjRefRegEx 	= R"(^([0-9]+\s+[0-9]+)\s+R\s*([\s\S]*))";		// Indirect object reference '0 5 R'
 	// V0 const std::string kArrayRegEx 	= R"(^(\[.*\])([\s\S]*))";				// Arrays '[zzz yyy]'
 	const std::string kArrayRegEx 	= R"(^(\[[[:alnum:]\+\-/\R\s]+\])\s*([\s\S]*))";// Arrays '[zzz yyy]'
@@ -417,7 +417,7 @@ void PdfObject::FlateLZWDecode() {
 #endif
 
 	size_t outsize = (stream_size)*DEFLATE_BUFFER_MULTIPLIER;
-	decoded_stream = new uint8_t [outsize]{'\0'};
+	auto decoded_stream = new uint8_t [outsize]{'\0'};
 
 	//Now use zlib to inflate. Must be initialized to '\0'
 	z_stream zstrm{};
@@ -436,7 +436,7 @@ void PdfObject::FlateLZWDecode() {
 		if (rst2 >= 0)
 		{
 			//Ok, got something, extract the content:
-			decoded_stream_size = zstrm.total_out;
+			auto decoded_stream_size = zstrm.total_out;
 			decoded_stream_vector.assign(decoded_stream, decoded_stream+decoded_stream_size);
 
 #ifdef DEBUG
@@ -449,6 +449,8 @@ void PdfObject::FlateLZWDecode() {
 		std::cout << "Z_NOK" << std::endl;
 #endif
 	}
+
+	delete[] decoded_stream;
 }
 
 
@@ -460,7 +462,7 @@ std::vector<uint8_t> PdfObject::GetDecodedStream(){
 /**
  * Extract text from plain stream.
  *
- * Uses the decoded_stream as input and puts its result in parsed_plain_text.
+ * Uses the decoded_stream_vector as input and puts its result in parsed_plain_text.
  */
 //TODO Hexadecimal strings
 void PdfObject::ParseText(std::map<std::string, Font>& fonts){
@@ -470,7 +472,6 @@ void PdfObject::ParseText(std::map<std::string, Font>& fonts){
 	size_t square_brackets_depth = 0;	// Indicates when the position is inside a array. It shall be printed with TJ
 	bool escaped_char = false;			// Indicates when the following character is escaped
 
-	uint8_t current_char{'\0'};
 	uint8_t buffer[EXTRACT_TEXT_BUFFER_SIZE]{'\0'};
 
 	std::string octal_char{};
@@ -478,8 +479,8 @@ void PdfObject::ParseText(std::map<std::string, Font>& fonts){
 	std::string local_font{};	// Local font in BT/ET
 
 	size_t decoded_stream_idx=0;
-	while (decoded_stream_idx < decoded_stream_size) {
-		current_char = decoded_stream[decoded_stream_idx++];
+	while (decoded_stream_idx < decoded_stream_vector.size()) {
+		auto current_char = decoded_stream_vector[decoded_stream_idx++];
 
 		// Rotate the buffer and stores the previous characters to detect BT and ET
 		for (unsigned char j=0; j<EXTRACT_TEXT_BUFFER_SIZE-1; ++j) {
@@ -501,7 +502,8 @@ void PdfObject::ParseText(std::map<std::string, Font>& fonts){
 				if (memcmp(buffer, TEXT_FONT, 2) == 0){
 					local_font = TEXT_FONT;
 
-					auto from = reinterpret_cast<const char *>(&decoded_stream[decoded_stream_idx]);
+					//auto from = reinterpret_cast<const char *>(&decoded_stream_vector[decoded_stream_idx]);
+					auto from = decoded_stream_vector.begin() + decoded_stream_idx;
 					auto to = from + TEXT_FONT_MAX_SIZE;
 
 					std::string font_buffer(from, to);
@@ -709,7 +711,7 @@ std::string PdfObject::ExtractFontDefinition(Dictionary* dictionary) {
 		font_definition = dictionary->values[kFontTagBegin];
 		}
 
-	// If not and there are dictionaries check them
+	// If not and there are dictionaries check inside them
 	else if (dictionary->dictionaries.size() != 0) {
 		auto subdictionary = dictionary->dictionaries; //map
 
@@ -941,3 +943,4 @@ std::string Dictionary::IndirectReference() {
 } // !extern "C"
 
 } // !namespace pdfparser
+

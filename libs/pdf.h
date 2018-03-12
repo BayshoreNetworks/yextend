@@ -60,7 +60,7 @@ class Pdf {
 	std::map<std::string, std::string> 			obj_ref{}; // Map of objects that are the indirect reference for certain dictionary key (
 	std::map<std::string, pdfparser::Font>		fonts{}; // Key: Font ID. Value: Font
 
-	void GetXref();
+	//void GetXref();
 	void BuildObjReference(Dictionary* dictionary);
 
 	/**
