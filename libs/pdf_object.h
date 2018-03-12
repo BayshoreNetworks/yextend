@@ -91,12 +91,12 @@ const std::vector<std::string> kTextDictionary{ // BS-25. Dismiss no text stream
 	"/Contents"
 	};
 
-const std::vector<std::string> kNonTextDictionary{ // BS-25. Dismiss no text stream objects (/Length1)
+const std::vector<std::string> kNonTextDictionaryKeys{ // BS-25. Dismiss no text stream objects (/Length1)
 	"/Length1",
 	"/Length2",
 	"/Length3",
 	"/DL",
-	"/EmbeddedFile"
+	"/EmbeddedFile" // This is not a /key, it is a value
 	};
 
 const std::vector<std::string> kNonTextAttributes{ // BS-25. Dismiss no text stream objects (/Length1)
@@ -164,12 +164,10 @@ class PdfObject {
 	const uint8_t*	stream_end{nullptr};		// Pointer to the end of stream part in uint8_t*
 	size_t			stream_size{0};
 
-	std::vector<uint8_t> decoded_stream_vector{}; // Stream after decode (eg. FlatDecode)
-	uint8_t*			decoded_stream{nullptr};
-	size_t				decoded_stream_size{0};
-	size_t				text_size{0};
-	std::vector<uint8_t> parsed_plain_text{};		// BOM for Little Endian {0xff, 0xfe}. Not needed if endianess is specified en conversion;
-	std::string			parsed_plain_text_utf8{};
+	std::vector<uint8_t> 	decoded_stream_vector{}; // Stream after decode (eg. FlateDecode)
+	size_t					text_size{0};
+	std::vector<uint8_t>	parsed_plain_text{};		// BOM for Little Endian {0xff, 0xfe}. Not needed if endianess is specified en conversion;
+	std::string				parsed_plain_text_utf8{};
 
 	std::vector<uint8_t> file{};				// extracted file
 
