@@ -47,6 +47,7 @@ namespace pdfparser {
 extern "C" {
 
 #define DEFLATE_BUFFER_MULTIPLIER		10
+#define DEASCIIHEX_BUFFER_MULTIPLIER		0.5
 #define EXTRACT_TEXT_BUFFER_SIZE		2  //2 needed for BT and ET
 //#define EXTRACT_TEXT_OCTAL_BUFFER_SIZE	3
 #define TEXT_BLOCK_START				"BT"
@@ -55,6 +56,7 @@ extern "C" {
 #define TEXT_FONT_MAX_SIZE				4	// including "/F"
 #define TEXT_PRINT_ARRAY				"TJ" // Command in BT/ET block to print array []
 #define TEXT_PRINT_LITERAL				"Tj" // Command in BT/ET block to print literal (). Also ' and " TODO
+#define NUM_DIGIT_HEX					16
 
 const std::string kDictionaryBegin	{"<<"};
 const std::string kDictionaryEnd	{">>"};
@@ -179,6 +181,7 @@ class PdfObject {
 	void ParseTextArray(std::string& array, Font& font);
 	std::string ParseTextLiteral(std::string& text);
 	void FlateLZWDecode();
+	void ASCIIHexDecode();
 	DictionaryBoundaries GetDictionaryBoundaries (const uint8_t* begin, const uint8_t* end);
 
 public:

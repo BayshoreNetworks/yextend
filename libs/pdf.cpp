@@ -150,7 +150,8 @@ void Pdf::BuildFonts(){
 			bool new_dictionary{false};
 
 			// font_definition is an indirect reference
-			if (font_definition.substr(0, kDictionaryBegin.size()) != kDictionaryBegin) {
+			if ((font_definition.substr(0, kDictionaryBegin.size()) != kDictionaryBegin) && 
+				(objects.find(font_definition) != objects.end())) {
 				font_dictionary = objects.find(font_definition)->second.GetDictionary();
 			}
 
