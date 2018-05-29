@@ -175,9 +175,13 @@ class PdfObject {
 
 	std::vector<std::string> filters{};
 
+	std::vector<std::string> ids_indirect_objects_references{}; // Store all the ids of indirect objects references included in this object
+
 
 	void GetFilters();
 	void GetStream();
+	void GetAllIndirectReferences();
+
 	void ParseTextArray(std::string& array, Font& font);
 	std::string ParseTextLiteral(std::string& text);
 	void FlateLZWDecode();
@@ -214,6 +218,7 @@ public:
 	std::vector<uint8_t> GetParsedPlainText(TextEncoding encoding);
 	const uint8_t* GetObjectEnd();
 	bool HasStream();
+	std::vector<std::string> GetReferences() const;
 };
 
 

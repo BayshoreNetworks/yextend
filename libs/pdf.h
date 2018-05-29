@@ -59,6 +59,7 @@ class Pdf {
 	std::unordered_map<std::string, PdfObject> 	objects{};
 	std::map<std::string, std::string> 			obj_ref{}; // Map of objects that are the indirect reference for certain dictionary key (
 	std::map<std::string, pdfparser::Font>		fonts{}; // Key: Font ID. Value: Font
+//	std::map<std::string, std::vector<std::string>> objectsIndirectReferences{}; // Store all indirect references included in each object
 
 	//void GetXref();
 	void BuildObjReference(Dictionary* dictionary);
@@ -70,13 +71,16 @@ class Pdf {
 	void BuildFonts(void);
 	void DeleteDictionary(Dictionary* dictionary);
 
+	std::string getKeyFromValue(const std::string &value) const;
+	std::string getNameFile(const std::string &object);
+
 public:
 	Pdf(const uint8_t* buffer, size_t size);
 	~Pdf();
 
 	size_t Size();
 	std::vector<uint8_t> ExtractText(TextEncoding encoding);
-	std::vector<std::vector<uint8_t>> ExtractFile();
+	std::map<std::string, std::vector<uint8_t>> ExtractFiles();
 };
 
 
