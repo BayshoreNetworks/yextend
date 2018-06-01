@@ -112,6 +112,7 @@ PdfObject::PdfObject(const uint8_t* buffer, size_t size){
 			GetFilters();
 			GetStream();
 		}
+		GetAllIndirectReferences();
 	}
 	// There is no more 'obj'
 	else {
@@ -377,6 +378,27 @@ void PdfObject::GetStream(){
 }
 
 
+void PdfObject::GetAllIndirectReferences(){
+	const std::regex  pattern_indirect_objects_references{"[0-9]+ [0-9]+ R"};
+	std::string id{}, object_dictionary(dictionary_start, dictionary_end);
+
+	std::sregex_iterator iter_id_indirect_objects_references(object_dictionary.begin(), object_dictionary.end(),
+			pattern_indirect_objects_references);
+	auto end = std::sregex_iterator();
+
+	while(iter_id_indirect_objects_references != end){
+		id = std::string(iter_id_indirect_objects_references->str(0));
+		ids_indirect_objects_references.push_back(id.substr(0, id.length()-2));
+		iter_id_indirect_objects_references++;
+	}
+}
+
+
+std::vector<std::string> PdfObject::GetReferences() const{
+	return ids_indirect_objects_references;
+}
+
+
 bool PdfObject::HasStream(){
 	if (stream_size > 0) return true;
 	else return false;
@@ -395,8 +417,12 @@ bool PdfObject::ExtractStream(std::string filter){
 		decoded_stream_vector = temp;
 		return true;
 	}
-	else if ((filter.compare("LZWDecode") != 0) || (filter.compare("FlateDecode") != 0)) {
+	else if ((filter.compare("/LZWDecode") == 0) || (filter.compare("/FlateDecode") == 0)) {
 		FlateLZWDecode();
+		return true;
+	}
+	else if (static_cast<ssize_t>(filter.find("/ASCIIHexDecode")) != -1) { 
+		ASCIIHexDecode();
 		return true;
 	}
 	else {
@@ -449,6 +475,31 @@ void PdfObject::FlateLZWDecode() {
 		std::cout << "Z_NOK" << std::endl;
 #endif
 	}
+
+	delete[] decoded_stream;
+}
+
+
+void PdfObject::ASCIIHexDecode(){
+
+#ifdef DEBUG
+	std::cout << "\n### DEBUG PdfObject::ASCIIHexDecode ###\n" << std::endl; // Debug
+#endif
+	size_t outsize = (stream_size-1)*DEASCIIHEX_BUFFER_MULTIPLIER;
+	auto decoded_stream = new uint8_t [outsize]; // > delimiter final chunck
+	uint8_t aux_decode_stream[3] = {0};
+
+	for(int i=0; i<outsize; i++){
+		memcpy(aux_decode_stream, &stream_start[i*2], 2);
+		decoded_stream[i] = std::stoul(reinterpret_cast<char *>(aux_decode_stream), nullptr, NUM_DIGIT_HEX);
+	}
+
+	auto decoded_stream_size = outsize;
+	decoded_stream_vector.assign(decoded_stream, decoded_stream + outsize);	
+
+#ifdef DEBUG
+	std::cout << "Obj: " << id <<" ASCIIHexDecode Ok. DECODED content:\n" << decoded_stream << std::endl;
+#endif
 
 	delete[] decoded_stream;
 }

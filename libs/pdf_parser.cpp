@@ -62,7 +62,7 @@ std::vector<uint8_t> PdfToText (const uint8_t* pdf_pointer, size_t pdf_size, pdf
 PDF_DETACH PdfDetach (const uint8_t* pdf_pointer, size_t pdf_size) {
 
 	Pdf pdf{pdf_pointer, pdf_size};
-	std::vector<std::vector<uint8_t>> file_buffer = pdf.ExtractFile(); // TODO BS-54
+	std::map<std::string, std::vector<uint8_t>> file_buffer = pdf.ExtractFiles(); // TODO BS-54
 	return file_buffer;
 }
 

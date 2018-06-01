@@ -97,6 +97,47 @@ void Pdf::DeleteDictionary(Dictionary* dictionary){
 	}
 }
 
+std::string Pdf::getKeyFromValue(const std::string &value) const{
+	for(auto &obj: objects){
+		for(auto &objRefInd : obj.second.GetReferences()){
+			if(objRefInd == value){
+				return obj.first;
+			}
+		}
+	}
+	return std::string("");
+}
+
+std::string Pdf::getNameFile(const std::string &objectId){
+	const std::string objRefInd {getKeyFromValue(objectId)};
+	std::string name{};
+
+	if(!objRefInd.empty()){
+		// ISO 32000-1:2008 7.3.11 /F required if DOS, Mac and Unix are all absent
+		if(!(name = objects[objRefInd].GetDictionary()-> values["/F"]).empty() ||
+				!(name = objects[objRefInd].GetDictionary()-> values["/DOS"]).empty() ||
+				!(name = objects[objRefInd].GetDictionary()-> values["/Mac"]).empty() ||
+				!(name = objects[objRefInd].GetDictionary()-> values["/Unix"]).empty()){
+
+			// ISO 32000-1:2008 7.3.4.1 Two ways of written string: using () or hexadecimal
+			if(name[0] == '('){
+				// String two format
+				size_t pos = name.find_last_of("/");
+				// Only name, this (include ( and ) as first and last character)
+				if(pos == std::string::npos){
+					name = name.substr(1, name.length()-2);
+				}else{ // Path
+					name = std::string(name.begin() + ++pos, name.end()-1);
+				}
+			}
+		}
+	}else{
+		name = "name_" + objectId + "_not_available_due_to_compression";
+	}
+	return name;
+}
+
+
 /*
 void Pdf::GetXref(){
 	//  It can point to a plain xref object or to a streamed xref object
@@ -150,7 +191,8 @@ void Pdf::BuildFonts(){
 			bool new_dictionary{false};
 
 			// font_definition is an indirect reference
-			if (font_definition.substr(0, kDictionaryBegin.size()) != kDictionaryBegin) {
+			if ((font_definition.substr(0, kDictionaryBegin.size()) != kDictionaryBegin) && 
+				(objects.find(font_definition) != objects.end())) {
 				font_dictionary = objects.find(font_definition)->second.GetDictionary();
 			}
 
@@ -240,12 +282,12 @@ std::vector<uint8_t> Pdf::ExtractText(TextEncoding encoding){
 }
 
 
-std::vector<std::vector<uint8_t>> Pdf::ExtractFile(){ //TODO
+std::map<std::string, std::vector<uint8_t>> Pdf::ExtractFiles(){ //TODO
 	auto accepted_keys = kFileAcceptedKeys;
 	auto rejected_attributes = kNonFileAttributes;
 	auto rejected_dictionary = kNonFileDictionary;
 
-	std::vector<std::vector<uint8_t>> all_files {};
+	std::map<std::string, std::vector<uint8_t>> all_files{};
 
 	for (auto map_obj: objects) {
 
@@ -277,8 +319,10 @@ std::vector<std::vector<uint8_t>> Pdf::ExtractFile(){ //TODO
 	    		(is_accepted_keys || (flag != ""))) {
 
 	    	if (obj.ExtractStream((obj.GetDictionary())->values[kFilterTagBegin])) {
-				auto temp = obj.GetDecodedStream();
-				all_files.push_back(obj.GetDecodedStream());
+				auto name {getNameFile(id)};
+				if(!name.empty()){
+					all_files.insert(std::pair<std::string, std::vector<uint8_t>>(name, obj.GetDecodedStream()));
+				}
 			}
 		}
 	}

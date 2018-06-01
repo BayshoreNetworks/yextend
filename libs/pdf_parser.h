@@ -34,6 +34,8 @@
 
 #include <cstddef>
 #include <vector>
+#include <map>
+#include <string>
 
 #include "pdf.h"
 #include "pdf_text_encoding.h"
@@ -43,8 +45,7 @@ namespace pdfparser {
 extern "C" {
 
 
-using PDF_DETACH = std::vector<std::vector<uint8_t>>;
-
+using PDF_DETACH = std::map<std::string, std::vector<uint8_t>>;
 
 std::vector<uint8_t> PdfToText (const uint8_t* pdf_start, size_t pdf_size, pdfparser::TextEncoding encoding = TextEncoding::raw);
 
