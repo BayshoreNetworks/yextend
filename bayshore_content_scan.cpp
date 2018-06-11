@@ -93,7 +93,6 @@ static const char *type_of_scan[] = {
 
 
 // function declarations
-
 static void scan_content2 (
 		const uint8_t *buf,
 		size_t sz,
@@ -101,7 +100,8 @@ static void scan_content2 (
 		std::list<security_scan_results_t> *ssr_list,
 		const char *parent_file_name,
 		void (*cb)(void*, std::list<security_scan_results_t> *, const char *),
-		int in_type_of_scan
+		int in_type_of_scan,
+		const char *explicit_child_file_name
 		);
 
 //////////////////////////////////////////////////////////////
@@ -250,7 +250,8 @@ void scan_pdf_api(void *cookie,
 	assert(ssp_local);
 
 	size_t src_len = 0;
-	if (src) src_len = strlen(src);
+	if (src)
+		src_len = strlen(src);
 
 	/////////////////////////////////////////////////////////
 	/*
@@ -269,6 +270,9 @@ void scan_pdf_api(void *cookie,
 	else
 		cb((void *)ssp_local, ssr_list, "");
 	/////////////////////////////////////////////////////////
+
+	auto embedded_files = pdfparser::PdfDetach ((uint8_t *)ssp_local->buffer, ssp_local->buffer_length);
+	//std::cout << "Embedded SZ: " << embedded_files.size() << std::endl;
 
 	/*
 	 * declare str_buf here so that it doesnt go
@@ -307,8 +311,6 @@ void scan_pdf_api(void *cookie,
 
 		}
 
-		//std::cout << "EMBED: " << pdf.has_embedded_files() << std::endl;
-
 		if (src_len == 0) {
 			snprintf (ssp_local->scan_type, sizeof(ssp_local->scan_type), "%s %s", type_of_scan[in_type_of_scan], "(PDF - Extracted text)");
 		} else {
@@ -319,6 +321,35 @@ void scan_pdf_api(void *cookie,
 			cb((void *)ssp_local, ssr_list, child_file_name);
 		else
 			cb((void *)ssp_local, ssr_list, "");
+
+	}
+	/////////////////////////////////////////////////////////
+	// create a map iterator and point to beginning of map embedded_files
+	std::map<std::string, std::vector<uint8_t>>::iterator v_uint8_t_it = embedded_files.begin();
+	std::vector<uint8_t>::iterator uint8_t_it;
+
+	// iterate over the map
+	while (v_uint8_t_it != embedded_files.end()) {
+
+		std::string file_name = v_uint8_t_it->first;
+		std::string uint8_t_str(v_uint8_t_it->second.begin(), v_uint8_t_it->second.end());
+
+		int buf_type = get_content_type ((const uint8_t*)uint8_t_str.c_str(), uint8_t_str.size());
+
+		//std::cout << "File name: " << file_name << ", file type: " <<  buf_type << std::endl;
+		scan_content2 (
+			(const uint8_t*)uint8_t_str.c_str(),
+			uint8_t_str.size(),
+			ssp_local->rules,
+			ssr_list,
+			ssp_local->parent_file_name,
+			yara_cb,
+			in_type_of_scan,
+			file_name.c_str()
+		);
+
+		// point to next entry
+		v_uint8_t_it++;
 
 	}
 	/////////////////////////////////////////////////////////
@@ -754,7 +785,7 @@ void scan_content (
 	else
 		lin_type_of_scan = 0;
 
-	scan_content2(buf, sz, rules, ssr_list, parent_file_name, cb, lin_type_of_scan);
+	scan_content2(buf, sz, rules, ssr_list, parent_file_name, cb, lin_type_of_scan, "");
 }
 
 
@@ -795,7 +826,8 @@ void scan_content2 (
 		std::list<security_scan_results_t> *ssr_list,
 		const char *parent_file_name,
 		void (*cb)(void*, std::list<security_scan_results_t> *, const char *),
-		int in_type_of_scan
+		int in_type_of_scan,
+		const char *explicit_child_file_name
 		)
 {
 
@@ -870,7 +902,9 @@ void scan_content2 (
 								ssr_list,
 								(remove_file_extension(std::string(parent_file_name))).c_str(),
 								cb,
-								in_type_of_scan);
+								in_type_of_scan,
+								(remove_file_extension(tmpfname)).c_str()
+								);
 
 					// pdf inside gzip
 		            } else if (is_type_pdf(lf_type)) {
@@ -941,7 +975,9 @@ void scan_content2 (
 								ssr_list,
 								(remove_file_extension(std::string(parent_file_name))).c_str(),
 								cb,
-								in_type_of_scan);
+								in_type_of_scan,
+								(remove_file_extension(tmpfname)).c_str()
+								);
 
 					// pdf inside bzip2
 		            } else if (is_type_pdf(lf_type)) {
@@ -1058,7 +1094,7 @@ void scan_content2 (
 
 										cb((void *)&ssp, ssr_list, fname ? fname : "");
 
-										scan_content2 (final_buff, final_size, rules, ssr_list, fname, cb, in_type_of_scan);
+										scan_content2 (final_buff, final_size, rules, ssr_list, fname, cb, in_type_of_scan, explicit_child_file_name ? explicit_child_file_name : "");
 
 									// pdf
 									} else if (is_type_pdf(lf_type)) {
@@ -1162,7 +1198,7 @@ void scan_content2 (
 
 				snprintf (ssp.scan_type, sizeof(ssp.scan_type), "%s (%s)", type_of_scan[in_type_of_scan], get_content_type_string (buffer_type));
 
-				cb((void *)&ssp, ssr_list, "");
+				cb((void *)&ssp, ssr_list, explicit_child_file_name ? explicit_child_file_name : "");
 
 			}
 
