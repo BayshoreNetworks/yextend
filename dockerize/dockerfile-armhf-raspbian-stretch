@@ -1,8 +1,8 @@
 FROM arm32v7/debian:stretch
 LABEL vendor="Bayshore Networks" \
-	com.bayshorenetworks.version="1.0" \
+	com.bayshorenetworks.version="1.1" \
 	com.bayshorenetworks.version.is-production="yes" \
-	com.bayshorenetworks.release-date="2018-01-14"
+	com.bayshorenetworks.release-date="2018-06-21"
 ENV HOME /yextend
 ENV TERM=vt102
 ARG user=bayshore
@@ -28,14 +28,14 @@ RUN apt-get update && \
 		poppler-utils \
 		python-nose \
 	&& rm -rf /var/lib/apt/lists/*
-RUN wget -O /tmp/v3.7.0.tar.gz https://github.com/VirusTotal/yara/archive/v3.7.0.tar.gz && \
+RUN wget -O /tmp/v3.7.1.tar.gz https://github.com/VirusTotal/yara/archive/v3.7.1.tar.gz && \
 	cd /tmp && \
-	tar xfz v3.7.0.tar.gz && \
-	cd yara-3.7.0 && \
+	tar xfz v3.7.1.tar.gz && \
+	cd yara-3.7.1 && \
 	./bootstrap.sh && \
 	./configure --prefix=/usr && \
 	make && make install && \
-	rm -rf v3.7.0*
+	rm -rf v3.7.1*
 
 ENV YEXTEND_HOME /yextend/
 RUN groupadd -g $gid $user && \
