@@ -1188,7 +1188,10 @@ void scan_content2 (
 
 			if (is_type_pdf(buffer_type)) {
 
-				scan_pdf_api((void *)&ssp, ssr_list, "", parent_file_name ? parent_file_name : "", cb, in_type_of_scan);
+				if (explicit_child_file_name)
+					scan_pdf_api((void *)&ssp, ssr_list, "", explicit_child_file_name, cb, in_type_of_scan);
+				else
+					scan_pdf_api((void *)&ssp, ssr_list, "", parent_file_name ? parent_file_name : "", cb, in_type_of_scan);
 
 			} else if (is_type_officex(buffer_type) || is_type_open_document_format(buffer_type)) {
 
