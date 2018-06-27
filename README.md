@@ -23,6 +23,11 @@ Software Credits
 
 Notes:
 
+- (X/X/2018) yextend version 1.7
+
+	- replaced the system calls for pdf parsing with new native libs
+    - added some docker support (look in the dockerize dir)
+
 - (12/08/2017) yextend version 1.6
 
 	- added support for bzip2
