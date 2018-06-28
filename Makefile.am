@@ -63,4 +63,4 @@ yextend_SOURCES = libs/json.hpp \
 
 
 unittests:
-	cd test; nosetests -s; cd ..
+	nosetests -s
