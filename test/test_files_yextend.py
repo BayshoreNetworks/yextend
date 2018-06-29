@@ -3,7 +3,7 @@
 # YEXTEND: Help for YARA users.
 # This file is part of yextend.
 #
-# Copyright (c) 2014-2017, Bayshore Networks, Inc.
+# Copyright (c) 2014-2018, Bayshore Networks, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -27,15 +27,25 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #****************************************************************************/
 import os
+import json
 from subprocess import Popen, PIPE
 
 ######################################################
 LD_LIBRARY_PATH = 'LD_LIBRARY_PATH'
 LIB_PATHS = "/usr/local/lib"
 CMD = "./yextend"
+CMD_JSON_OUT = "{} -r {} -t {} -j".format(CMD, "{}", "{}")
 
 TARG_DIR = "test_files/"
 YARA_RULES_ROOT = "test_rulesets/"
+
+YARA_MATCHES_FOUND = "yara_matches_found"
+RAW_DATA = "Raw data"
+EXTRACTED_TEXT = "Extracted text"
+SCAN_RESULTS = "scan_results"
+SCAN_TYPE = "scan_type"
+CHILD_FILE_NAME = "child_file_name"
+WINDOWS_PORTABLE_EXE = "Windows Portable Executable"
 
 #GUANGGAO_YARA_RULESET = "%sguanggao_rules.yara" % YARA_RULES_ROOT
 LIPSUMPDF_YARA_RULESET = "%slorem_pdf.yara" % YARA_RULES_ROOT
@@ -103,10 +113,13 @@ MZ_PATTERN = "MZ_PORTABLE_EXE"
 
 JPG_TAR_DLL = "trick.jpg"
 
+MULTIPLE_EMBED_PDF = "pdf_with_multiple_embedded.pdf"
+MULTIPLE_EMBED_PDF_RULESET = "{}{}".format(YARA_RULES_ROOT, "pdf_multiple_embed.yara")
+
 ######################################################
 
 class Test_Yextend_files():
-    
+
     '''
         GIF file with embedded javascript
     '''
@@ -121,7 +134,8 @@ class Test_Yextend_files():
             out, err = proc.communicate()
             #print out
             assert("0x0:$gif_image_file" in out and "0x6a96:$scriptbin" in out and "0x69f9:$iframebin" in out)
-            
+
+
     '''
         simple PDF
     '''
@@ -136,59 +150,85 @@ class Test_Yextend_files():
             out, err = proc.communicate()
             #print out
             assert(LIPSUM_PDF_FILE in out and LIPSUM_LOREM_YARA_RULE_ID in out and out.count(LIPSUM_LOREM_YARA_RULE_VAR) > 1)
-            
-        
-  
+
+
     def test_content_yara_zap_pdf(self):
         f_obj = TARG_DIR + ZAP_PDF_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
+            lcmd = CMD_JSON_OUT.format(ZAP_PDF_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
                          )
             out, err = proc.communicate()
-            #print out
-            assert(ZAP_PDF_PATTERN in out)
-            
-        
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if EXTRACTED_TEXT in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+            #assert(ZAP_PDF_PATTERN in out)
+
+
     def test_content_yara_zap_pdf_gzip(self):
         f_obj = TARG_DIR + ZAP_PDF_FILE_GZIP
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
+            lcmd = CMD_JSON_OUT.format(ZAP_PDF_YARA_RULESET, f_obj)
+            #proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
+            proc = Popen(lcmd.split(),
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
                          )
             out, err = proc.communicate()
-            #print out
-            assert(ZAP_PDF_PATTERN in out)
-            
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if EXTRACTED_TEXT in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+            #assert(ZAP_PDF_PATTERN in out)
+
+
     def test_content_yara_zap_pdf_zip(self):
         f_obj = TARG_DIR + ZAP_PDF_ZIP_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
+            lcmd = CMD_JSON_OUT.format(ZAP_PDF_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
                          )
             out, err = proc.communicate()
-            print out
-            assert(ZAP_PDF_PATTERN in out)
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if EXTRACTED_TEXT in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+            #assert(ZAP_PDF_PATTERN in out)
             #print out
-            
+
+
     def test_content_yara_zap_pdf_zip_targz(self):
         f_obj = TARG_DIR + ZAP_PDF_ZIP_TARGZ_FILE
         if os.path.isfile(f_obj):
-            proc = Popen([CMD, "-r", ZAP_PDF_YARA_RULESET, "-t", f_obj],
+            lcmd = CMD_JSON_OUT.format(ZAP_PDF_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
                          env={LD_LIBRARY_PATH:LIB_PATHS},
                          stdout=PIPE,
                          stderr=PIPE,
                          )
             out, err = proc.communicate()
-            #print out
-            assert(ZAP_PDF_PATTERN in out)
-            
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if EXTRACTED_TEXT in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+
+
     def test_content_yara_msoffice_doc_macro(self):
         f_obj = TARG_DIR + MSOFFICE_DOC
         if os.path.isfile(f_obj):
@@ -200,7 +240,7 @@ class Test_Yextend_files():
             out, err = proc.communicate()
             #print out
             assert(MSOFFICE_MACRO_PATTERN in out)
-            
+
 
     def test_content_yara_msoffice_doc_gzip_macro(self):
         f_obj = TARG_DIR + MSOFFICE_DOC_GZIP
@@ -213,9 +253,9 @@ class Test_Yextend_files():
             out, err = proc.communicate()
             #print out
             assert(MSOFFICE_MACRO_PATTERN in out)
-            
-    
-            
+
+
+
     def test_content_yara_msoffice_doc_gzip_zip_macro(self):
         f_obj = TARG_DIR + MSOFFICE_DOC_GZIP_ZIP
         if os.path.isfile(f_obj):
@@ -227,8 +267,8 @@ class Test_Yextend_files():
             out, err = proc.communicate()
             #print out
             assert(MSOFFICE_MACRO_PATTERN in out)
-                        
-                
+
+
 
     def test_content_yara_msoffice_doc_gzip_zip_targz_macro(self):
         f_obj = TARG_DIR + MSOFFICE_DOC_GZIP_ZIP_TARGZ
@@ -241,8 +281,8 @@ class Test_Yextend_files():
             out, err = proc.communicate()
             #print out
             assert(MSOFFICE_MACRO_PATTERN in out)
-            
-            
+
+
     def test_content_yara_msofficex_doc(self):
         f_obj = TARG_DIR + MSOFFICEX_DOC
         if os.path.isfile(f_obj):
@@ -255,8 +295,8 @@ class Test_Yextend_files():
             #print out
             assert(LOREM_BODY_PATTERN in out)
             assert(EXE_PATTERN in out)
-            
-        
+
+
     def test_content_yara_msofficex_doc_tar(self):
         f_obj = TARG_DIR + MSOFFICEX_DOC_TAR
         if os.path.isfile(f_obj):
@@ -269,8 +309,8 @@ class Test_Yextend_files():
             #print out
             assert(LOREM_BODY_PATTERN in out)
             assert(EXE_PATTERN in out)
-            
-            
+
+
     def test_content_yara_msofficex_doc_tar_zip(self):
         f_obj = TARG_DIR + MSOFFICEX_DOC_TAR_ZIP
         if os.path.isfile(f_obj):
@@ -283,10 +323,10 @@ class Test_Yextend_files():
             #print out
             assert(LOREM_BODY_PATTERN in out)
             assert(EXE_PATTERN in out)
-            
-            
+
+
     '''
-        word (.docx) file with header, footer, 
+        word (.docx) file with header, footer,
         embedded pdf and 2 embedded windows executables (.exe)
     '''
     def test_content_yara_msofficex_doc_exe(self):
@@ -303,8 +343,8 @@ class Test_Yextend_files():
             assert(EXE_PATTERN in out)
             assert(ADOBE_PDF_PATTERN in out)
             assert(out.count(EXE_PATTERN) == 2)
-            
-            
+
+
     def test_content_yara_crypto_doc_exe(self):
         f_obj = TARG_DIR + CRYPTO_DOC_EXE
         if os.path.isfile(f_obj):
@@ -318,9 +358,9 @@ class Test_Yextend_files():
             assert(CRYPTO_PATTERN in out)
             assert(CRYPTO_MD5_PATTERN in out)
             assert(CRYPTO_RIPE_PATTERN in out)
-            
-            
-            
+
+
+
     def test_content_yara_packer_exe(self):
         f_obj = TARG_DIR + PACKER_EXE
         if os.path.isfile(f_obj):
@@ -333,8 +373,8 @@ class Test_Yextend_files():
             #print out
             assert(PACKER_PATTERN_1 in out)
             assert(PACKER_PATTERN_2 in out)
-            
-            
+
+
     def test_content_yara_7z(self):
         f_obj = TARG_DIR + ZIP_7Z_FILE
         if os.path.isfile(f_obj):
@@ -347,9 +387,9 @@ class Test_Yextend_files():
             #print out
             assert(LOREM_BODY_PATTERN in out)
             assert(EXE_PATTERN in out)
-            
-    
-            
+
+
+
     def test_content_yara_msofficex_exe(self):
         f_obj = TARG_DIR + MZ_EXE
         if os.path.isfile(f_obj):
@@ -361,8 +401,8 @@ class Test_Yextend_files():
             out, err = proc.communicate()
             #print out
             assert(MZ_PATTERN in out)
-            
-            
+
+
     def test_content_yara_jpg_tar_dll(self):
         f_obj = TARG_DIR + JPG_TAR_DLL
         if os.path.isfile(f_obj):
@@ -387,10 +427,25 @@ class Test_Yextend_files():
             out, err = proc.communicate()
             #print out
             assert(BZ2_PATTERN in out)
-            
-            
-    
 
-            
-                        
-            
+    def test_yara_multiple_embedded_pdf(self):
+        f_obj = TARG_DIR + MULTIPLE_EMBED_PDF
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, "-r", MULTIPLE_EMBED_PDF_RULESET, "-t", f_obj, "-j"],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            #print out
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        #print jj
+                        if EXTRACTED_TEXT in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+
+                        if WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE] and CHILD_FILE_NAME in jj:
+                            if jj[CHILD_FILE_NAME] == "bj.exe":
+                                assert(jj[YARA_MATCHES_FOUND] == True)
