@@ -367,7 +367,7 @@ Instructions:
             		},
             		{
                 		"child_file_name": "word/embeddings/oleObject1.bin",
-                		"description": "suspicious marco action",
+                		"description": "suspicious macro action",
                 		"detected offsets": [
                     		"0x12231:$a02",
                     		"0x135c5:$a03",
@@ -424,7 +424,7 @@ Instructions:
                         	     "scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file",
                                      "yara_results": {
                                          "maldoc_suspicious_strings": {
-                                             "description": "suspicious marco action",
+                                             "description": "suspicious macro action",
                                              "hit_count": "8",
                                              "offsets": [
                                                 "0x12231:$a02",
