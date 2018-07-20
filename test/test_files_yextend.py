@@ -69,6 +69,25 @@
 # test_yara_random_txt                                      TXT_FILE                        GUANGGAO_YARA_RULESET
 # test_yara_random_bz2                                      BZ2_FILE                        GUANGGAO_YARA_RULESET
 # test_yara_multiple_embedded_pdf                           MULTIPLE_EMBED_PDF              MULTIPLE_EMBED_PDF_RULESET
+# test_yara_archive_rar_lipsum                              ARCHIVE_RAR                     LIPSUMPDF_YARA_RULESET
+# test_yara_archive_rar_msofficex                           ARCHIVE_RAR                     MSOFFICEX_YARA_RULESET
+# test_yara_archive_rar_packer                              ARCHIVE_RAR                     PACKER_YARA_RULESET
+# test_yara_archive_rar_multiple_embed_pdf                  ARCHIVE_RAR                     MULTIPLE_EMBED_PDF_RULESET
+# test_content_yara_7z_lipsum                               ZIP_7Z_FILE                     LIPSUMPDF_YARA_RULESET
+# test_content_yara_7z_guanggao                             ZIP_7Z_FILE                     GUANGGAO_YARA_RULESET
+# test_content_yara_7z_crypto                               ZIP_7Z_FILE                     CRYPTO_YARA_RULESET
+# test_content_yara_7z_multiple_embed_pdf                   ZIP_7Z_FILE                     MULTIPLE_EMBED_PDF_RULESET
+# test_content_yara_so_guanggao                             SO_FILE                         GUANGGAO_YARA_RULESET
+# test_content_yara_so_msoffice                             SO_FILE                         MSOFFICE_YARA_RULESET
+# test_content_yara_so_crypto                               SO_FILE                         CRYPTO_YARA_RULESET
+# test_content_yara_putty_guanggao                          PUTTY_EXE                       GUANGGAO_YARA_RULESET
+# test_content_yara_putty_msofficex                         PUTTY_EXE                       MSOFFICEX_YARA_RULESET
+# test_content_yara_putty_crypto                            PUTTY_EXE                       CRYPTO_YARA_RULESET
+# test_content_yara_putty_multiple_embed_pdf                PUTTY_EXE                       MULTIPLE_EMBED_PDF_RULESET
+# test_content_yara_putty_zip_guanggao                      PUTTY_EXE_ZIP                   GUANGGAO_YARA_RULESET
+# test_content_yara_putty_zip_msofficex                     PUTTY_EXE_ZIP                   MSOFFICEX_YARA_RULESET
+# test_content_yara_putty_zip_crypto                        PUTTY_EXE_ZIP                   CRYPTO_YARA_RULESET
+# test_content_yara_putty_zip_multiple_embed_pdf            PUTTY_EXE_ZIP                   MULTIPLE_EMBED_PDF_RULESET
 #****************************************************************************/
 import os
 import json
@@ -89,14 +108,17 @@ SCAN_RESULTS = "scan_results"
 SCAN_TYPE = "scan_type"
 CHILD_FILE_NAME = "child_file_name"
 YARA_RULE_ID = "yara_rule_id"
+SEARCH_RANDOM_TEXT = "search_random_text"
 RAW_DATA = "Raw data"
 EXTRACTED_TEXT = "Extracted text"
 IMAGE_FILE = "image file"
 WINDOWS_PORTABLE_EXE = "Windows Portable Executable"
+WINDOWS_HELP_FILE = "Windows Help File"
 MSOFFICE_DOCUMENT = "Microsoft Office document"
 OFFICE_OPEN_XML = "Office Open XML"
 BZIP2_ARCHIVE_FILE = "BZIP2 Archive file"
 ASCII_TEXT_FILE = "ASCII Text File"
+ELF_EXE = "ELF Executable"
 
 # Rulesets
 LIPSUMPDF_YARA_RULESET = "%slorem_pdf.yara" % YARA_RULES_ROOT
@@ -148,7 +170,10 @@ MZ_EXE = "VirusShare_007f9182c475c9a049020b7307ec6d35"
 PACKER_EXE = "VirusShare_0059ec457f9f173260d2dcad8f1fbdf7"
 PACKER_EXE2 = "winlogon.exe"
 PACKER_EXE3 = "spoolsy.exe"
-
+ARCHIVE_RAR = "archive_test_rar.rar"
+SO_FILE = "libnode.so"
+PUTTY_EXE = "putty.exe"
+PUTTY_EXE_ZIP = "putty.zip"
 
 # Patterns
 ZAP_PDF_PATTERN = "0x1880:$fg"
@@ -264,13 +289,14 @@ class Test_Yextend_files():
             json_resp = json.loads(out)
             for jresp in json_resp:
                 if SCAN_RESULTS in jresp:
-                    lorem_rule_found = False
-                    lorem_offset_found = False
+                    lorem1_found = False
+                    lorem2_found = False
                     for jj in jresp[SCAN_RESULTS]:
                         if EXTRACTED_TEXT in jj[SCAN_TYPE]:
-                            lorem_rule_found = LOREM_BODY_PATTERN == jj[YARA_RULE_ID]
-                            lorem_offset_found = ''.join(jj[DETECTED_OFFSETS]).count(LIPSUM_LOREM_YARA_RULE_VAR) > 1
-                            assert(lorem_rule_found and lorem_offset_found)
+                            lorem1_found = jj[YARA_MATCHES_FOUND] == True
+                        elif RAW_DATA in jj[SCAN_TYPE]:
+                            lorem2_found = jj[YARA_MATCHES_FOUND] == True
+                    assert(lorem1_found and lorem2_found)
 
 
     def test_lipsum_pdf_zip(self):
@@ -286,13 +312,14 @@ class Test_Yextend_files():
             json_resp = json.loads(out)
             for jresp in json_resp:
                 if SCAN_RESULTS in jresp:
-                    lorem_rule_found = False
-                    lorem_offset_found = False
+                    lorem1_found = False
+                    lorem2_found = False
                     for jj in jresp[SCAN_RESULTS]:
                         if EXTRACTED_TEXT in jj[SCAN_TYPE]:
-                            lorem_rule_found = LOREM_BODY_PATTERN == jj[YARA_RULE_ID]
-                            lorem_offset_found = ''.join(jj[DETECTED_OFFSETS]).count(LIPSUM_LOREM_YARA_RULE_VAR) > 1
-                            assert(lorem_rule_found and lorem_offset_found)
+                            lorem1_found = jj[YARA_MATCHES_FOUND] == True
+                        elif RAW_DATA in jj[SCAN_TYPE]:
+                            lorem2_found = jj[YARA_MATCHES_FOUND] == True
+                    assert(lorem1_found and lorem2_found)
 
 
     def test_content_yara_zap_pdf(self):
@@ -480,8 +507,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_msofficex_doc_tar(self):
@@ -505,8 +532,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_msofficex_doc_tar_zip(self):
@@ -530,8 +557,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_msofficex_doc_zip(self):
@@ -555,8 +582,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_msofficex_doc_bz2(self):
@@ -580,8 +607,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_msofficex_doc_gz(self):
@@ -605,8 +632,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_msofficex_doc_gz_zip(self):
@@ -630,8 +657,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_msofficex_doc_gz_zip_tar_gz(self):
@@ -655,8 +682,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_msofficex_doc_gz_zip_tar_gz_bz2(self):
@@ -680,8 +707,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     '''
@@ -712,9 +739,9 @@ class Test_Yextend_files():
                                 exe_pattern_count += 1
                             elif MSOFFICE_DOCUMENT in jj[SCAN_TYPE] and ADOBE_PDF_PATTERN in jj[YARA_RULE_ID]:
                                 adobe_pdf_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(adobe_pdf_pattern_found)
-            assert(exe_pattern_count == 2)
+                    assert(lorem_body_pattern_found)
+                    assert(adobe_pdf_pattern_found)
+                    assert(exe_pattern_count == 2)
 
 
     def test_content_yara_crypto_doc_exe(self):
@@ -741,9 +768,9 @@ class Test_Yextend_files():
                                 crypto_md5_pattern_found = True
                             elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
                                 crypto_ripe_pattern_found = True
-            assert(crypto_pattern_found)
-            assert(crypto_md5_pattern_found)
-            assert(crypto_ripe_pattern_found)
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
 
 
     def test_content_yara_crypto_docm(self):
@@ -770,9 +797,9 @@ class Test_Yextend_files():
                                 crypto_md5_pattern_found = True
                             elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
                                 crypto_ripe_pattern_found = True
-            assert(crypto_pattern_found)
-            assert(crypto_md5_pattern_found)
-            assert(crypto_ripe_pattern_found)
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
 
 
     def test_content_yara_crypto_7z(self):
@@ -799,9 +826,9 @@ class Test_Yextend_files():
                                 crypto_md5_pattern_found = True
                             elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
                                 crypto_ripe_pattern_found = True
-            assert(crypto_pattern_found)
-            assert(crypto_md5_pattern_found)
-            assert(crypto_ripe_pattern_found)
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
 
 
     def test_content_yara_crypto_zip(self):
@@ -828,9 +855,9 @@ class Test_Yextend_files():
                                 crypto_md5_pattern_found = True
                             elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
                                 crypto_ripe_pattern_found = True
-            assert(crypto_pattern_found)
-            assert(crypto_md5_pattern_found)
-            assert(crypto_ripe_pattern_found)
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
 
 
     def test_content_yara_crypto_doc_bz2(self):
@@ -857,9 +884,9 @@ class Test_Yextend_files():
                                 crypto_md5_pattern_found = True
                             elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
                                 crypto_ripe_pattern_found = True
-            assert(crypto_pattern_found)
-            assert(crypto_md5_pattern_found)
-            assert(crypto_ripe_pattern_found)
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
 
 
     def test_content_yara_packer_exe(self):
@@ -883,8 +910,8 @@ class Test_Yextend_files():
                                 packer_pattern1_found = True
                             elif PACKER_PATTERN_2 in jj[DETECTED_OFFSETS]:
                                 packer_pattern2_found = True
-            assert(packer_pattern1_found)
-            assert(packer_pattern2_found)
+                    assert(packer_pattern1_found)
+                    assert(packer_pattern2_found)
 
 
     def test_content_yara_packer_exe2(self):
@@ -944,8 +971,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
 
@@ -988,8 +1015,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
 
     def test_content_yara_jpg_tar_dll(self):
@@ -1013,8 +1040,8 @@ class Test_Yextend_files():
                                 lorem_body_pattern_found = True
                             elif EXE_PATTERN == jj[YARA_RULE_ID]:
                                 exe_pattern_found = True
-            assert(lorem_body_pattern_found)
-            assert(exe_pattern_found)
+                    assert(lorem_body_pattern_found)
+                    assert(exe_pattern_found)
 
     def test_yara_random_txt(self):
         f_obj = TARG_DIR + TXT_FILE
@@ -1069,4 +1096,406 @@ class Test_Yextend_files():
                         if WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE] and CHILD_FILE_NAME in jj:
                             if jj[CHILD_FILE_NAME] == "bj.exe":
                                 assert(jj[YARA_MATCHES_FOUND] == True)
+
+
+    def test_yara_archive_rar_lipsum(self):
+        f_obj = TARG_DIR + ARCHIVE_RAR
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(LIPSUMPDF_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    lorem1_found = False
+                    lorem2_found = False
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and MSOFFICE_DOCUMENT in jj[SCAN_TYPE]:
+                            lorem1_found = True
+                        elif jj[YARA_MATCHES_FOUND] and OFFICE_OPEN_XML in jj[SCAN_TYPE]:
+                            lorem2_found = True
+                    assert(lorem1_found and lorem2_found)
+
+
+    def test_yara_archive_rar_msofficex(self):
+        f_obj = TARG_DIR + ARCHIVE_RAR
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(MSOFFICEX_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    win_exe_found = False
+                    mz_exe_found = False
+                    lorem_body_pattern_found = 0
+                    exe_pattern_found = 0
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            if EXE_PATTERN in jj[YARA_RULE_ID]:
+                                win_exe_found = True
+                            elif MZ_PATTERN in jj[YARA_RULE_ID]:
+                                mz_exe_found = True
+                        elif jj[YARA_MATCHES_FOUND] and OFFICE_OPEN_XML in jj[SCAN_TYPE]:
+                            if LOREM_BODY_PATTERN == jj[YARA_RULE_ID]:
+                                lorem_body_pattern_found += 1
+                            elif EXE_PATTERN == jj[YARA_RULE_ID]:
+                                exe_pattern_found += 1
+                    assert(win_exe_found)
+                    assert(mz_exe_found)
+                    assert(lorem_body_pattern_found == 2)
+                    assert(exe_pattern_found == 3)
+
+
+    def test_yara_archive_rar_packer(self):
+        f_obj = TARG_DIR + ARCHIVE_RAR
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(PACKER_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    win_exe_found = False
+                    msdoc_found = 0
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and MSOFFICE_DOCUMENT in jj[SCAN_TYPE]:
+                            msdoc_found += 1
+                        elif jj[YARA_MATCHES_FOUND] and WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            win_exe_found = True
+                    assert(win_exe_found)
+                    assert(msdoc_found == 3)
+
+
+    def test_yara_archive_rar_multiple_embed_pdf(self):
+        f_obj = TARG_DIR + ARCHIVE_RAR
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, "-r", MULTIPLE_EMBED_PDF_RULESET, "-t", f_obj, "-j"],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    lorem_body_pattern_found = 0
+                    exe_pattern_found = 0
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and OFFICE_OPEN_XML in jj[SCAN_TYPE]:
+                            lorem_body_pattern_found += 1
+                        elif jj[YARA_MATCHES_FOUND] and WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            exe_pattern_found += 1
+                    assert(lorem_body_pattern_found == 2)
+                    assert(exe_pattern_found == 3)
+
+    def test_content_yara_7z_lipsum(self):
+        f_obj = TARG_DIR + ZIP_7Z_FILE
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, "-r", LIPSUMPDF_YARA_RULESET, "-t", f_obj, "-j"],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    lorem1_found = False
+                    lorem2_found = False
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and RAW_DATA in jj[SCAN_TYPE]:
+                            lorem1_found = True
+                        elif jj[YARA_MATCHES_FOUND] and EXTRACTED_TEXT in jj[SCAN_TYPE]:
+                            lorem2_found = True
+                    assert(lorem1_found)
+                    assert(lorem2_found)
+
+    def test_content_yara_7z_guanggao(self):
+        f_obj = TARG_DIR + ZIP_7Z_FILE
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(GUANGGAO_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if MSOFFICE_DOCUMENT in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+
+    def test_content_yara_7z_crypto(self):
+        f_obj = TARG_DIR + ZIP_7Z_FILE
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(CRYPTO_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    crypto_pattern_found = False
+                    crypto_md5_pattern_found = False
+                    crypto_ripe_pattern_found = False
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and MSOFFICE_DOCUMENT in jj[SCAN_TYPE]:
+                            if CRYPTO_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_pattern_found = True
+                            elif CRYPTO_MD5_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_md5_pattern_found = True
+                            elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_ripe_pattern_found = True
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
+
+    def test_content_yara_7z_multiple_embed_pdf(self):
+        f_obj = TARG_DIR + ZIP_7Z_FILE
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, "-r", MULTIPLE_EMBED_PDF_RULESET, "-t", f_obj, "-j"],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    lorem_pattern1_found = False
+                    lorem_pattern2_found = False
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and RAW_DATA in jj[SCAN_TYPE]:
+                            lorem_pattern1_found = True
+                        elif jj[YARA_MATCHES_FOUND] and EXTRACTED_TEXT in jj[SCAN_TYPE]:
+                            lorem_pattern2_found = True
+                    assert(lorem_pattern1_found == True)
+                    assert(lorem_pattern2_found == True)
+
+    def test_content_yara_so_msoffice(self):
+        f_obj = TARG_DIR + SO_FILE
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(MSOFFICE_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if ELF_EXE in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+
+    def test_content_yara_so_crypto(self):
+        f_obj = TARG_DIR + SO_FILE
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(CRYPTO_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    crypto_pattern_found = False
+                    crypto_md5_pattern_found = False
+                    crypto_ripe_pattern_found = False
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and ELF_EXE in jj[SCAN_TYPE]:
+                            if CRYPTO_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_pattern_found = True
+                            elif CRYPTO_MD5_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_md5_pattern_found = True
+                            elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_ripe_pattern_found = True
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
+
+    def test_content_yara_putty_guanggao(self):
+        f_obj = TARG_DIR + PUTTY_EXE
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(GUANGGAO_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+
+    def test_content_yara_putty_msofficex(self):
+        f_obj = TARG_DIR + PUTTY_EXE
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(MSOFFICEX_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+
+    def test_content_yara_putty_crypto(self):
+        f_obj = TARG_DIR + PUTTY_EXE
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(CRYPTO_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    crypto_pattern_found = False
+                    crypto_md5_pattern_found = False
+                    crypto_ripe_pattern_found = False
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            if CRYPTO_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_pattern_found = True
+                            elif CRYPTO_MD5_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_md5_pattern_found = True
+                            elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_ripe_pattern_found = True
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
+
+    def test_content_yara_putty_multiple_embed_pdf(self):
+        f_obj = TARG_DIR + PUTTY_EXE
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, "-r", MULTIPLE_EMBED_PDF_RULESET, "-t", f_obj, "-j"],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    pattern_found = 0
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            pattern_found += 1
+                    assert(pattern_found == 4)
+
+    def test_content_yara_putty_zip_guanggao(self):
+        f_obj = TARG_DIR + PUTTY_EXE_ZIP
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(GUANGGAO_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            assert(jj[YARA_RULE_ID] == SEARCH_RANDOM_TEXT)
+
+    def test_content_yara_putty_zip_msofficex(self):
+        f_obj = TARG_DIR + PUTTY_EXE_ZIP
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(MSOFFICEX_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    for jj in jresp[SCAN_RESULTS]:
+                        if WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            assert(jj[YARA_MATCHES_FOUND] == True)
+
+    def test_content_yara_putty_zip_crypto(self):
+        f_obj = TARG_DIR + PUTTY_EXE_ZIP
+        if os.path.isfile(f_obj):
+            lcmd = CMD_JSON_OUT.format(CRYPTO_YARA_RULESET, f_obj)
+            proc = Popen(lcmd.split(),
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    crypto_pattern_found = False
+                    crypto_md5_pattern_found = False
+                    crypto_ripe_pattern_found = False
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            if CRYPTO_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_pattern_found = True
+                            elif CRYPTO_MD5_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_md5_pattern_found = True
+                            elif CRYPTO_RIPE_PATTERN == jj[YARA_RULE_ID]:
+                                crypto_ripe_pattern_found = True
+                    assert(crypto_pattern_found)
+                    assert(crypto_md5_pattern_found)
+                    assert(crypto_ripe_pattern_found)
+
+    def test_content_yara_putty_zip_multiple_embed_pdf(self):
+        f_obj = TARG_DIR + PUTTY_EXE_ZIP
+        if os.path.isfile(f_obj):
+            proc = Popen([CMD, "-r", MULTIPLE_EMBED_PDF_RULESET, "-t", f_obj, "-j"],
+                         env={LD_LIBRARY_PATH:LIB_PATHS},
+                         stdout=PIPE,
+                         stderr=PIPE,
+                         )
+            out, err = proc.communicate()
+            json_resp = json.loads(out)
+            for jresp in json_resp:
+                if SCAN_RESULTS in jresp:
+                    pattern_found = 0
+                    detection_embedded = False
+                    for jj in jresp[SCAN_RESULTS]:
+                        if jj[YARA_MATCHES_FOUND] and WINDOWS_PORTABLE_EXE in jj[SCAN_TYPE]:
+                            pattern_found += 1
+                        elif jj[YARA_MATCHES_FOUND] and WINDOWS_HELP_FILE in jj[SCAN_TYPE]:
+                            detection_embedded = True
+                    assert(pattern_found == 24)
+                    assert(detection_embedded == True)
 
