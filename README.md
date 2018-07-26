@@ -23,6 +23,12 @@ Software Credits
 
 Notes:
 
+- (X/X/2018) yextend version 1.7
+
+	- replaced the system calls for pdf parsing with new native libs
+    - added support for extracting and analyzing (via Yara) embedded files inside a PDF
+    - added some docker support (look in the dockerize dir)
+
 - (12/08/2017) yextend version 1.6
 
 	- added support for bzip2
@@ -361,7 +367,7 @@ Instructions:
             		},
             		{
                 		"child_file_name": "word/embeddings/oleObject1.bin",
-                		"description": "suspicious marco action",
+                		"description": "suspicious macro action",
                 		"detected offsets": [
                     		"0x12231:$a02",
                     		"0x135c5:$a03",
@@ -418,7 +424,7 @@ Instructions:
                         	     "scan_type": "Yara Scan (Microsoft Office document (DOC PPT XLS)) embedded in an Office Open XML file",
                                      "yara_results": {
                                          "maldoc_suspicious_strings": {
-                                             "description": "suspicious marco action",
+                                             "description": "suspicious macro action",
                                              "hit_count": "8",
                                              "offsets": [
                                                 "0x12231:$a02",

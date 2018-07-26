@@ -266,6 +266,10 @@ std::string process_scan_hit_str(const std::string &hit_str,
 		//tokenize_string (yara_rule_hit_meta, tokens_2, ",");
 		tokenize_string (yara_rule_hit_meta, tokens_2, meta_delim);
 
+        if(tokens_2.size() == 0 && yara_rule_hit_meta.length() > 0){
+            tokens_2.push_back(yara_rule_hit_meta);
+        }
+
 		json j_meta;
 		for (auto& it2 : tokens_2) {
 
