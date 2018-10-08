@@ -517,7 +517,7 @@ void scan_office_open_xml_api(
 								int elf_type = get_content_type (final_buff, final_size);
 								ssp_local->file_type = elf_type;
 
-								increment_recur_counter();
+								// increment_recur_counter(); not limited to process 45 slides in *.pptx
 
 								////////////////////////////////////////////////////////////////////
 								/*
