@@ -1,8 +1,8 @@
 FROM fedora:latest
 LABEL vendor="Bayshore Networks" \
-	com.bayshorenetworks.version="1.3" \
+	com.bayshorenetworks.version="1.4" \
 	com.bayshorenetworks.version.is-production="yes" \
-	com.bayshorenetworks.release-date="2018-11-22"
+	com.bayshorenetworks.release-date="2019-03-01"
 ENV TERM vt102
 ENV HOME /yextend
 ENV PS1 '\u@\h:\w\$ '
@@ -23,14 +23,14 @@ RUN dnf -y install \
 		pcre-devel \
 		libuuid-devel \
 		python-nose
-RUN wget -O /tmp/v3.8.1.tar.gz https://github.com/VirusTotal/yara/archive/v3.8.1.tar.gz && \
+RUN wget -O /tmp/v3.9.0.tar.gz https://github.com/VirusTotal/yara/archive/v3.9.0.tar.gz && \
 	cd /tmp && \
-	tar xfz v3.8.1.tar.gz && \
-	cd yara-3.8.1 && \
+	tar xfz v3.9.0.tar.gz && \
+	cd yara-3.9.0 && \
 	./bootstrap.sh && \
 	./configure --prefix=/usr && \
 	make && make install && \
-	rm -rf v3.8.1*
+	rm -rf v3.9.0*
 ENV YEXTEND_HOME /yextend/
 RUN groupadd -g $gid $user && \
 	useradd -u $uid -g $gid $user
