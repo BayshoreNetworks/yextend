@@ -12,7 +12,6 @@ RUN apt-get update && \
     apt-get install -y \
 		wget \
 		pkg-config \
-		autoconf \
 		make \
 		zlib1g-dev \
 		g++ \
