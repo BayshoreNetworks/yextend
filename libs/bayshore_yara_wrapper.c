@@ -34,6 +34,14 @@
 
 #include "bayshore_yara_wrapper.h"
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 //defines
 #define MAX_ARGS_TAG            32
 #define MAX_ARGS_IDENTIFIER     32
