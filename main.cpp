@@ -486,7 +486,7 @@ int main(int argc, char* argv[]) {
 	// get yara runtime version
 	auto yara_major_minor_version {get_yara_version()};
 	// version checks
-	if (YEXTEND_VERSION >= 1.2 && yara_major_minor_version.first <= 3 && yara_major_minor_version.second < 4) {
+	if (YEXTEND_VERSION >= 1.2 && yara_major_minor_version.first <= 3 && yara_major_minor_version.second < 6) {
 		std::cout << std::endl << "Version issue: yextend version " << YEXTEND_VERSION << "+ will not run with yara versions below 3.4" << std::endl << std::endl;
 		std::cout << "Your env has yextend version ";
 		printf("%.1f\n", YEXTEND_VERSION);
