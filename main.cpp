@@ -481,7 +481,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "Your env has yextend version ";
 		printf("%.1f\n", YEXTEND_VERSION);
 		std::cout << "Your env has yara version ";
-		printf("%.1f", yara_version);
+		printf("%.2f", yara_version);
 		std::cout << std::endl << std::endl;
 		exit(0);
 	}
