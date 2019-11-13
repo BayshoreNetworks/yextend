@@ -26,8 +26,11 @@ Notes:
 - (X/X/2018) yextend version 1.7
 
 	- replaced the system calls for pdf parsing with new native libs
-    - added support for extracting and analyzing (via Yara) embedded files inside a PDF
-    - added some docker support (look in the dockerize dir)
+	- added support for extracting and analyzing (via Yara) embedded files inside a PDF
+	- added some docker support (look in the dockerize dir)
+	- yextend version 1.7 will work with yara version >= 3.6
+	
+
 
 - (12/08/2017) yextend version 1.6
 
