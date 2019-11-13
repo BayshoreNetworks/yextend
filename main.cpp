@@ -34,6 +34,7 @@
 #include <sstream>
 #include <vector>
 #include <regex>
+#include <utility>
 
 #include <stdio.h>
 #include <string.h>
@@ -183,7 +184,7 @@ bool does_this_file_exist(const char *fn) {
 	return ( fn && *fn && (stat (fn, &st) == 0) && (S_ISREG(st.st_mode)) );
 }
 
-double get_yara_version() {
+std::pair<int, int> get_yara_version() {
 
 	/*
 	 * older versions of yara seem to output version like this:
@@ -196,7 +197,7 @@ double get_yara_version() {
 	 *
 	 */
 	FILE *fp;
-	double yara_version = 0.0;
+	std::pair<int, int> yara_major_minor_version {std::make_pair<int, int>(0, 0)};;
 	char yver[10];
 	std::string y = "yara";
 	std::string yver_str;
@@ -207,13 +208,22 @@ double get_yara_version() {
 		if (fgets (yver, sizeof(yver)-1, fp) != NULL) {
 
 			yver_str = yver;
+
+			auto n {std::count(yver_str.begin(), yver_str.end(), '.')};
+			if(n > 0){
+				auto major {yver_str.find_first_of(".")};
+				yara_major_minor_version.first = std::stoi(std::string(yver_str.begin(), yver_str.begin() + major));
+				auto minor {std::string(yver_str.begin()+major+1, yver_str.end()).find_first_of(".")};
+				yara_major_minor_version.second = std::stoi(std::string(yver_str.begin()+major+1, yver_str.begin()+major+1+minor));
+			}
+
 			std::size_t found = yver_str.find(y);
 			if (found != std::string::npos) {
 				yver_str = yver_str.substr(found + 5);
 			}
 
 			//yara_version = strtod(yver, NULL);
-			yara_version = strtod(yver_str.c_str(), NULL);
+			//yara_version = strtod(yver_str.c_str(), NULL);
 
 		}
 
@@ -221,7 +231,7 @@ double get_yara_version() {
 
 	}
 
-	return yara_version;
+	return yara_major_minor_version;
 }
 
 void tokenize_string (
@@ -474,14 +484,14 @@ int main(int argc, char* argv[]) {
 	}
 
 	// get yara runtime version
-	double yara_version = get_yara_version();
+	auto yara_major_minor_version {get_yara_version()};
 	// version checks
-	if (YEXTEND_VERSION >= 1.2 && yara_version < 3.4) {
+	if (YEXTEND_VERSION >= 1.2 && yara_major_minor_version.first <= 3 && yara_major_minor_version.second < 4) {
 		std::cout << std::endl << "Version issue: yextend version " << YEXTEND_VERSION << "+ will not run with yara versions below 3.4" << std::endl << std::endl;
 		std::cout << "Your env has yextend version ";
 		printf("%.1f\n", YEXTEND_VERSION);
 		std::cout << "Your env has yara version ";
-		printf("%.2f", yara_version);
+		printf("%d.%d", yara_major_minor_version.first, yara_major_minor_version.second);
 		std::cout << std::endl << std::endl;
 		exit(0);
 	}
