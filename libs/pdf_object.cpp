@@ -424,6 +424,9 @@ bool PdfObject::ExtractStream(std::string filter){
 	else if (static_cast<ssize_t>(filter.find("/ASCIIHexDecode")) != -1) { 
 		ASCIIHexDecode();
 		return true;
+	}else if(filter.compare("/ASCII85Decode") == 0){
+		ASCII85Decode();
+		return true;
 	}
 	else {
 		#ifdef DEBUG
@@ -497,13 +500,68 @@ void PdfObject::ASCIIHexDecode(){
 	auto decoded_stream_size = outsize;
 	decoded_stream_vector.assign(decoded_stream, decoded_stream + outsize);	
 
-#ifdef DEBUG
-	std::cout << "Obj: " << id <<" ASCIIHexDecode Ok. DECODED content:\n" << decoded_stream << std::endl;
-#endif
+	#ifdef DEBUG
+		std::cout << "Obj: " << id <<" ASCIIHexDecode Ok. DECODED content:\n" << decoded_stream << std::endl;
+	#endif
 
 	delete[] decoded_stream;
 }
 
+void PdfObject::ASCII85Decode(){
+
+	/*
+	 * PDF 32000-1:2008 -> 7.4.3 ASCII85Decode Filter
+	 * (b1*256^3)+(b2*256^2)+(b3*256)+b4 = (c1*85^4)+(c2*85^3)+(c3*85^2)+(c4*85)+c5
+	 */
+
+	#ifdef DEBUG
+		std::cout << "\n### DEBUG PdfObject::ASCII85Decode ###\n" << std::endl; // Debug
+	#endif
+
+	const uint8_t minimum_value {33}; // Values can be '!' (minimum) through 'u'
+	uint8_t b1, b2, b3, b4;
+	long long int _85_pow_2 {85 *85};
+	long long int _85_pow_3 {85 * _85_pow_2};
+	long long int _85_pow_4 {85 * _85_pow_3};
+	long long int _256_pow_2 {256 * 256};
+	long long int _256_pow_3 {256 *_256_pow_2};
+
+	// "~>" are the two last characters of this stream
+	// Padded with u (117) if size % 5 != 0
+	size_t size_without_termination = stream_size - 2;
+	size_t padding = 5 - (size_without_termination % 5);
+	size_t size_with_padding = size_without_termination + (5 - size_without_termination % 5);
+
+	for(int i=0; i<size_with_padding; i+=5){
+		long long int sum = (_85_pow_4*(stream_start[i]-minimum_value)) + (_85_pow_3*(stream_start[i+1]-minimum_value)) +
+				(_85_pow_2*(stream_start[i+2]-minimum_value)) + (85*(stream_start[i+3]-minimum_value)) + (stream_start[i+4]-minimum_value);
+		b1 = sum/_256_pow_3;
+		sum %= _256_pow_3;
+		b2 = sum/_256_pow_2;
+		sum %= _256_pow_2;
+		b3 = sum/256;
+		b4 = sum % 256;
+
+		if(i+1+padding < size_with_padding){
+			decoded_stream_vector.push_back(b1);
+		}
+		if(i+2+padding < size_with_padding){
+			decoded_stream_vector.push_back(b2);
+		}
+
+		if(i+3+padding < size_with_padding){
+			decoded_stream_vector.push_back(b3);
+		}
+
+		if(i+4+padding < size_with_padding){
+			decoded_stream_vector.push_back(b4);
+		}
+
+	}
+	#ifdef DEBUG
+		std::cout << "Obj: " << id <<" ASCII85Decode Ok. DECODED content:\n" << decoded_stream << std::endl;
+	#endif
+}
 
 std::vector<uint8_t> PdfObject::GetDecodedStream(){
 	return decoded_stream_vector;

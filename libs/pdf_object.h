@@ -186,6 +186,7 @@ class PdfObject {
 	std::string ParseTextLiteral(std::string& text);
 	void FlateLZWDecode();
 	void ASCIIHexDecode();
+	void ASCII85Decode();
 	DictionaryBoundaries GetDictionaryBoundaries (const uint8_t* begin, const uint8_t* end);
 
 public:
