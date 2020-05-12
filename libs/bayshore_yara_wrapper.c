@@ -129,6 +129,7 @@ void print_compiler_error(
 		int error_level,
 		const char* file_name,
 		int line_number,
+		const YR_RULE* rule,
 		const char* message,
 		void* user_data
 		)
@@ -143,7 +144,7 @@ void print_compiler_error(
 	}
 }
 
-int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
+int bayshore_yara_handle_message(YR_SCAN_CONTEXT* context, int message, YR_RULE* rule, void* data)
 {
 	int is_matching;
 	int count = 0;
@@ -208,7 +209,7 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 			yr_rule_strings_foreach(rule, string)
 			{
 				YR_MATCH* match;
-				yr_string_matches_foreach(string, match)
+				yr_string_matches_foreach(context, string, match)
 				{
 					/*
 					 * the following lines display the actual offset (in hex), and
@@ -274,6 +275,7 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 }
 
 int bayshore_yara_callback(
+		YR_SCAN_CONTEXT* context,
 		int message,
 		void* message_data,
 		void* user_data
@@ -293,7 +295,7 @@ int bayshore_yara_callback(
 		 * the number of parameters passed in, just ignoring
 		 * 'data'
 		 */
-		return bayshore_yara_handle_message(message, (YR_RULE *)message_data, user_data);
+		return bayshore_yara_handle_message(context, message, (YR_RULE *)message_data, user_data);
 
 	case CALLBACK_MSG_IMPORT_MODULE:
 
@@ -304,7 +306,7 @@ int bayshore_yara_callback(
 		{
 			if (strcmp(module_data->module_name, mi->module_name) == 0)
 			{
-				mi->module_data = module_data->mapped_file.data;
+				mi->module_data = (void *)module_data->mapped_file.data;
 				mi->module_data_size = module_data->mapped_file.size;
 				break;
 			}
