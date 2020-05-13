@@ -32,9 +32,9 @@ before_install:
 - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
   CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 install:
-- wget https://github.com/VirusTotal/yara/archive/v3.7.0.tar.gz
-- tar -xzvf v3.7.0.tar.gz
-- cd yara-3.7.0
+- wget https://github.com/VirusTotal/yara/archive/v4.0.0.tar.gz
+- tar -xzvf v4.0.0.tar.gz
+- cd yara-4.0.0
 - "./bootstrap.sh"
 - "./configure"
 - make
