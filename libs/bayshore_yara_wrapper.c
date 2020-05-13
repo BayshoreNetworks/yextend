@@ -129,7 +129,9 @@ void print_compiler_error(
 		int error_level,
 		const char* file_name,
 		int line_number,
+		#if YR_MAJOR_VERSION == 4 && YR_MINOR_VERSION == 0
 		const YR_RULE* rule,
+		#endif
 		const char* message,
 		void* user_data
 		)
@@ -144,7 +146,12 @@ void print_compiler_error(
 	}
 }
 
-int bayshore_yara_handle_message(YR_SCAN_CONTEXT* context, int message, YR_RULE* rule, void* data)
+int bayshore_yara_handle_message(
+			#if YR_MAJOR_VERSION == 4 && YR_MINOR_VERSION == 0
+			YR_SCAN_CONTEXT* context, 
+			#endif
+			int message, 
+			YR_RULE* rule, void* data)
 {
 	int is_matching;
 	int count = 0;
@@ -209,7 +216,12 @@ int bayshore_yara_handle_message(YR_SCAN_CONTEXT* context, int message, YR_RULE*
 			yr_rule_strings_foreach(rule, string)
 			{
 				YR_MATCH* match;
-				yr_string_matches_foreach(context, string, match)
+				yr_string_matches_foreach(
+							#if YR_MAJOR_VERSION == 4 && YR_MINOR_VERSION == 0
+							context, 
+							#endif						
+							string, 
+							match)
 				{
 					/*
 					 * the following lines display the actual offset (in hex), and
@@ -275,7 +287,9 @@ int bayshore_yara_handle_message(YR_SCAN_CONTEXT* context, int message, YR_RULE*
 }
 
 int bayshore_yara_callback(
+		#if YR_MAJOR_VERSION == 4 && YR_MINOR_VERSION == 0
 		YR_SCAN_CONTEXT* context,
+		#endif
 		int message,
 		void* message_data,
 		void* user_data
@@ -295,7 +309,13 @@ int bayshore_yara_callback(
 		 * the number of parameters passed in, just ignoring
 		 * 'data'
 		 */
-		return bayshore_yara_handle_message(context, message, (YR_RULE *)message_data, user_data);
+		return bayshore_yara_handle_message(
+						#if YR_MAJOR_VERSION == 4 && YR_MINOR_VERSION == 0
+						context, 
+						#endif
+						message, 
+						(YR_RULE *)message_data, 
+						user_data);
 
 	case CALLBACK_MSG_IMPORT_MODULE:
 
