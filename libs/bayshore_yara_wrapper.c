@@ -31,6 +31,8 @@
 #include <string.h>
 #include <syslog.h>
 #include <sys/stat.h>
+#include <yara/exec.h>
+#include <yara/modules.h>
 
 #include "bayshore_yara_wrapper.h"
 
@@ -70,11 +72,11 @@ char* identifiers[MAX_ARGS_IDENTIFIER + 1];
 char* ext_vars[MAX_ARGS_EXT_VAR + 1];
 char* modules_data[MAX_ARGS_EXT_VAR + 1];
 
-static int show_strings = TRUE;
-static int show_meta = TRUE;
-static int show_module_data = FALSE;
-static int show_errors = FALSE;
-static int show_warnings = FALSE;
+static int show_strings = OP_JTRUE;
+static int show_meta = OP_JTRUE;
+static int show_module_data = OP_JFALSE;
+static int show_errors = OP_JFALSE;
+static int show_warnings = OP_JFALSE;
 
 MODULE_DATA* modules_data_list = NULL;
 
@@ -143,6 +145,8 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 
 	is_matching = (message == CALLBACK_MSG_RULE_MATCHING);
 
+	YR_SCAN_CONTEXT *context;
+
 	/*
 	 * if there is a match with a yara rule then concat the
 	 * relevant meta-data to the variable yara_results
@@ -200,7 +204,7 @@ int bayshore_yara_handle_message(int message, YR_RULE* rule, void* data)
 			yr_rule_strings_foreach(rule, string)
 			{
 				YR_MATCH* match;
-				yr_string_matches_foreach(string, match)
+				yr_string_matches_foreach(context, string, match)
 				{
 					/*
 					 * the following lines display the actual offset (in hex), and
@@ -273,6 +277,7 @@ int bayshore_yara_callback(
 {
 	YR_MODULE_IMPORT* mi;
 	YR_OBJECT* object;
+	YR_SCAN_CONTEXT* context;
 	MODULE_DATA* module_data;
 
 	switch(message)
@@ -336,35 +341,35 @@ int is_integer(const char *str)
 	while(*str)
 	{
 		if (!isdigit(*str))
-			return FALSE;
+			return OP_JFALSE;
 		str++;
 	}
-	return TRUE;
+	return OP_JTRUE;
 }
 
 
 int is_float(const char *str)
 {
-	int has_dot = FALSE;
+	int has_dot = OP_JFALSE;
 
 	if (*str == '-')      // skip the minus sign if present
 		str++;
 
 	if (*str == '.')      // float can't start with a dot
-		return FALSE;
+		return OP_JFALSE;
 
 	while(*str)
 	{
 		if (*str == '.')
 		{
 			if (has_dot)      // two dots, not a float
-				return FALSE;
+				return OP_JFALSE;
 
-			has_dot = TRUE;
+			has_dot = OP_JTRUE;
 		}
 		else if (!isdigit(*str))
 		{
-			return FALSE;
+			return OP_JFALSE;
 		}
 		str++;
 	}
@@ -384,7 +389,7 @@ int define_external_variables(
 		if (!equal_sign)
 		{
 			fprintf(stderr, "error: wrong syntax for `-d` option.\n");
-			return FALSE;
+			return OP_JFALSE;
 		}
 
 		// Replace the equal sign with null character to split the external
@@ -455,7 +460,7 @@ int define_external_variables(
 		}
 	}
 
-	return TRUE;
+	return OP_JTRUE;
 }
 
 
@@ -469,7 +474,7 @@ int load_modules_data()
 		if (!equal_sign)
 		{
 			fprintf(stderr, "error: wrong syntax for `-x` option.\n");
-			return FALSE;
+			return OP_JFALSE;
 		}
 
 		*equal_sign = '\0';
@@ -486,7 +491,7 @@ int load_modules_data()
 			{
 				free(module_data);
 				fprintf(stderr, "error: could not open file \"%s\".\n", equal_sign + 1);
-				return FALSE;
+				return OP_JFALSE;
 			}
 
 			module_data->next = modules_data_list;
@@ -494,7 +499,7 @@ int load_modules_data()
 		}
 	}
 
-	return TRUE;
+	return OP_JTRUE;
 }
 
 
